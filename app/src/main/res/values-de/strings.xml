@@ -3,4 +3,7 @@
     <string name="app_name">Rezeptbuch</string>
     <string name="action_search">Suchen</string>
     <string name="action_settings">Einstellungen</string>
+    <string name="nav_home">Alle Rezepte</string>
+    <string name="nav_favorites">Favoriten</string>
+    <string name="nav_history">Historie</string>
 </resources>
