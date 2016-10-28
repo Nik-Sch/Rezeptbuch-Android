@@ -1,4 +1,4 @@
-package net.ddns.raspi_server.rezeptbuch.ui.recipelist.recipe;
+package net.ddns.raspi_server.rezeptbuch.ui.recipelist;
 
 import java.util.Date;
 

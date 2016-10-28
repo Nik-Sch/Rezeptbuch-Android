@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_favorite_black_24dp"
             android:title="@string/nav_favorites"/>
         <item
+            android:id="@+id/nav_category"
+            android:icon="@drawable/ic_inbox_black_24dp"
+            android:title="@string/nav_category"/>
+        <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_history_black_24dp"
             android:title="@string/nav_history"/>

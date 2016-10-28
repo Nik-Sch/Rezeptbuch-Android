@@ -6,4 +6,5 @@
     <string name="nav_home">Alle Rezepte</string>
     <string name="nav_favorites">Favoriten</string>
     <string name="nav_history">Historie</string>
+    <string name="nav_category">Kategorien</string>
 </resources>

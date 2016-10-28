@@ -6,13 +6,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.ddns.raspi_server.rezeptbuch.R;
-import net.ddns.raspi_server.rezeptbuch.ui.recipelist.recipe.RecipeItem;
-import net.ddns.raspi_server.rezeptbuch.ui.recipelist.recipe.RecipeItem.RecipeItem;
 
 /**
  * A fragment representing a list of Items.
@@ -22,9 +21,6 @@ import net.ddns.raspi_server.rezeptbuch.ui.recipelist.recipe.RecipeItem.RecipeIt
  */
 public class RecipeListFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 2;
     private OnListFragmentInteractionListener mListener;
 
@@ -35,12 +31,9 @@ public class RecipeListFragment extends Fragment {
     public RecipeListFragment() {
     }
 
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
     public static RecipeListFragment newInstance(int columnCount) {
         RecipeListFragment fragment = new RecipeListFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,7 +43,8 @@ public class RecipeListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            float i = metrics.density;
         }
     }
 
@@ -68,7 +62,7 @@ public class RecipeListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyRecipeRecyclerViewAdapter(RecipeItem.ITEMS, mListener));
+            recyclerView.setAdapter(new RecipeRecyclerViewAdapter(, mListener));
         }
         return view;
     }

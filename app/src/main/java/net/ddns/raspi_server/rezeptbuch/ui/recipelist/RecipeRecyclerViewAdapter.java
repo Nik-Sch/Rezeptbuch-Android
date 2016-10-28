@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
+import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnListFragmentInteractionListener;
-import net.ddns.raspi_server.rezeptbuch.ui.recipelist.recipe.RecipeItem;
 
 import java.util.List;
 
@@ -17,12 +17,12 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link RecipeItem} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  */
-public class MyRecipeRecyclerViewAdapter extends RecyclerView.Adapter<MyRecipeRecyclerViewAdapter.ViewHolder> {
+public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecyclerViewAdapter.ViewHolder> {
 
     private final List<RecipeItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyRecipeRecyclerViewAdapter(List<RecipeItem> items, OnListFragmentInteractionListener listener) {
+    public RecipeRecyclerViewAdapter(List<RecipeItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -39,6 +39,7 @@ public class MyRecipeRecyclerViewAdapter extends RecyclerView.Adapter<MyRecipeRe
         holder.mItem = mValues.get(position);
         holder.mCategory.setText(holder.mItem.category);
         holder.mTitle.setText(holder.mItem.title);
+        ImageProcessing.loadRecipeImage(holder.mItem.imagePath, holder.mImage);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
