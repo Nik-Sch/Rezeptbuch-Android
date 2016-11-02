@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.ddns.raspi_server.rezeptbuch.R;
+import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 
 /**
  * A fragment representing a list of Items.
@@ -62,7 +63,7 @@ public class RecipeListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new RecipeRecyclerViewAdapter(, mListener));
+            recyclerView.setAdapter(new RecipeRecyclerViewAdapter(null, mListener, context));
         }
         return view;
     }
@@ -97,6 +98,6 @@ public class RecipeListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(RecipeItem item);
+        void onListFragmentInteraction(Recipe item);
     }
 }

@@ -51,7 +51,7 @@ public class ImageProcessing {
     // new image
     if ((!imageFile.exists()) || (imageFile.exists() && imageFile.lastModified() < recipe.date
             .getTime())) {
-      WebClient.downloadImage(recipe.imagePath, recipe.imagePath, new WebClient.DownloadCallback() {
+      new WebClient(context).downloadImage(recipe.imagePath, recipe.imagePath, new WebClient.DownloadCallback() {
         @Override
         public void finished(boolean success) {
           if (success)
