@@ -5,8 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Category;
+import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class RecipeDatabase {
           Recipe recipe = new Recipe(
                   c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes._ID)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_TITLE)),
-                  c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
+                  c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
@@ -100,7 +100,7 @@ public class RecipeDatabase {
           Recipe recipe = new Recipe(
                   c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes._ID)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_TITLE)),
-                  c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
+                  c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
@@ -152,7 +152,7 @@ public class RecipeDatabase {
         Recipe recipe = new Recipe(
                 c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes._ID)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_TITLE)),
-                c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
+                c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_CATEGORY)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
@@ -162,11 +162,11 @@ public class RecipeDatabase {
         return recipe;
       } else {
         c.close();
-        return null;
+        return new Recipe();
       }
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      return new Recipe();
     }
   }
 
@@ -238,7 +238,7 @@ public class RecipeDatabase {
               null
       );
       c.moveToFirst();
-      if (c.getCount() == 0) {
+      if (c.getCount() == 1) {
         Category category = new Category(
                 c.getInt(c.getColumnIndexOrThrow(RecipeContract.categories._ID)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.categories.COLUMN_NAME))
@@ -247,11 +247,11 @@ public class RecipeDatabase {
         return category;
       } else {
         c.close();
-        return null;
+        return new Category();
       }
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      return new Category();
     }
   }
 

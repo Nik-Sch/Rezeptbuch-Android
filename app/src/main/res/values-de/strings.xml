@@ -7,4 +7,6 @@
     <string name="nav_favorites">Favoriten</string>
     <string name="nav_history">Historie</string>
     <string name="nav_category">Kategorien</string>
+    <string name="navigation_drawer_close"></string>
+    <string name="fragment_recipe_image_description">Vorschau von dem Bild des Rezeptes</string>
 </resources>

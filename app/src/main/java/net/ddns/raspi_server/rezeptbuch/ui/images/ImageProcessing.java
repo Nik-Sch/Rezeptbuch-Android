@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.LruCache;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
@@ -49,8 +50,9 @@ public class ImageProcessing {
 
     // if there is a current file but it is deprecated or if there is no file, try to download the
     // new image
-    if ((!imageFile.exists()) || (imageFile.exists() && imageFile.lastModified() < recipe.date
-            .getTime())) {
+    if ((imageFile.isFile() && !imageFile.exists())
+            || (imageFile.isFile() && imageFile.exists()
+            && imageFile.lastModified() < recipe.date.getTime())) {
       new WebClient(context).downloadImage(recipe.imagePath, recipe.imagePath, new WebClient.DownloadCallback() {
         @Override
         public void finished(boolean success) {
@@ -63,10 +65,26 @@ public class ImageProcessing {
     }
     // if the file exists load it (no matter if it is being updated or not), otherwise, show the
     // resource
-    if (imageFile.exists()){
-      loadImage(imageFile, imageView);
+    // also make sure that the height and width can be measured when calling the functions
+    ViewTreeObserver vto = imageView.getViewTreeObserver();
+    if (imageFile.isFile() && imageFile.exists()) {
+      vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        @Override
+        public boolean onPreDraw() {
+          imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+          loadImage(imageFile, imageView);
+          return true;
+        }
+      });
     }else{
-      loadRecipeResourceImage(imageView);
+      vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        @Override
+        public boolean onPreDraw() {
+          imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+          loadRecipeResourceImage(imageView);
+          return true;
+        }
+      });
     }
   }
 
@@ -145,13 +163,90 @@ public class ImageProcessing {
   FROM RESOURCE
    */
 
+  private Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+                                                 int width, int height) {
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inJustDecodeBounds = true;
+    BitmapFactory.decodeResource(res, resId, options);
+
+    options.inSampleSize = calculateInSampleSize(options, width, height);
+
+    options.inJustDecodeBounds = false;
+    return BitmapFactory.decodeResource(res, resId, options);
+  }
+
+  private boolean cancelPotentialResourceWork(int data, ImageView imageView) {
+    final BitmapResourceWorkerTask task = getBitmapResourceWorkerTask(imageView);
+
+    if (task != null) {
+      final int bitmapData = task.data;
+      if (bitmapData == 0 || bitmapData != data) {
+        task.cancel(true);
+      } else {
+        return false;
+      }
+    }
+    // not task was cancelled
+    return true;
+  }
+
+  private BitmapResourceWorkerTask getBitmapResourceWorkerTask(ImageView imageView) {
+    if (imageView != null) {
+      final Drawable drawable = imageView.getDrawable();
+      if (drawable instanceof AsyncResourceDrawable) {
+        return ((AsyncResourceDrawable) drawable).getTask();
+      }
+    }
+    return null;
+  }
+
+  private Bitmap decodeSampledBitmapFromFile(String path, int width, int height) {
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inJustDecodeBounds = true;
+    BitmapFactory.decodeFile(path, options);
+
+    options.inSampleSize = calculateInSampleSize(options, width, height);
+
+    options.inJustDecodeBounds = false;
+    return BitmapFactory.decodeFile(path, options);
+  }
+
+  private boolean cancelPotentialFileWork(String data, ImageView imageView) {
+    final BitmapFileWorkerTask task = getBitmapFileWorkerTask(imageView);
+
+    if (task != null) {
+      final String bitmapData = task.data;
+      if (bitmapData == null || bitmapData.equals(data)) {
+        task.cancel(true);
+      } else {
+        return false;
+      }
+    }
+    // no task was cancelled
+    return true;
+  }
+
+  /*
+  FROM FILE
+   */
+
+  private BitmapFileWorkerTask getBitmapFileWorkerTask(ImageView imageView) {
+    if (imageView != null) {
+      final Drawable drawable = imageView.getDrawable();
+      if (drawable instanceof AsyncFileDrawable) {
+        return ((AsyncFileDrawable) drawable).getTask();
+      }
+    }
+    return null;
+  }
+
   private class BitmapResourceWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
     private final WeakReference<ImageView> imageViewWeakReference;
-    private int data = 0;
     private final Context context;
     private final int width;
     private final int height;
+    private int data = 0;
 
     private BitmapResourceWorkerTask(Context context, ImageView imageView, int width, int height) {
       imageViewWeakReference = new WeakReference<ImageView>(imageView);
@@ -186,19 +281,6 @@ public class ImageProcessing {
     }
   }
 
-
-  private Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                        int width, int height){
-    BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inJustDecodeBounds = true;
-    BitmapFactory.decodeResource(res, resId, options);
-
-    options.inSampleSize = calculateInSampleSize(options, width, height);
-
-    options.inJustDecodeBounds = false;
-    return BitmapFactory.decodeResource(res, resId, options);
-  }
-
   private class AsyncResourceDrawable extends BitmapDrawable {
     private final WeakReference<BitmapResourceWorkerTask> taskWeakReference;
 
@@ -212,41 +294,12 @@ public class ImageProcessing {
     }
   }
 
-  private boolean cancelPotentialResourceWork(int data, ImageView imageView) {
-    final BitmapResourceWorkerTask task = getBitmapResourceWorkerTask(imageView);
-
-    if (task != null) {
-      final int bitmapData = task.data;
-      if (bitmapData == 0 || bitmapData != data) {
-        task.cancel(true);
-      }else {
-        return false;
-      }
-    }
-    // not task was cancelled
-    return true;
-  }
-
-  private BitmapResourceWorkerTask getBitmapResourceWorkerTask(ImageView imageView) {
-    if (imageView != null) {
-      final Drawable drawable = imageView.getDrawable();
-      if (drawable instanceof AsyncResourceDrawable) {
-        return ((AsyncResourceDrawable) drawable).getTask();
-      }
-    }
-    return null;
-  }
-
-  /*
-  FROM FILE
-   */
-
   private class BitmapFileWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
     private final WeakReference<ImageView> imageViewWeakReference;
-    private String data = null;
     private final int width;
     private final int height;
+    private String data = null;
 
     private BitmapFileWorkerTask(ImageView imageView, int width, int height) {
       imageViewWeakReference = new WeakReference<ImageView>(imageView);
@@ -273,18 +326,6 @@ public class ImageProcessing {
     }
   }
 
-
-  private Bitmap decodeSampledBitmapFromFile(String path, int width, int height){
-    BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inJustDecodeBounds = true;
-    BitmapFactory.decodeFile(path, options);
-
-    options.inSampleSize = calculateInSampleSize(options, width, height);
-
-    options.inJustDecodeBounds = false;
-    return BitmapFactory.decodeFile(path, options);
-  }
-
   private class AsyncFileDrawable extends BitmapDrawable {
     private final WeakReference<BitmapFileWorkerTask> taskWeakReference;
 
@@ -296,30 +337,5 @@ public class ImageProcessing {
     public BitmapFileWorkerTask getTask() {
       return taskWeakReference.get();
     }
-  }
-
-  private boolean cancelPotentialFileWork(String data, ImageView imageView) {
-    final BitmapFileWorkerTask task = getBitmapFileWorkerTask(imageView);
-
-    if (task != null) {
-      final String bitmapData = task.data;
-      if (bitmapData == null || bitmapData.equals(data)) {
-        task.cancel(true);
-      } else {
-        return false;
-      }
-    }
-    // no task was cancelled
-    return true;
-  }
-
-  private BitmapFileWorkerTask getBitmapFileWorkerTask(ImageView imageView) {
-    if (imageView != null) {
-      final Drawable drawable = imageView.getDrawable();
-      if (drawable instanceof AsyncFileDrawable) {
-        return ((AsyncFileDrawable) drawable).getTask();
-      }
-    }
-    return null;
   }
 }

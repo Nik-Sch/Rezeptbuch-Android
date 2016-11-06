@@ -8,7 +8,7 @@ public final class DataStructures {
     public static class Recipe implements Serializable{
         public int id;
         public String title;
-        public String category;
+        public int category;
         public String ingredients;
         public String description;
         public String imagePath;
@@ -16,7 +16,7 @@ public final class DataStructures {
 
         public Recipe(){}
 
-        public Recipe(int id, String title, String category, String ingredients, String
+        public Recipe(int id, String title, int category, String ingredients, String
                 description, String imagePath, Date date){
             this.id = id;
             this.title = title;

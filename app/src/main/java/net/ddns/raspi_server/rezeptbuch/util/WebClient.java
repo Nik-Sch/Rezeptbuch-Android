@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -23,7 +22,6 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -63,12 +61,6 @@ public class WebClient {
       public void onResponse(JSONObject response) {
         Log.d(TAG, "received recipes");
         saveJsonToDB(response);
-        // save the sync date in shared preferences
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit()
-                .putString(PREFERENCE_SYNC_DATE,
-                        sdf.format(System.currentTimeMillis()))
-                .apply();
       }
     }, new Response.ErrorListener() {
       @Override
@@ -88,7 +80,6 @@ public class WebClient {
       }
     };
     queue.add(request);
-    Toast.makeText(context, "Queued Request.", Toast.LENGTH_SHORT).show();
   }
 
   private void saveJsonToDB(JSONObject object) {
@@ -114,7 +105,7 @@ public class WebClient {
         DataStructures.Recipe recipe = new DataStructures.Recipe(
                 recipeObject.optInt("rezept_ID"),
                 recipeObject.optString("titel"),
-                recipeObject.optString("ketegorie"),
+                recipeObject.optInt("kategorie"),
                 recipeObject.optString("zutaten"),
                 recipeObject.optString("beschreibung"),
                 recipeObject.optString("bild_Path"),
@@ -122,6 +113,13 @@ public class WebClient {
         );
         db.putRecipe(recipe);
       }
+
+      // store the sync time in preferences
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+      preferences.edit()
+              .putString(PREFERENCE_SYNC_DATE,
+                      object.optString("time"))
+              .apply();
     } catch (ParseException | JSONException e) {
       Log.e(TAG, e.getMessage());
     }
