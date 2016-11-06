@@ -2,15 +2,19 @@ package net.ddns.raspi_server.rezeptbuch.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -20,6 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,10 +44,12 @@ public class WebClient {
   private final SimpleDateFormat sdf = new
           SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
   private final Context context;
+  private final RequestQueue requestQueue;
 
   public WebClient(Context context) {
     this.context = context;
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    requestQueue = Volley.newRequestQueue(context);
   }
 
   /*
@@ -54,18 +63,17 @@ public class WebClient {
     String receive_time = preferences.getString(PREFERENCE_SYNC_DATE, sdf.format(new Date(0)))
             .replace(" ", "%20");
     String url = baseUrl + ":" + servicePort + "/recipes/" + receive_time;
-    RequestQueue queue = Volley.newRequestQueue(context);
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response
             .Listener<JSONObject>() {
       @Override
       public void onResponse(JSONObject response) {
-        Log.d(TAG, "received recipes");
+        Log.d(TAG, "received recipes.");
         saveJsonToDB(response);
       }
     }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
-        Log.e(TAG, "receiving failed");
+        Log.e(TAG, "receiving recipes failed.");
       }
     }) {
       @Override
@@ -79,7 +87,7 @@ public class WebClient {
         return headers;
       }
     };
-    queue.add(request);
+    requestQueue.add(request);
   }
 
   private void saveJsonToDB(JSONObject object) {
@@ -102,13 +110,17 @@ public class WebClient {
       }
       for (int i = 0; i < recipesArray.length(); i++) {
         JSONObject recipeObject = recipesArray.getJSONObject(i);
+        String imageName = recipeObject.optString("bild_Path");
+        if (!imageName.equals("")) {
+          imageName = imageName.substring(imageName.lastIndexOf('/') + 1);
+        }
         DataStructures.Recipe recipe = new DataStructures.Recipe(
                 recipeObject.optInt("rezept_ID"),
                 recipeObject.optString("titel"),
                 recipeObject.optInt("kategorie"),
                 recipeObject.optString("zutaten"),
                 recipeObject.optString("beschreibung"),
-                recipeObject.optString("bild_Path"),
+                imageName,
                 dateFormat.parse(recipeObject.optString("datum"))
         );
         db.putRecipe(recipe);
@@ -131,12 +143,44 @@ public class WebClient {
   ##################################################################################################
    */
 
-  public void downloadImage(String localPath, String url) {
-
+  public void downloadImage(String fileName) {
+    downloadImage(fileName, null);
   }
 
-  public void downloadImage(String localPath, String url, DownloadCallback callback) {
+  public void downloadImage(final String fileName, final DownloadCallback
+          callback) {
+    String url = baseUrl + "/Rezeptbuch/images/" + fileName;
 
+    ImageRequest request = new ImageRequest(url, new Response.Listener<Bitmap>() {
+
+      @Override
+      public void onResponse(final Bitmap response) {
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              File file = new File(context.getFilesDir(), fileName);
+              response.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+              if (callback != null)
+                callback.finished(true);
+            } catch (java.io.IOException e) {
+              if (callback != null)
+                callback.finished(false);
+            }
+          }
+        }).start();
+      }
+
+    }, 0, 0, ImageView.ScaleType.CENTER_INSIDE, null, new Response.ErrorListener() {
+
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        Log.d(TAG, "failed to retrieve image");
+        if (callback != null)
+          callback.finished(false);
+      }
+    });
+    requestQueue.add(request);
   }
 
   public interface DownloadCallback {

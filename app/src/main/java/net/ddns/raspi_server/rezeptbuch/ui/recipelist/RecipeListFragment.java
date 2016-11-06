@@ -13,6 +13,9 @@ import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -53,7 +56,10 @@ public class RecipeListFragment extends Fragment {
       RecyclerView recyclerView = (RecyclerView) view;
       recyclerView.setLayoutManager(new LinearLayoutManager(context));
       RecipeDatabase database = new RecipeDatabase(context);
-      recyclerView.setAdapter(new RecipeRecyclerViewAdapter(database.getRecipes(), mListener, context));
+//      ArrayList<Recipe> list = new ArrayList<Recipe>();
+//      list.add(database.getRecipeById(344));
+      List<Recipe> list = database.getRecipes();
+      recyclerView.setAdapter(new RecipeRecyclerViewAdapter(list, mListener, context));
     }
     return view;
   }

@@ -43,7 +43,7 @@ public class RecipeDatabase {
               null,
               null,
               null,
-              RecipeContract.recipes.COLUMN_DATE + " DESC"
+              RecipeContract.recipes.COLUMN_DATE + " ASC"
       );
       c.moveToFirst();
       if (c.getCount() > 0) {
@@ -145,10 +145,10 @@ public class RecipeDatabase {
               new String[]{String.valueOf(id)},
               null,
               null,
-              RecipeContract.recipes.COLUMN_DATE + " DESC"
+              null
       );
       c.moveToFirst();
-      if (c.getCount() == 0) {
+      if (c.getCount() == 1) {
         Recipe recipe = new Recipe(
                 c.getInt(c.getColumnIndexOrThrow(RecipeContract.recipes._ID)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_TITLE)),
@@ -216,7 +216,7 @@ public class RecipeDatabase {
     values.put(RecipeContract.recipes.COLUMN_CATEGORY, recipe.category);
     values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.ingredients);
     values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.description);
-    values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.imagePath);
+    values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.imageName);
     values.put(RecipeContract.recipes.COLUMN_DATE, dateFormat.format(recipe.date));
     db.insert(RecipeContract.recipes.TABLE_NAME, null, values);
   }

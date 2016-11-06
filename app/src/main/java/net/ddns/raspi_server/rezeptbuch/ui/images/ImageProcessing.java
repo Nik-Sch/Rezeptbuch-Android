@@ -43,23 +43,28 @@ public class ImageProcessing {
   }
 
   public void loadRecipeImage(final Recipe recipe, final ImageView imageView) {
-    if (recipe == null || recipe.imagePath == null)
+    if (recipe == null || recipe.imageName == null)
       return;
 
-    final File imageFile = new File(context.getFilesDir(), recipe.imagePath);
+    final File imageFile = new File(context.getFilesDir(), recipe.imageName);
 
     // if there is a current file but it is deprecated or if there is no file, try to download the
     // new image
-    if ((imageFile.isFile() && !imageFile.exists())
-            || (imageFile.isFile() && imageFile.exists()
+    if ((!recipe.imageName.equals("") && !imageFile.exists())
+            || (!recipe.imageName.equals("") && imageFile.exists()
             && imageFile.lastModified() < recipe.date.getTime())) {
-      new WebClient(context).downloadImage(recipe.imagePath, recipe.imagePath, new WebClient.DownloadCallback() {
+      new WebClient(context).downloadImage(recipe.imageName, new WebClient.DownloadCallback() {
         @Override
-        public void finished(boolean success) {
-          if (success)
-            loadImage(imageFile, imageView);
-          else
-            loadRecipeResourceImage(imageView);
+        public void finished(final boolean success) {
+          imageView.post(new Runnable() {
+            @Override
+            public void run() {
+              if (success)
+                loadImage(imageFile, imageView);
+              else
+                loadRecipeResourceImage(imageView);
+            }
+          });
         }
       });
     }
@@ -67,7 +72,7 @@ public class ImageProcessing {
     // resource
     // also make sure that the height and width can be measured when calling the functions
     ViewTreeObserver vto = imageView.getViewTreeObserver();
-    if (imageFile.isFile() && imageFile.exists()) {
+    if (!recipe.imageName.equals("") && imageFile.exists()) {
       vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
         @Override
         public boolean onPreDraw() {

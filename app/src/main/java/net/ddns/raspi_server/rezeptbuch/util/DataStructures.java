@@ -11,19 +11,19 @@ public final class DataStructures {
         public int category;
         public String ingredients;
         public String description;
-        public String imagePath;
+        public String imageName;
         public Date date;
 
         public Recipe(){}
 
         public Recipe(int id, String title, int category, String ingredients, String
-                description, String imagePath, Date date){
+                description, String imageName, Date date){
             this.id = id;
             this.title = title;
             this.category = category;
             this.ingredients = ingredients;
             this.description = description;
-            this.imagePath = imagePath;
+            this.imageName = imageName;
             this.date = date;
         }
     }
