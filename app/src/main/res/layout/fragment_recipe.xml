@@ -1,73 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="5dp"
-    android:layout_marginTop="5dp"
-    android:orientation="horizontal"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.ddns.raspi_server.rezeptbuch.ui.RecipeFragment"
     tools:ignore="HardcodedText">
 
-    <LinearLayout
+    <net.ddns.raspi_server.rezeptbuch.ui.images.RecipeImageView
+        android:id="@+id/image"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="Title"/>
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:layout_weight=".3"
-            android:contentDescription="@string/fragment_recipe_image_description"
-            android:paddingEnd="5dp"
-            android:paddingStart="5dp"
-            android:scaleType="fitCenter"/>
+    <TextView
+        android:id="@+id/category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category"/>
 
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight=".7"
-            android:paddingBottom="2dp"
-            android:paddingEnd="5dp">
+    <TextView
+        android:id="@+id/ingredients_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ingredients_title"/>
 
-            <!--singleLine is needed for marquee to work even though it is deprecated...-->
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:text="Title"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/ingredients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ingredient1\nIngredient2\nIngredient3"/>
 
-            <TextView
-                android:id="@+id/category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/title"
-                android:maxLines="1"
-                android:text="Category"
-                android:textAppearance="?attr/textAppearanceListItemSmall"/>
+    <TextView
+        android:id="@+id/description_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/description_title"/>
 
-            <TextView
-                android:id="@+id/description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/category"
-                android:background="@drawable/background_topborder"
-                android:maxLines="3"
-                android:text="Start of the description\nWhich actually is\nin three lines"/>
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description1\nDescription2\nDescription3"/>
 
-        </RelativeLayout>
-    </LinearLayout>
-</android.support.v7.widget.CardView>
+</LinearLayout>

@@ -19,17 +19,10 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 
 public class ImageProcessing {
-  private final Context context;
-  private final Bitmap mPlaceHolderBitmap;
 
   private LruCache<String, Bitmap> mMemoryCache;
 
-
-  public ImageProcessing(Context context) {
-    this.context = context;
-    mPlaceHolderBitmap = BitmapFactory.decodeResource(context.getResources(), R
-            .drawable.default_recipe_image_low);
-
+  public ImageProcessing(){
     // create the LruCache
     final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final int cacheSize = maxMemory / 8;
@@ -42,7 +35,11 @@ public class ImageProcessing {
     };
   }
 
-  public void loadRecipeImage(final Recipe recipe, final ImageView imageView) {
+  public static ImageProcessing getInstance(){
+    return Holder.INSTANCE;
+  }
+
+  public void loadRecipeImage(final Context context, final Recipe recipe, final ImageView imageView){
     if (recipe == null || recipe.imageName == null)
       return;
 
@@ -60,9 +57,9 @@ public class ImageProcessing {
             @Override
             public void run() {
               if (success)
-                loadImage(imageFile, imageView);
+                loadImage(context, imageFile, imageView);
               else
-                loadRecipeResourceImage(imageView);
+                loadRecipeResourceImage(context, imageView);
             }
           });
         }
@@ -77,7 +74,7 @@ public class ImageProcessing {
         @Override
         public boolean onPreDraw() {
           imageView.getViewTreeObserver().removeOnPreDrawListener(this);
-          loadImage(imageFile, imageView);
+          loadImage(context, imageFile, imageView);
           return true;
         }
       });
@@ -86,14 +83,14 @@ public class ImageProcessing {
         @Override
         public boolean onPreDraw() {
           imageView.getViewTreeObserver().removeOnPreDrawListener(this);
-          loadRecipeResourceImage(imageView);
+          loadRecipeResourceImage(context, imageView);
           return true;
         }
       });
     }
   }
 
-  private void loadRecipeResourceImage(final ImageView imageView) {
+  private void loadRecipeResourceImage(Context context, final ImageView imageView){
     final int resId = R.drawable.default_recipe_image_high;
     final String imageKey = String.valueOf(resId);
     final Bitmap cachedBitmap = getBitmapFromMemoryCache(imageKey);
@@ -105,6 +102,8 @@ public class ImageProcessing {
         BitmapResourceWorkerTask task = new BitmapResourceWorkerTask(context, imageView, imageView.getWidth(),
                 imageView.getHeight());
         // draw the placeHolder
+        Bitmap mPlaceHolderBitmap = BitmapFactory.decodeResource(context.getResources(), R
+                .drawable.default_recipe_image_low);
         final AsyncResourceDrawable asyncResourceDrawable = new AsyncResourceDrawable(context
                 .getResources(), mPlaceHolderBitmap, task);
         imageView.setImageDrawable(asyncResourceDrawable);
@@ -114,7 +113,7 @@ public class ImageProcessing {
     }
   }
 
-  private void loadImage(final File image, final ImageView imageView) {
+  private void loadImage(Context context, final File image, final ImageView imageView){
     final String file = image.getAbsolutePath();
 
     final Bitmap cachedBitmap = getBitmapFromMemoryCache(file);
@@ -124,6 +123,8 @@ public class ImageProcessing {
       if (cancelPotentialFileWork(file, imageView)) {
         BitmapFileWorkerTask task = new BitmapFileWorkerTask(imageView, imageView.getWidth
                 (), imageView.getHeight());
+        Bitmap mPlaceHolderBitmap = BitmapFactory.decodeResource(context.getResources(), R
+                .drawable.default_recipe_image_low);
         final AsyncFileDrawable asyncFileDrawable = new AsyncFileDrawable(context.getResources(),
                 mPlaceHolderBitmap, task);
         imageView.setImageDrawable(asyncFileDrawable);
@@ -132,9 +133,8 @@ public class ImageProcessing {
     }
   }
 
-
   private void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-    if (getBitmapFromMemoryCache(key) == null) {
+    if (getBitmapFromMemoryCache(key) == null && key != null && bitmap != null){
       mMemoryCache.put(key, bitmap);
     }
   }
@@ -142,12 +142,6 @@ public class ImageProcessing {
   private Bitmap getBitmapFromMemoryCache(String key) {
     return mMemoryCache.get(key);
   }
-
-  /*
-  ##################################################################################################
-  ##################################   IMAGE UTIL FUNCTIONS   ######################################
-  ##################################################################################################
-   */
 
   private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int
           reqHeight){
@@ -165,7 +159,9 @@ public class ImageProcessing {
   }
 
   /*
-  FROM RESOURCE
+  ##################################################################################################
+  ##################################   IMAGE UTIL FUNCTIONS   ######################################
+  ##################################################################################################
    */
 
   private Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
@@ -179,6 +175,10 @@ public class ImageProcessing {
     options.inJustDecodeBounds = false;
     return BitmapFactory.decodeResource(res, resId, options);
   }
+
+  /*
+  FROM RESOURCE
+   */
 
   private boolean cancelPotentialResourceWork(int data, ImageView imageView) {
     final BitmapResourceWorkerTask task = getBitmapResourceWorkerTask(imageView);
@@ -231,10 +231,6 @@ public class ImageProcessing {
     return true;
   }
 
-  /*
-  FROM FILE
-   */
-
   private BitmapFileWorkerTask getBitmapFileWorkerTask(ImageView imageView) {
     if (imageView != null) {
       final Drawable drawable = imageView.getDrawable();
@@ -243,6 +239,14 @@ public class ImageProcessing {
       }
     }
     return null;
+  }
+
+  /*
+  FROM FILE
+   */
+
+  private static class Holder{
+    static final ImageProcessing INSTANCE = new ImageProcessing();
   }
 
   private class BitmapResourceWorkerTask extends AsyncTask<Integer, Void, Bitmap> {

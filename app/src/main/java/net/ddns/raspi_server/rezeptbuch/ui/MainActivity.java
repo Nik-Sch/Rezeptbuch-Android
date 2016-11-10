@@ -16,16 +16,17 @@ import android.view.View;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment;
+import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.AndroidDatabaseManager;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RecipeListFragment.OnListFragmentInteractionListener{
 
   ActionBarDrawerToggle toggle;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState){
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -43,37 +44,37 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+  protected void onPostCreate(@Nullable Bundle savedInstanceState){
     super.onPostCreate(savedInstanceState);
     toggle.syncState();
   }
 
   @Override
-  public void onBackPressed() {
+  public void onBackPressed(){
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-    if (drawer.isDrawerOpen(GravityCompat.START)) {
+    if (drawer.isDrawerOpen(GravityCompat.START)){
       drawer.closeDrawer(GravityCompat.START);
-    } else {
+    }else{
       super.onBackPressed();
     }
   }
 
   @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
+  public boolean onCreateOptionsMenu(Menu menu){
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.main, menu);
     return true;
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(MenuItem item){
     // Handle action bar item clicks here. The action bar will
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
     int id = item.getItemId();
 
     //noinspection SimplifiableIfStatement
-    switch (id) {
+    switch (id){
       case R.id.action_settings:
         return true;
       case R.id.action_database_debug:
@@ -86,14 +87,17 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+  public boolean onNavigationItemSelected(@NonNull MenuItem item){
     // Handle navigation view item clicks here.
     int id = item.getItemId();
-    switch (id) {
+    switch (id){
       case R.id.nav_home:
         RecipeListFragment recipeListFragment = RecipeListFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_main,
-                recipeListFragment).commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, recipeListFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -101,7 +105,17 @@ public class MainActivity extends AppCompatActivity
     return true;
   }
 
-  public void getJSON(View view) {
+  public void getJSON(View view){
     new WebClient(getApplicationContext()).downloadRecipes();
+  }
+
+  @Override
+  public void onRecipeClicked(DataStructures.Recipe recipe){
+    RecipeFragment fragment = RecipeFragment.newInstance(recipe);
+    getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.content_main, fragment)
+            .addToBackStack(null)
+            .commit();
   }
 }

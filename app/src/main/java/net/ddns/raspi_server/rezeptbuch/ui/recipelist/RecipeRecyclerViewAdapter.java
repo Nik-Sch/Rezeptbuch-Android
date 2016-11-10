@@ -26,7 +26,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
   private final OnListFragmentInteractionListener mListener;
   private final Context context;
   private final RecipeDatabase database;
-  private final ImageProcessing imageProcessor;
 
   public RecipeRecyclerViewAdapter(List<Recipe> items, OnListFragmentInteractionListener
           listener, Context context) {
@@ -34,13 +33,12 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     mListener = listener;
     this.context = context;
     database = new RecipeDatabase(context);
-    imageProcessor = new ImageProcessing(context);
   }
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.fragment_recipe, parent, false);
+            .inflate(R.layout.fragment_recipe_list_item, parent, false);
     return new ViewHolder(view);
   }
 
@@ -52,7 +50,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     // for making the marquee (auto scroll) work
     holder.mTitle.setSelected(true);
     holder.mDescription.setText(holder.mItem.description);
-    imageProcessor.loadRecipeImage(holder.mItem, holder.mImage);
+    ImageProcessing.getInstance().loadRecipeImage(context, holder.mItem, holder.mImage);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -60,7 +58,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
         if (null != mListener) {
           // Notify the active callbacks interface (the activity, if the
           // fragment is attached to one) that an item has been selected.
-          mListener.onListFragmentInteraction(holder.mItem);
+          mListener.onRecipeClicked(holder.mItem);
         }
       }
     });
