@@ -9,6 +9,6 @@
     <string name="nav_category">Kategorien</string>
     <string name="navigation_drawer_close"></string>
     <string name="fragment_recipe_image_description">Vorschau von dem Bild des Rezeptes</string>
-    <string name="description_title">Beschreibung</string>
-    <string name="ingredients_title">Zutaten</string>
+    <string name="description_title"><u>Beschreibung</u></string>
+    <string name="ingredients_title"><u>Zutaten</u></string>
 </resources>

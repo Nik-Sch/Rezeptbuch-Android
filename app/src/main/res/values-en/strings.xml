@@ -10,6 +10,6 @@
     <string name="nav_category">Category</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="fragment_recipe_image_description">Preview of the image if the recipe</string>
-    <string name="description_title">Description</string>
-    <string name="ingredients_title">Ingredients</string>
+    <string name="description_title"><u>Description</u></string>
+    <string name="ingredients_title"><u>Ingredients</u></string>
 </resources>
