@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity
 
     // retrieve new recipes if there are any
     new WebClient(getApplicationContext()).downloadRecipes();
+//    Intent intent = new Intent(this, ScrollingActivity.class);
+//    startActivity(intent);
   }
 
   @Override
