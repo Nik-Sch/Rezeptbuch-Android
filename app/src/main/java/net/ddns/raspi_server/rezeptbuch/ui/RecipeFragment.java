@@ -25,9 +25,9 @@ import java.io.Serializable;
  * create an instance of this fragment.
  */
 public class RecipeFragment extends Fragment{
-  private static final String ARG_RECIPE = "recipe";
+  private static final String ARG_RECIPE = "mRecipe";
 
-  private DataStructures.Recipe recipe;
+  private DataStructures.Recipe mRecipe;
 
   private OnFragmentInteractionListener mListener;
 
@@ -39,7 +39,7 @@ public class RecipeFragment extends Fragment{
    * Use this factory method to create a new instance of
    * this fragment using the provided parameters.
    *
-   * @param recipe The recipe to show
+   * @param recipe The mRecipe to show
    * @return A new instance of fragment RecipeFragment.
    */
   public static RecipeFragment newInstance(DataStructures.Recipe recipe){
@@ -56,7 +56,7 @@ public class RecipeFragment extends Fragment{
     if (getArguments() != null){
       Serializable s = getArguments().getSerializable(ARG_RECIPE);
       if (s instanceof DataStructures.Recipe)
-        recipe = (DataStructures.Recipe) s;
+        mRecipe = (DataStructures.Recipe) s;
       else
         throw new RuntimeException("Serializable instance of wrong class");
     }
@@ -66,14 +66,14 @@ public class RecipeFragment extends Fragment{
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState){
     // Inflate the layout for this fragment
-    View view = inflater.inflate(R.layout.fragment_recipe, container, false);
-    ((TextView) view.findViewById(R.id.title)).setText(recipe.title);
+    View view = inflater.inflate(R.layout.content_recipe, container, false);
+    ((TextView) view.findViewById(R.id.title)).setText(mRecipe.title);
     ((TextView) view.findViewById(R.id.category)).setText(new RecipeDatabase(getContext())
-            .getCategoryById(recipe.category).name);
-    ((TextView) view.findViewById(R.id.ingredients)).setText(recipe.ingredients);
-    ((TextView) view.findViewById(R.id.description)).setText(recipe.description);
+            .getCategoryById(mRecipe.category).name);
+    ((TextView) view.findViewById(R.id.ingredients)).setText(mRecipe.ingredients);
+    ((TextView) view.findViewById(R.id.description)).setText(mRecipe.description);
 
-    ImageProcessing.getInstance().loadRecipeImage(getContext(), recipe, (ImageView) view
+    ImageProcessing.loadRecipeImage(getContext(), mRecipe, (ImageView) view
             .findViewById(R.id.image));
     return view;
   }

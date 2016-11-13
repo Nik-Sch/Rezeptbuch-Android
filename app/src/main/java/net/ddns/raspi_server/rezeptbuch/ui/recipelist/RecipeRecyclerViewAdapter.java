@@ -24,14 +24,14 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
 
   private final List<Recipe> mValues;
   private final OnListFragmentInteractionListener mListener;
-  private final Context context;
+  private final Context mContext;
   private final RecipeDatabase database;
 
   public RecipeRecyclerViewAdapter(List<Recipe> items, OnListFragmentInteractionListener
           listener, Context context) {
     mValues = items;
     mListener = listener;
-    this.context = context;
+    this.mContext = context;
     database = new RecipeDatabase(context);
   }
 
@@ -50,7 +50,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     // for making the marquee (auto scroll) work
     holder.mTitle.setSelected(true);
     holder.mDescription.setText(holder.mItem.description);
-    ImageProcessing.getInstance().loadRecipeImage(context, holder.mItem, holder.mImage);
+    ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override

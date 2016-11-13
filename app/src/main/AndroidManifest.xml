@@ -22,8 +22,7 @@
         </activity>
         <activity android:name=".util.db.AndroidDatabaseManager"/>
         <activity
-            android:name=".ui.ScrollingActivity"
-            android:label="@string/title_activity_scrolling"
+            android:name=".ui.RecipeActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>

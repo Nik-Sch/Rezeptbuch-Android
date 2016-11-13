@@ -3,7 +3,6 @@ package net.ddns.raspi_server.rezeptbuch.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
@@ -25,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,18 +36,18 @@ import java.util.TimeZone;
 public class WebClient {
   private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server.rezeptbuch.util" +
           ".WebClient.SYNC_DATE";
-  private final String TAG = "WebClient";
-  private final String baseUrl = "http://raspi-server.ddns.net";
-  private final int servicePort = 5425;
-  private final SimpleDateFormat sdf = new
+  private static final String TAG = "WebClient";
+  private final String mBaseUrl = "http://raspi-server.ddns.net";
+  private final int mServicePort = 5425;
+  private final SimpleDateFormat mSimpleDateFormat = new
           SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-  private final Context context;
-  private final RequestQueue requestQueue;
+  private final Context mContext;
+  private final RequestQueue mRequestQueue;
 
   public WebClient(Context context) {
-    this.context = context;
-    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-    requestQueue = Volley.newRequestQueue(context);
+    this.mContext = context;
+    mSimpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    mRequestQueue = Volley.newRequestQueue(context);
   }
 
   /*
@@ -59,10 +57,10 @@ public class WebClient {
    */
 
   public void downloadRecipes() {
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-    String receive_time = preferences.getString(PREFERENCE_SYNC_DATE, sdf.format(new Date(0)))
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+    String receive_time = preferences.getString(PREFERENCE_SYNC_DATE, mSimpleDateFormat.format(new Date(0)))
             .replace(" ", "%20");
-    String url = baseUrl + ":" + servicePort + "/recipes/" + receive_time;
+    String url = mBaseUrl + ":" + mServicePort + "/recipes/" + receive_time;
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response
             .Listener<JSONObject>() {
       @Override
@@ -87,7 +85,7 @@ public class WebClient {
         return headers;
       }
     };
-    requestQueue.add(request);
+    mRequestQueue.add(request);
   }
 
   private void saveJsonToDB(JSONObject object) {
@@ -97,7 +95,7 @@ public class WebClient {
       // date format for rfc2822 which the server outputs
       SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale
               .ENGLISH);
-      RecipeDatabase db = new RecipeDatabase(context);
+      RecipeDatabase db = new RecipeDatabase(mContext);
       db.emptyCategories();
       db.emptyRecipes();
       for (int i = 0; i < categoriesArray.length(); i++) {
@@ -127,7 +125,7 @@ public class WebClient {
       }
 
       // store the sync time in preferences
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
       preferences.edit()
               .putString(PREFERENCE_SYNC_DATE,
                       object.optString("time"))
@@ -149,7 +147,7 @@ public class WebClient {
 
   public void downloadImage(final String fileName, final DownloadCallback
           callback) {
-    String url = baseUrl + "/Rezeptbuch/images/" + fileName;
+    String url = mBaseUrl + "/Rezeptbuch/images/" + fileName;
 
     ImageRequest request = new ImageRequest(url, new Response.Listener<Bitmap>() {
 
@@ -159,7 +157,7 @@ public class WebClient {
           @Override
           public void run() {
             try {
-              File file = new File(context.getFilesDir(), fileName);
+              File file = new File(mContext.getFilesDir(), fileName);
               response.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
               if (callback != null)
                 callback.finished(true);
@@ -180,7 +178,7 @@ public class WebClient {
           callback.finished(false);
       }
     });
-    requestQueue.add(request);
+    mRequestQueue.add(request);
   }
 
   public interface DownloadCallback {

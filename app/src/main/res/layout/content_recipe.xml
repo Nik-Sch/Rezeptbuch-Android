@@ -4,34 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="net.ddns.raspi_server.rezeptbuch.ui.RecipeFragment"
+    tools:context="net.ddns.raspi_server.rezeptbuch.ui.RecipeActivity"
     tools:ignore="HardcodedText"
     android:scrollbars="horizontal">
-
-    <net.ddns.raspi_server.rezeptbuch.ui.images.RecipeImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="centerCrop"/>
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Title"
-        android:textAlignment="center"
-        android:textColor="@android:color/black"
-        android:textSize="22sp"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/category"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Category"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"

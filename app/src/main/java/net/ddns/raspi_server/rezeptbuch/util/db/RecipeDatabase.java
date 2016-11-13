@@ -16,7 +16,7 @@ import java.util.Locale;
 public class RecipeDatabase {
 
   private RecipeDatabaseHelper mDbHelper;
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale
+  private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale
           .getDefault());
 
   public RecipeDatabase(Context context) {
@@ -56,7 +56,7 @@ public class RecipeDatabase {
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
-                  dateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
+                  mDateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
           );
           result.add(recipe);
         } while (c.move(1));
@@ -104,7 +104,7 @@ public class RecipeDatabase {
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                   c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
-                  dateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
+                  mDateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
           );
           result.add(recipe);
         } while (c.move(1));
@@ -156,7 +156,7 @@ public class RecipeDatabase {
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_INGREDIENTS)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DESCRIPTION)),
                 c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_IMAGE_PATH)),
-                dateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
+                mDateFormat.parse(c.getString(c.getColumnIndexOrThrow(RecipeContract.recipes.COLUMN_DATE)))
         );
         c.close();
         return recipe;
@@ -217,7 +217,7 @@ public class RecipeDatabase {
     values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.ingredients);
     values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.description);
     values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.imageName);
-    values.put(RecipeContract.recipes.COLUMN_DATE, dateFormat.format(recipe.date));
+    values.put(RecipeContract.recipes.COLUMN_DATE, mDateFormat.format(recipe.date));
     db.insert(RecipeContract.recipes.TABLE_NAME, null, values);
   }
 

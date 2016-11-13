@@ -23,7 +23,7 @@ import net.ddns.raspi_server.rezeptbuch.util.db.AndroidDatabaseManager;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecipeListFragment.OnListFragmentInteractionListener{
 
-  ActionBarDrawerToggle toggle;
+  ActionBarDrawerToggle mToggle;
 
   @Override
   protected void onCreate(Bundle savedInstanceState){
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     setSupportActionBar(toolbar);
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-    toggle = new ActionBarDrawerToggle(
+    mToggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -41,14 +41,12 @@ public class MainActivity extends AppCompatActivity
 
     // retrieve new recipes if there are any
     new WebClient(getApplicationContext()).downloadRecipes();
-//    Intent intent = new Intent(this, ScrollingActivity.class);
-//    startActivity(intent);
   }
 
   @Override
   protected void onPostCreate(@Nullable Bundle savedInstanceState){
     super.onPostCreate(savedInstanceState);
-    toggle.syncState();
+    mToggle.syncState();
   }
 
   @Override
@@ -113,11 +111,8 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onRecipeClicked(DataStructures.Recipe recipe){
-    RecipeFragment fragment = RecipeFragment.newInstance(recipe);
-    getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.content_main, fragment)
-            .addToBackStack(null)
-            .commit();
+    Intent intent = new Intent(this, RecipeActivity.class);
+    intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
+    startActivity(intent);
   }
 }

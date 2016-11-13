@@ -13,10 +13,6 @@
     <string name="nav_category">Category</string>
     <string name="fragment_recipe_image_description">Preview of the image of the recipe</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="ingredients_title"><u>Ingredients</u></string>
     <string name="description_title"><u>Description</u></string>
