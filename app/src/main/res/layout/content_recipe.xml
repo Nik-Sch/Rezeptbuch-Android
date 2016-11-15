@@ -7,6 +7,23 @@
     android:paddingEnd="10dp"
     android:paddingStart="10dp"
     tools:ignore="HardcodedText">
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="28sp"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category"
+        android:textSize="20sp"
+        android:textAlignment="center"/>
 
     <TextView
         android:id="@+id/ingredients_title"
@@ -16,12 +33,13 @@
         android:paddingTop="5dp"
         android:text="@string/ingredients_title"
         android:textColor="@android:color/black"
-        android:textSize="14sp"/>
+        android:textSize="17sp"/>
 
     <TextView
         android:id="@+id/ingredients"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="15sp"
         android:text="Ingredient1\nIngredient2\nIngredient3"/>
 
     <TextView
@@ -32,12 +50,13 @@
         android:paddingTop="10dp"
         android:text="@string/description_title"
         android:textColor="@android:color/black"
-        android:textSize="14sp"/>
+        android:textSize="17sp"/>
 
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="15sp"
         android:text="Description1\nDescription2\nDescription3"/>
 
 </LinearLayout>

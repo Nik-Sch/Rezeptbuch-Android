@@ -74,13 +74,19 @@ public class MainActivity extends AppCompatActivity
     int id = item.getItemId();
 
     //noinspection SimplifiableIfStatement
+    Intent intent;
     switch (id){
       case R.id.action_settings:
         return true;
-      case R.id.action_database_debug:
-        Intent intent = new Intent(this, AndroidDatabaseManager.class);
+      case R.id.action_create_recipe:
+        intent = new Intent(this, CreateRecipe.class);
         startActivity(intent);
-        break;
+        return true;
+      case R.id.action_database_debug:
+        intent = new Intent(this, AndroidDatabaseManager.class);
+        startActivity(intent);
+        return true;
+
     }
 
     return super.onOptionsItemSelected(item);

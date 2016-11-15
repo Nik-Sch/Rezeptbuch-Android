@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="net.ddns.raspi_server.rezeptbuch">
+<manifest package="net.ddns.raspi_server.rezeptbuch"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -24,6 +24,8 @@
         <activity
             android:name=".ui.RecipeActivity"
             android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity android:name=".ui.CreateRecipe">
         </activity>
     </application>
 

@@ -27,6 +27,11 @@ public final class DataStructures {
       this.imageName = imageName;
       this.date = date;
     }
+
+    @Override
+    public String toString() {
+      return title;
+    }
   }
 
   public static class Category implements Serializable {
@@ -39,6 +44,11 @@ public final class DataStructures {
     public Category(int id, String name) {
       this.id = id;
       this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
   }
 }
