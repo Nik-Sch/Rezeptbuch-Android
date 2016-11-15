@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 
 import net.ddns.raspi_server.rezeptbuch.R;
@@ -72,6 +71,11 @@ public class HeaderBehaviour extends CoordinatorLayout.Behavior<HeaderView> {
     lp.rightMargin = mMarginRight;
     child.setLayoutParams(lp);
     child.setY(childPosition);
+
+    if (percentage > 0)
+      child.title.setMaxLines(1);
+    else
+      child.title.setMaxLines(2);
 
     if (isHide && percentage < 1) {
       child.setVisibility(View.VISIBLE);

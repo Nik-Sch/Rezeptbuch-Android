@@ -10,25 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:maxLines="2"
         android:ellipsize="end"
         android:textSize="@dimen/header_view_start_text_size"
         android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="3"/>
+        android:textColor="@android:color/white"/>
 
     <TextView
         android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:textColor="@android:color/white"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="2"/>
+        android:textColor="@android:color/white"/>
 
 
 </net.ddns.raspi_server.rezeptbuch.ui.header.HeaderView>
