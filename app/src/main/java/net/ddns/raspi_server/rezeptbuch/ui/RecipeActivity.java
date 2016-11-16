@@ -2,6 +2,9 @@ package net.ddns.raspi_server.rezeptbuch.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -29,31 +32,60 @@ public class RecipeActivity extends AppCompatActivity {
     Bundle bundle = getIntent().getExtras();
     if (bundle == null || !bundle.containsKey(ARG_RECIPE))
       throw new RuntimeException("The recipe activity has to be called with a" +
-          " recipe argument");
+              " recipe argument");
     Serializable s = bundle.getSerializable(ARG_RECIPE);
     if (!(s instanceof DataStructures.Recipe))
       throw new RuntimeException("The recipe activity has to be called with a" +
-          " recipe argument");
+              " recipe argument");
     mRecipe = (DataStructures.Recipe) s;
 
     setContentView(R.layout.activity_recipe);
 
     setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
+
+    String category = new RecipeDatabase(this).getCategoryById(mRecipe
+            .category).name;
+
+    actionBar.setTitle(mRecipe.title);
 
     ((TextView) findViewById(R.id.title)).setText(mRecipe.title);
-    ((TextView) findViewById(R.id.category)).setText(new RecipeDatabase(this)
-            .getCategoryById(mRecipe.category).name);
+    ((TextView) findViewById(R.id.category)).setText(category);
     ((TextView) findViewById(R.id.ingredients)).setText(mRecipe.ingredients);
     ((TextView) findViewById(R.id.description)).setText(mRecipe.description);
 
     ImageProcessing.loadRecipeImage(this, mRecipe, (ImageView) findViewById(R
-        .id.app_bar_image));
+            .id.app_bar_image));
+
+    // make the title only appear if the toolbar is collapsed
+    final CollapsingToolbarLayout collapsingToolbarLayout =
+            (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+
+    collapsingToolbarLayout.setTitle(" ");
+    ((AppBarLayout) findViewById(R.id.app_bar)).addOnOffsetChangedListener
+            (new AppBarLayout.OnOffsetChangedListener() {
+              boolean isShow = false;
+              int scrollRange = -1;
+
+              @Override
+              public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                  scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                  collapsingToolbarLayout.setTitle(mRecipe.title);
+                  isShow = true;
+                } else if (isShow) {
+                  collapsingToolbarLayout.setTitle(" ");
+                  isShow = false;
+                }
+              }
+            });
   }
 
   @Override
-  public boolean onCreateOptionsMenu(Menu menu){
+  public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.recipe, menu);
     return true;
   }
