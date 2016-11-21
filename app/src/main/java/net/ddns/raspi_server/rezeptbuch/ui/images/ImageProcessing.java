@@ -11,6 +11,7 @@ import android.util.LruCache;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 
 import net.ddns.raspi_server.rezeptbuch.R;
@@ -22,8 +23,13 @@ import java.lang.ref.WeakReference;
 
 public class ImageProcessing {
 
+  public static void loadRecipeImage(final Context context, final Recipe
+      recipe, final ImageView imageView) {
+    loadRecipeImage(context, recipe, imageView, false);
+  }
+
   public static void loadRecipeImage(final Context context, final Recipe recipe,
-                              final ImageView imageView) {
+                                     final ImageView imageView, final boolean dark) {
     if (recipe == null || recipe.imageName == null)
       return;
 
@@ -40,28 +46,41 @@ public class ImageProcessing {
           imageView.post(new Runnable() {
             @Override
             public void run() {
-              Glide
+              DrawableRequestBuilder builder = Glide
                   .with(context)
                   // if successful, load the downloaded image, otherwise
                   // load the resource
-                  .load(success ? imageFile : R.drawable.default_recipe_image_high)
-                  .placeholder(R.drawable.default_recipe_image_low)
-                  .crossFade()
-                  .into(imageView);
+                  .load(success ?
+                      imageFile :
+                      dark ?
+                          R.drawable.default_recipe_image_high_dark :
+                          R.drawable.default_recipe_image_high)
+                  .placeholder(dark ?
+                      R.drawable.default_recipe_image_low_dark :
+                      R.drawable.default_recipe_image_low);
+              if (success)
+                builder.crossFade();
+              builder.into(imageView);
             }
           });
         }
       });
     }
-    Glide
+    boolean image = !recipe.imageName.equals("") && imageFile.exists();
+    DrawableRequestBuilder builder = Glide
         .with(context)
         // if the file exists load it (no matter if it is being downloaded
         // atm), otherwise, show the resource
-        .load((!recipe.imageName.equals("") && imageFile.exists())
-            ? imageFile
-            : R.drawable.default_recipe_image_high)
-        .placeholder(R.drawable.default_recipe_image_low)
-        .crossFade()
-        .into(imageView);
+        .load(image ?
+            imageFile :
+            dark ?
+                R.drawable.default_recipe_image_high_dark :
+                R.drawable.default_recipe_image_high)
+        .placeholder(dark ?
+            R.drawable.default_recipe_image_low_dark :
+            R.drawable.default_recipe_image_low);
+    if (image)
+      builder.crossFade();
+    builder.into(imageView);
   }
 }

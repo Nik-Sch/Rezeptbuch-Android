@@ -25,7 +25,9 @@
             android:name=".ui.RecipeActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".ui.CreateRecipe">
+        <activity
+            android:name=".ui.CreateRecipe"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

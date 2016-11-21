@@ -56,7 +56,7 @@ public class RecipeActivity extends AppCompatActivity {
     ((TextView) findViewById(R.id.description)).setText(mRecipe.description);
 
     ImageProcessing.loadRecipeImage(this, mRecipe, (ImageView) findViewById(R
-            .id.app_bar_image));
+            .id.app_bar_image), true);
 
     // make the title only appear if the toolbar is collapsed
     final CollapsingToolbarLayout collapsingToolbarLayout =

@@ -20,4 +20,7 @@
     <string name="action_create_recipe">Neues Rezept erstellen</string>
     <string name="spinner_add_category">Neue Kategorie erstellen</string>
     <string name="spinner_choose_category">Wähle eine Kategorie...</string>
+    <string name="hint_category">Kategorie</string>
+    <string name="hint_image">Rezept Bild</string>
+    <string name="action_save">Speichern</string>
 </resources>

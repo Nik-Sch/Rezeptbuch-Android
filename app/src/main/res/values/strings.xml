@@ -113,4 +113,7 @@
     <string name="spinner_add_category">Create a new category</string>
     <string name="action_create_recipe">Create a new recipe</string>
     <string name="spinner_choose_category">Choose a category...</string>
+    <string name="hint_category">Category</string>
+    <string name="hint_image">Recipe image</string>
+    <string name="action_save">save</string>
 </resources>
