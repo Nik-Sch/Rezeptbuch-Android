@@ -34,13 +34,14 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class WebClient {
-  private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server.rezeptbuch.util" +
-          ".WebClient.SYNC_DATE";
+  private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" +
+      ".rezeptbuch.util.WebClient.SYNC_DATE";
   private static final String TAG = "WebClient";
-  private final String mBaseUrl = "http://raspi-server.ddns.net";
-  private final int mServicePort = 5425;
+  private static final String mBaseUrl = "http://raspi-server.ddns.net";
+  private static final int mServicePort = 5425;
+
   private final SimpleDateFormat mSimpleDateFormat = new
-          SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+      SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
   private final Context mContext;
   private final RequestQueue mRequestQueue;
 
@@ -59,10 +60,10 @@ public class WebClient {
   public void downloadRecipes() {
     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
     String receive_time = preferences.getString(PREFERENCE_SYNC_DATE, mSimpleDateFormat.format(new Date(0)))
-            .replace(" ", "%20");
+        .replace(" ", "%20");
     String url = mBaseUrl + ":" + mServicePort + "/recipes/" + receive_time;
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response
-            .Listener<JSONObject>() {
+        .Listener<JSONObject>() {
       @Override
       public void onResponse(JSONObject response) {
         Log.d(TAG, "received recipes.");
@@ -76,13 +77,7 @@ public class WebClient {
     }) {
       @Override
       public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new HashMap<>();
-        // Wouldn't call it authentication but it works and the service is not open to anyone...
-        String credentials = "rezepte:shcaHML9aS";
-        String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-        headers.put("Content-Type", "application/json");
-        headers.put("Authorization", auth);
-        return headers;
+        return getAuthHeaders();
       }
     };
     mRequestQueue.add(request);
@@ -94,15 +89,15 @@ public class WebClient {
       JSONArray categoriesArray = object.getJSONArray("categories");
       // date format for rfc2822 which the server outputs
       SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale
-              .ENGLISH);
+          .ENGLISH);
       RecipeDatabase db = new RecipeDatabase(mContext);
       db.emptyCategories();
       db.emptyRecipes();
       for (int i = 0; i < categoriesArray.length(); i++) {
         JSONObject categoriesObject = categoriesArray.getJSONObject(i);
         DataStructures.Category category = new DataStructures.Category(
-                categoriesObject.optInt("_ID"),
-                categoriesObject.optString("name")
+            categoriesObject.optInt("_ID"),
+            categoriesObject.optString("name")
         );
         db.putCategory(category);
       }
@@ -113,13 +108,13 @@ public class WebClient {
           imageName = imageName.substring(imageName.lastIndexOf('/') + 1);
         }
         DataStructures.Recipe recipe = new DataStructures.Recipe(
-                recipeObject.optInt("rezept_ID"),
-                recipeObject.optString("titel"),
-                recipeObject.optInt("kategorie"),
-                recipeObject.optString("zutaten"),
-                recipeObject.optString("beschreibung"),
-                imageName,
-                dateFormat.parse(recipeObject.optString("datum"))
+            recipeObject.optInt("rezept_ID"),
+            recipeObject.optString("titel"),
+            recipeObject.optInt("kategorie"),
+            recipeObject.optString("zutaten"),
+            recipeObject.optString("beschreibung"),
+            imageName,
+            dateFormat.parse(recipeObject.optString("datum"))
         );
         db.putRecipe(recipe);
       }
@@ -127,9 +122,9 @@ public class WebClient {
       // store the sync time in preferences
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
       preferences.edit()
-              .putString(PREFERENCE_SYNC_DATE,
-                      object.optString("time"))
-              .apply();
+          .putString(PREFERENCE_SYNC_DATE,
+              object.optString("time"))
+          .apply();
     } catch (ParseException | JSONException e) {
       Log.e(TAG, e.getMessage());
     }
@@ -146,7 +141,7 @@ public class WebClient {
   }
 
   public void downloadImage(final String fileName, final DownloadCallback
-          callback) {
+      downloadCallback) {
     String url = mBaseUrl + "/Rezeptbuch/images/" + fileName;
 
     ImageRequest request = new ImageRequest(url, new Response.Listener<Bitmap>() {
@@ -159,11 +154,11 @@ public class WebClient {
             try {
               File file = new File(mContext.getFilesDir(), fileName);
               response.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
-              if (callback != null)
-                callback.finished(true);
+              if (downloadCallback != null)
+                downloadCallback.finished(true);
             } catch (java.io.IOException e) {
-              if (callback != null)
-                callback.finished(false);
+              if (downloadCallback != null)
+                downloadCallback.finished(false);
             }
           }
         }).start();
@@ -174,14 +169,80 @@ public class WebClient {
       @Override
       public void onErrorResponse(VolleyError error) {
         Log.d(TAG, "failed to retrieve image");
-        if (callback != null)
-          callback.finished(false);
+        if (downloadCallback != null)
+          downloadCallback.finished(false);
       }
     });
     mRequestQueue.add(request);
   }
 
+  /*
+  ##################################################################################################
+  #####################################   UPLOAD CATEGORY ##########################################
+  ##################################################################################################
+   */
+
+  public void uploadCategory(
+      final String categoryName, final CategoryUploadCallback callback) {
+    String url = mBaseUrl + ":" + mServicePort + "/categories";
+    try {
+      JSONObject body = new JSONObject();
+      body.put("name", categoryName);
+      JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
+          .Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+          callback.finished(new DataStructures.Category(response.optInt("id")
+              , categoryName));
+        }
+      }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+          callback.finished(null);
+        }
+      }) {
+        @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+          return getAuthHeaders();
+        }
+      };
+      mRequestQueue.add(request);
+    } catch (JSONException e) {
+      e.printStackTrace();
+      callback.finished(null);
+    }
+  }
+
+  /*
+  ##################################################################################################
+  ####################################### AUTH HEADERS #############################################
+  ##################################################################################################
+   */
+
+  private Map<String, String> getAuthHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    // Wouldn't call it authentication but it works and the service is not open to anyone...
+    String credentials = "rezepte:shcaHML9aS";
+    String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+    headers.put("Content-Type", "application/json");
+    headers.put("Authorization", auth);
+    return headers;
+  }
+
+  /*
+  ##################################################################################################
+  ######################################## INTERFACES ##############################################
+  ##################################################################################################
+   */
+
   public interface DownloadCallback {
     void finished(boolean success);
+  }
+
+  public interface CategoryUploadCallback {
+    /**
+     * @param category the category uploaded or null if an error occurred
+     */
+    void finished(DataStructures.Category category);
   }
 }

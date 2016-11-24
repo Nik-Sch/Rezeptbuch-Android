@@ -1,14 +1,6 @@
 package net.ddns.raspi_server.rezeptbuch.ui.images;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.util.LruCache;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.bumptech.glide.DrawableRequestBuilder;
@@ -19,7 +11,6 @@ import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 
 public class ImageProcessing {
 

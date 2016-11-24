@@ -23,4 +23,11 @@
     <string name="hint_category">Kategorie</string>
     <string name="hint_image">Rezept Bild</string>
     <string name="action_save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="create_category_dialog_title">Neue Kategorie erstellen</string>
+    <string name="create_category_message">Erstelle eine neue Kategorie</string>
+    <string name="create_category_title">Kategorie erstellen</string>
+    <string name="error_category_upload_internet">Es ist ein Problem mit der Internetverbindung aufgetreten. Überprüfe die Verbindung und versuche es später erneut.</string>
+    <string name="error_title_internet">Keine Internetverbindung</string>
+    <string name="ok">Ok</string>
 </resources>

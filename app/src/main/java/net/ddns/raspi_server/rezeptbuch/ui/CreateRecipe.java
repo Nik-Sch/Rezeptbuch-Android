@@ -1,6 +1,9 @@
 package net.ddns.raspi_server.rezeptbuch.ui;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -17,6 +20,7 @@ import android.widget.Spinner;
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
+import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import java.io.Serializable;
@@ -127,7 +131,7 @@ public class CreateRecipe extends AppCompatActivity {
   }
 
   private class ChangeListener implements TextWatcher, AdapterView
-  .OnItemSelectedListener {
+      .OnItemSelectedListener {
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -147,7 +151,87 @@ public class CreateRecipe extends AppCompatActivity {
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
       CreateRecipe.this.updateSaveItem();
-      // TODO: Also do something when selecting 'create new recipe'
+      // when choosing create category
+      if (i == 1) {
+        // the progress dialog to show when waiting for a network response
+        final ProgressDialog progressDialog = new ProgressDialog(CreateRecipe
+            .this);
+        progressDialog.setTitle(CreateRecipe.this.getResources().getString(R
+            .string.create_category_dialog_title));
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+
+        // the dialog to enter a new category with the EditText
+        final EditText input = new EditText(CreateRecipe.this);
+        final AlertDialog dialog = new AlertDialog.Builder(CreateRecipe
+            .this)
+            .setTitle(R.string.create_category_title)
+            .setMessage(R.string.create_category_message)
+            .setView(input)
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialogInterface, int i) {
+                // when accepting show the progressDialog and request the server
+                progressDialog.show();
+                WebClient webClient = new WebClient(CreateRecipe.this);
+                webClient.uploadCategory(input.getText().toString(), new
+                    WebClient.CategoryUploadCallback() {
+                      @Override
+                      public void finished(DataStructures.Category category) {
+                        // always dismiss the dialog when the server responded
+                        progressDialog.dismiss();
+                        // if an error occurred, show a message and set the
+                        // selection back to "Choose a category"
+                        if (category == null) {
+                          AlertDialog.Builder builder1 = new AlertDialog
+                              .Builder(CreateRecipe.this);
+                          builder1.setTitle(R.string.error_title_internet);
+                          builder1.setMessage(R.string.error_category_upload_internet);
+                          builder1.setPositiveButton(R.string.ok, null);
+                          builder1.show();
+                          CreateRecipe.this.mSpinner.setSelection(0);
+                        } else {
+                          // otherwise, store the recipe in the database and
+                          // select it in the spinner
+                          new RecipeDatabase(CreateRecipe.this).putCategory(category);
+                          CreateRecipe.this.mCategories.add(category);
+                          CreateRecipe.this.mSpinner.invalidate();
+                          CreateRecipe.this.mSpinner.setSelection(CreateRecipe.this
+                              .mSpinner.getCount() - 1);
+                        }
+                      }
+                    });
+              }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialogInterface, int i) {
+                // cancelling will result in "Choose a category" to be selected
+                CreateRecipe.this.mSpinner.setSelection(0);
+              }
+            }).create();
+
+        // make sure that a value is entered before clicking ok
+        input.addTextChangedListener(new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+          }
+
+          @Override
+          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+          }
+
+          @Override
+          public void afterTextChanged(Editable editable) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(editable
+                .length() > 0);
+          }
+        });
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+      }
     }
 
     @Override
