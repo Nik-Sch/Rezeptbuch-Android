@@ -46,14 +46,14 @@ public class RecipeActivity extends AppCompatActivity {
     actionBar.setDisplayHomeAsUpEnabled(true);
 
     String category = new RecipeDatabase(this).getCategoryById(mRecipe
-            .category).name;
+            .mCategory).mName;
 
-    actionBar.setTitle(mRecipe.title);
+    actionBar.setTitle(mRecipe.mTitle);
 
-    ((TextView) findViewById(R.id.title)).setText(mRecipe.title);
+    ((TextView) findViewById(R.id.title)).setText(mRecipe.mTitle);
     ((TextView) findViewById(R.id.category)).setText(category);
-    ((TextView) findViewById(R.id.ingredients)).setText(mRecipe.ingredients);
-    ((TextView) findViewById(R.id.description)).setText(mRecipe.description);
+    ((TextView) findViewById(R.id.ingredients)).setText(mRecipe.mIngredients);
+    ((TextView) findViewById(R.id.description)).setText(mRecipe.mDescription);
 
     ImageProcessing.loadRecipeImage(this, mRecipe, (ImageView) findViewById(R
             .id.app_bar_image), true);
@@ -74,7 +74,7 @@ public class RecipeActivity extends AppCompatActivity {
                   scrollRange = appBarLayout.getTotalScrollRange();
                 }
                 if (scrollRange + verticalOffset == 0) {
-                  collapsingToolbarLayout.setTitle(mRecipe.title);
+                  collapsingToolbarLayout.setTitle(mRecipe.mTitle);
                   isShow = true;
                 } else if (isShow) {
                   collapsingToolbarLayout.setTitle(" ");

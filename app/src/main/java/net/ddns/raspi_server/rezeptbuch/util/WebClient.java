@@ -178,7 +178,7 @@ public class WebClient {
 
   /*
   ##################################################################################################
-  #####################################   UPLOAD CATEGORY ##########################################
+  #########################################   UPLOAD ###############################################
   ##################################################################################################
    */
 
@@ -207,6 +207,45 @@ public class WebClient {
         }
       };
       mRequestQueue.add(request);
+    } catch (JSONException e) {
+      e.printStackTrace();
+      callback.finished(null);
+    }
+  }
+
+  public void uploadRecipe(final DataStructures.Recipe recipe,
+                           final RecipeUploadCallback callback) {
+    String url = mBaseUrl + ":" + mServicePort + "/recipes";
+    try {
+      JSONObject body = new JSONObject();
+      body.put("title", recipe.mTitle);
+      body.put("category", recipe.mCategory);
+      body.put("ingredients", recipe.mIngredients);
+      body.put("description", recipe.mDescription);
+      JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
+          .Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+          recipe.mId = response.optInt("id");
+          callback.finished(recipe);
+        }
+      }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+          callback.finished(null);
+        }
+      }) {
+        @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+          return getAuthHeaders();
+        }
+      };
+
+      // if an image is provided, upload it first
+      if (recipe.mImageName != null && !recipe.mImageName.equals("")) {
+        // TODO: upload the image
+      } else
+        mRequestQueue.add(request);
     } catch (JSONException e) {
       e.printStackTrace();
       callback.finished(null);
@@ -244,5 +283,18 @@ public class WebClient {
      * @param category the category uploaded or null if an error occurred
      */
     void finished(DataStructures.Category category);
+  }
+
+  public interface RecipeUploadCallback {
+    /**
+     * @param recipe the recipe uploaded or null if an error occurred
+     */
+    void finished(DataStructures.Recipe recipe);
+
+    /**
+     * @param status 0-100 percent of uploading the image. if no image is to
+     *               be uploaded, this method won't be called at all.
+     */
+    void onProgress(int status);
   }
 }

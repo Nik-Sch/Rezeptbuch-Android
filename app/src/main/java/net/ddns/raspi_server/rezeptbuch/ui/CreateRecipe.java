@@ -78,15 +78,15 @@ public class CreateRecipe extends AppCompatActivity {
       Serializable s = bundle.getSerializable(ARG_RECIPE);
       if (s instanceof DataStructures.Recipe) {
         mRecipe = (DataStructures.Recipe) s;
-        mTitleEdit.setText(mRecipe.title);
-        mIngredientsEdit.setText(mRecipe.ingredients);
-        mDescriptionEdit.setText(mRecipe.description);
+        mTitleEdit.setText(mRecipe.mTitle);
+        mIngredientsEdit.setText(mRecipe.mIngredients);
+        mDescriptionEdit.setText(mRecipe.mDescription);
         ImageProcessing.loadRecipeImage(this, mRecipe, (ImageView)
             findViewById(R.id.add_image));
         int i = 0;
         // using for each loop because it might be faster?
         for (DataStructures.Category category : mCategories) {
-          if (category.id == mRecipe.category) {
+          if (category.mId == mRecipe.mCategory) {
             mSpinner.setSelection(i);
             break;
           }
@@ -118,16 +118,31 @@ public class CreateRecipe extends AppCompatActivity {
         onBackPressed();
         break;
       case R.id.action_save:
+        // the progress dialog to show when waiting for a network response
+        final ProgressDialog progressDialog = new ProgressDialog(CreateRecipe
+            .this);
+        progressDialog.setTitle(CreateRecipe.this.getResources().getString(R
+            .string.create_recipe_dialog_title));
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        WebClient webClient = new WebClient(this);
+        webClient.uploadRecipe(new DataStructures.Recipe(-1, mTitleEdit
+            .getText().toString(), 0 /*mCategory*/, mIngredientsEdit.getText()
+            .toString(), mDescriptionEdit.getText().toString(), null
+            /*image*/, null));
+        break;
     }
     return super.onOptionsItemSelected(item);
   }
 
   private void updateSaveItem() {
-    mMenu.getItem(0).setEnabled(
-        mSpinner.getSelectedItemPosition() > 1 &&
-            !mTitleEdit.getText().toString().isEmpty() &&
-            !mIngredientsEdit.getText().toString().isEmpty() &&
-            !mDescriptionEdit.getText().toString().isEmpty());
+    if (mMenu != null)
+      mMenu.getItem(0).setEnabled(
+          mSpinner.getSelectedItemPosition() > 1 &&
+              !mTitleEdit.getText().toString().isEmpty() &&
+              !mIngredientsEdit.getText().toString().isEmpty() &&
+              !mDescriptionEdit.getText().toString().isEmpty());
   }
 
   private class ChangeListener implements TextWatcher, AdapterView

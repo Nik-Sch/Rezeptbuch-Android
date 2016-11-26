@@ -21,17 +21,17 @@ public class ImageProcessing {
 
   public static void loadRecipeImage(final Context context, final Recipe recipe,
                                      final ImageView imageView, final boolean dark) {
-    if (recipe == null || recipe.imageName == null)
+    if (recipe == null || recipe.mImageName == null)
       return;
 
-    final File imageFile = new File(context.getFilesDir(), recipe.imageName);
+    final File imageFile = new File(context.getFilesDir(), recipe.mImageName);
 
     // if there is a current file but it is deprecated or if there is no
     // file, try to download the new image
-    if ((!recipe.imageName.equals("") && !imageFile.exists())
-        || (!recipe.imageName.equals("") && imageFile.exists()
-        && imageFile.lastModified() < recipe.date.getTime())) {
-      new WebClient(context).downloadImage(recipe.imageName, new WebClient.DownloadCallback() {
+    if ((!recipe.mImageName.equals("") && !imageFile.exists())
+        || (!recipe.mImageName.equals("") && imageFile.exists()
+        && imageFile.lastModified() < recipe.mDate.getTime())) {
+      new WebClient(context).downloadImage(recipe.mImageName, new WebClient.DownloadCallback() {
         @Override
         public void finished(final boolean success) {
           imageView.post(new Runnable() {
@@ -57,7 +57,7 @@ public class ImageProcessing {
         }
       });
     }
-    boolean image = !recipe.imageName.equals("") && imageFile.exists();
+    boolean image = !recipe.mImageName.equals("") && imageFile.exists();
     DrawableRequestBuilder builder = Glide
         .with(context)
         // if the file exists load it (no matter if it is being downloaded

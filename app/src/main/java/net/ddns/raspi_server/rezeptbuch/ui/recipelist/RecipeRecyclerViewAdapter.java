@@ -45,11 +45,11 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
     holder.mItem = mValues.get(position);
-    holder.mCategory.setText(database.getCategoryById(holder.mItem.category).name);
-    holder.mTitle.setText(holder.mItem.title);
+    holder.mCategory.setText(database.getCategoryById(holder.mItem.mCategory).mName);
+    holder.mTitle.setText(holder.mItem.mTitle);
     // for making the marquee (auto scroll) work
     holder.mTitle.setSelected(true);
-    holder.mDescription.setText(holder.mItem.description);
+    holder.mDescription.setText(holder.mItem.mDescription);
     ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {

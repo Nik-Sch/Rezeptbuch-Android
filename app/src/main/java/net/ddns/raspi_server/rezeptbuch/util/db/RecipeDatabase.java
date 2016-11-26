@@ -211,13 +211,13 @@ public class RecipeDatabase {
   public void putRecipe(Recipe recipe) {
     SQLiteDatabase db = mDbHelper.getWritableDatabase();
     ContentValues values = new ContentValues();
-    values.put(RecipeContract.recipes._ID, recipe.id);
-    values.put(RecipeContract.recipes.COLUMN_TITLE, recipe.title);
-    values.put(RecipeContract.recipes.COLUMN_CATEGORY, recipe.category);
-    values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.ingredients);
-    values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.description);
-    values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.imageName);
-    values.put(RecipeContract.recipes.COLUMN_DATE, mDateFormat.format(recipe.date));
+    values.put(RecipeContract.recipes._ID, recipe.mId);
+    values.put(RecipeContract.recipes.COLUMN_TITLE, recipe.mTitle);
+    values.put(RecipeContract.recipes.COLUMN_CATEGORY, recipe.mCategory);
+    values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.mIngredients);
+    values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.mDescription);
+    values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.mImageName);
+    values.put(RecipeContract.recipes.COLUMN_DATE, mDateFormat.format(recipe.mDate));
     db.insert(RecipeContract.recipes.TABLE_NAME, null, values);
   }
 
@@ -258,8 +258,8 @@ public class RecipeDatabase {
   public void putCategory(Category category) {
     SQLiteDatabase db = mDbHelper.getWritableDatabase();
     ContentValues values = new ContentValues();
-    values.put(RecipeContract.categories._ID, category.id);
-    values.put(RecipeContract.categories.COLUMN_NAME, category.name);
+    values.put(RecipeContract.categories._ID, category.mId);
+    values.put(RecipeContract.categories.COLUMN_NAME, category.mName);
     db.insert(RecipeContract.categories.TABLE_NAME, null, values);
   }
 

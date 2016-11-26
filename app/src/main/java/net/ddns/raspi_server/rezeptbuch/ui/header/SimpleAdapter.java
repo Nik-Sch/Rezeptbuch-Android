@@ -49,8 +49,8 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder
   @Override
   public void onBindViewHolder(final SimpleAdapter.ViewHolder holder, int position) {
     holder.mItem = mValues.get(position);
-    holder.mDescription.setText(holder.mItem.description);
-    holder.mIngredients.setText(holder.mItem.ingredients);
+    holder.mDescription.setText(holder.mItem.mDescription);
+    holder.mIngredients.setText(holder.mItem.mIngredients);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override

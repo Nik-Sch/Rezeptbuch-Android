@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecipeListFragment.OnListFragmentInteractionListener{
 
   ActionBarDrawerToggle mToggle;
+  NavigationView mNavigationView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState){
@@ -36,11 +37,13 @@ public class MainActivity extends AppCompatActivity
     mToggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
-    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-    navigationView.setNavigationItemSelectedListener(this);
+    mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+    mNavigationView.setNavigationItemSelectedListener(this);
 
     // retrieve new recipes if there are any
     new WebClient(getApplicationContext()).downloadRecipes();
+    if (savedInstanceState == null)
+      mNavigationView.getMenu().performIdentifierAction(R.id.nav_home, 0);
   }
 
   @Override
@@ -102,7 +105,6 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_main, recipeListFragment)
-                .addToBackStack(null)
                 .commit();
     }
 

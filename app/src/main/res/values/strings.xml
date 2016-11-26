@@ -35,4 +35,5 @@
     <string name="create_category_dialog_title">Creating a new category</string>
     <string name="error_category_upload_internet">Failed to connect to the server. Check your Connection and try again later.</string>
     <string name="error_title_internet">No internet connection</string>
+    <string mName="create_recipe_dialog_title">Creating a new recipe</string>
 </resources>
