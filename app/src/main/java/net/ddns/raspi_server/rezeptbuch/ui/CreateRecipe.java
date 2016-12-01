@@ -2,6 +2,7 @@ package net.ddns.raspi_server.rezeptbuch.ui;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -127,10 +128,46 @@ public class CreateRecipe extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
         WebClient webClient = new WebClient(this);
-        webClient.uploadRecipe(new DataStructures.Recipe(-1, mTitleEdit
-            .getText().toString(), 0 /*mCategory*/, mIngredientsEdit.getText()
-            .toString(), mDescriptionEdit.getText().toString(), null
-            /*image*/, null));
+        webClient.uploadRecipe(new DataStructures.Recipe(
+            -1,
+            mTitleEdit.getText().toString(),
+            mSpinner.getSelectedItemPosition() - 1,
+            mIngredientsEdit.getText().toString(),
+            mDescriptionEdit.getText().toString(),
+            null /*image*/,
+            null /*date*/), new WebClient.RecipeUploadCallback() {
+          @Override
+          public void finished(DataStructures.Recipe recipe) {
+            // always dismiss the progress dialog
+            progressDialog.dismiss();
+            // if an error occurred, show a message and store the recipe
+            // locally somehow
+            if (recipe == null) {
+
+              AlertDialog.Builder builder1 = new AlertDialog
+                  .Builder(CreateRecipe.this);
+              builder1.setTitle(R.string.error_title_internet);
+              builder1.setMessage(R.string.error_description_internet);
+              builder1.setPositiveButton(R.string.ok, null);
+              builder1.show();
+            } else {
+              // add the recipe to the local db
+              new RecipeDatabase(CreateRecipe.this).putRecipe(recipe);
+              CreateRecipe.this.finish();
+              // show the recipe
+              Intent intent = new Intent(CreateRecipe.this, RecipeActivity
+                  .class);
+              intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
+              CreateRecipe.this.startActivity(intent);
+            }
+
+          }
+
+          @Override
+          public void onProgress(int status) {
+
+          }
+        });
         break;
     }
     return super.onOptionsItemSelected(item);
@@ -201,7 +238,7 @@ public class CreateRecipe extends AppCompatActivity {
                           AlertDialog.Builder builder1 = new AlertDialog
                               .Builder(CreateRecipe.this);
                           builder1.setTitle(R.string.error_title_internet);
-                          builder1.setMessage(R.string.error_category_upload_internet);
+                          builder1.setMessage(R.string.error_description_internet);
                           builder1.setPositiveButton(R.string.ok, null);
                           builder1.show();
                           CreateRecipe.this.mSpinner.setSelection(0);

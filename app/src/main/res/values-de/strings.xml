@@ -7,7 +7,6 @@
     <string name="nav_favorites">Favoriten</string>
     <string name="nav_history">Historie</string>
     <string name="nav_category">Kategorien</string>
-    <string name="navigation_drawer_close"></string>
     <string name="fragment_recipe_image_description">Vorschau von dem Bild des Rezeptes</string>
     <string name="description_title"><u>Beschreibung</u></string>
     <string name="ingredients_title"><u>Zutaten</u></string>
@@ -15,11 +14,10 @@
     <string name="desc_add_image">Füge dem Rezept ein Bild hinzu</string>
     <string name="hint_description">Beschreibung</string>
     <string name="hint_ingredients">Zutaten</string>
-    <string name="large_text"></string>
     <string name="action_edit">Rezept bearbeiten</string>
     <string name="action_create_recipe">Neues Rezept erstellen</string>
     <string name="spinner_add_category">Neue Kategorie erstellen</string>
-    <string name="spinner_choose_category">Wähle eine Kategorie...</string>
+    <string name="spinner_choose_category">Wähle eine Kategorie…</string>
     <string name="hint_category">Kategorie</string>
     <string name="hint_image">Rezept Bild</string>
     <string name="action_save">Speichern</string>
@@ -27,7 +25,9 @@
     <string name="create_category_dialog_title">Neue Kategorie erstellen</string>
     <string name="create_category_message">Erstelle eine neue Kategorie</string>
     <string name="create_category_title">Kategorie erstellen</string>
-    <string name="error_category_upload_internet">Es ist ein Problem mit der Internetverbindung aufgetreten. Überprüfe die Verbindung und versuche es später erneut.</string>
+    <string name="error_description_internet">Es ist ein Problem mit der Internetverbindung aufgetreten. Überprüfe die Verbindung und versuche es später erneut.</string>
     <string name="error_title_internet">Keine Internetverbindung</string>
     <string name="ok">Ok</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="success_title_add_recipe"></string>
 </resources>

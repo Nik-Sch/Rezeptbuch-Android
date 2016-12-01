@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,6 +25,9 @@ import java.util.List;
 public class RecipeListFragment extends Fragment {
 
   private OnListFragmentInteractionListener mListener;
+
+  private List<Recipe> mRecipeList;
+  private RecyclerView.Adapter mAdapter;
 
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the
@@ -55,14 +59,28 @@ public class RecipeListFragment extends Fragment {
       RecyclerView recyclerView = (RecyclerView) view;
       recyclerView.setLayoutManager(new LinearLayoutManager(context));
       RecipeDatabase database = new RecipeDatabase(context);
-//      ArrayList<Recipe> list = new ArrayList<Recipe>();
-//      list.add(database.getRecipeById(344));
-      List<Recipe> list = database.getRecipes();
-      recyclerView.setAdapter(new RecipeRecyclerViewAdapter(list, mListener, context));
+      mRecipeList = database.getRecipes();
+      mAdapter = new RecipeRecyclerViewAdapter(mRecipeList, mListener, context);
+      recyclerView.setAdapter(mAdapter);
     }
     return view;
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    switch (id) {
+      case R.id.action_refresh:
+        // TODO: isn't quite working, though
+        List<Recipe> list = new RecipeDatabase(getContext()).getRecipes();
+        mRecipeList.clear();
+        for (Recipe recipe: list)
+          mRecipeList.add(recipe);
+        mAdapter.notifyDataSetChanged();
+        return true;
+    }
+    return false;
+  }
 
   @Override
   public void onAttach(Context context) {

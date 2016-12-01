@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity
 
     // retrieve new recipes if there are any
     new WebClient(getApplicationContext()).downloadRecipes();
+
     if (savedInstanceState == null)
       mNavigationView.getMenu().performIdentifierAction(R.id.nav_home, 0);
   }
@@ -89,7 +90,6 @@ public class MainActivity extends AppCompatActivity
         intent = new Intent(this, AndroidDatabaseManager.class);
         startActivity(intent);
         return true;
-
     }
 
     return super.onOptionsItemSelected(item);
@@ -111,10 +111,6 @@ public class MainActivity extends AppCompatActivity
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
     return true;
-  }
-
-  public void getJSON(View view){
-    new WebClient(getApplicationContext()).downloadRecipes();
   }
 
   @Override

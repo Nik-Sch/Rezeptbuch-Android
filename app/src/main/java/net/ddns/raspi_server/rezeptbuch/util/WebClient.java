@@ -15,6 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
@@ -40,14 +41,17 @@ public class WebClient {
   private static final String mBaseUrl = "http://raspi-server.ddns.net";
   private static final int mServicePort = 5425;
 
-  private final SimpleDateFormat mSimpleDateFormat = new
+  private static final SimpleDateFormat mSyncTimeFormat = new
       SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+  // date format for rfc2822 which the server outputs
+  private static final SimpleDateFormat mServerResponseFormat = new SimpleDateFormat
+      ("EEE, dd " + "MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
   private final Context mContext;
   private final RequestQueue mRequestQueue;
 
   public WebClient(Context context) {
     this.mContext = context;
-    mSimpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    mSyncTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     mRequestQueue = Volley.newRequestQueue(context);
   }
 
@@ -58,12 +62,14 @@ public class WebClient {
    */
 
   public void downloadRecipes() {
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-    String receive_time = preferences.getString(PREFERENCE_SYNC_DATE, mSimpleDateFormat.format(new Date(0)))
-        .replace(" ", "%20");
+    SharedPreferences preferences = PreferenceManager
+        .getDefaultSharedPreferences(mContext);
+    String receive_time = preferences.getString(PREFERENCE_SYNC_DATE,
+        mSyncTimeFormat.format(new Date(0))).replace(" ", "%20");
+
     String url = mBaseUrl + ":" + mServicePort + "/recipes/" + receive_time;
-    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response
-        .Listener<JSONObject>() {
+    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
+        url, null, new Response.Listener<JSONObject>() {
       @Override
       public void onResponse(JSONObject response) {
         Log.d(TAG, "received recipes.");
@@ -87,9 +93,6 @@ public class WebClient {
     try {
       JSONArray recipesArray = object.getJSONArray("recipes");
       JSONArray categoriesArray = object.getJSONArray("categories");
-      // date format for rfc2822 which the server outputs
-      SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale
-          .ENGLISH);
       RecipeDatabase db = new RecipeDatabase(mContext);
       db.emptyCategories();
       db.emptyRecipes();
@@ -114,7 +117,7 @@ public class WebClient {
             recipeObject.optString("zutaten"),
             recipeObject.optString("beschreibung"),
             imageName,
-            dateFormat.parse(recipeObject.optString("datum"))
+            mServerResponseFormat.parse(recipeObject.optString("datum"))
         );
         db.putRecipe(recipe);
       }
@@ -218,16 +221,29 @@ public class WebClient {
     String url = mBaseUrl + ":" + mServicePort + "/recipes";
     try {
       JSONObject body = new JSONObject();
-      body.put("title", recipe.mTitle);
-      body.put("category", recipe.mCategory);
-      body.put("ingredients", recipe.mIngredients);
-      body.put("description", recipe.mDescription);
+      body.put("titel", recipe.mTitle);
+      body.put("kategorie", recipe.mCategory);
+      body.put("zutaten", recipe.mIngredients);
+      body.put("beschreibung", recipe.mDescription);
       JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
           .Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-          recipe.mId = response.optInt("id");
+          recipe.mId = response.optInt("rezept_ID");
+          try {
+            recipe.mDate = mServerResponseFormat.parse(response.optString
+                ("datum"));
+          } catch (ParseException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+          }
           callback.finished(recipe);
+          // make a request for the search index to be updated on the server.
+          String searchIndexUrl = mBaseUrl + "Rezeptbuch/update_search_index" +
+              ".php?recipe_id=" + recipe.mId;
+          StringRequest searchIndexRequest = new StringRequest
+              (searchIndexUrl, null, null);
+          mRequestQueue.add(searchIndexRequest);
         }
       }, new Response.ErrorListener() {
         @Override
@@ -260,7 +276,8 @@ public class WebClient {
 
   private Map<String, String> getAuthHeaders() {
     Map<String, String> headers = new HashMap<>();
-    // Wouldn't call it authentication but it works and the service is not open to anyone...
+    // Wouldn't call it secure but it works and the service is not open to
+    // anyone...
     String credentials = "rezepte:shcaHML9aS";
     String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
     headers.put("Content-Type", "application/json");
