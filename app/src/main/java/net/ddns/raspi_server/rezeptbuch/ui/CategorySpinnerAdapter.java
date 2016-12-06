@@ -16,6 +16,7 @@
 package net.ddns.raspi_server.rezeptbuch.ui;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -56,7 +57,7 @@ public class CategorySpinnerAdapter extends ArrayAdapter<Category> {
   }
 
   @Override
-  public View getDropDownView(int position, View convertView, ViewGroup parent) {
+  public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
     if (position == 0) {
       View v = new TextView(getContext());
       v.setVisibility(View.GONE);

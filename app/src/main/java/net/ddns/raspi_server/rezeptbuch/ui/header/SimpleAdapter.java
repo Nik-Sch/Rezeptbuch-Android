@@ -28,6 +28,7 @@ import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
 
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder>{
 
   private final List<DataStructures.Recipe> mValues;
@@ -70,10 +71,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {
-    View mView;
+    final View mView;
     DataStructures.Recipe mItem;
-    TextView mIngredients;
-    TextView mDescription;
+    final TextView mIngredients;
+    final TextView mDescription;
 
     ViewHolder(View view) {
       super(view);
@@ -82,9 +83,5 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.ViewHolder
       mDescription = (TextView) view.findViewById(R.id.description);
     }
 
-    @Override
-    public String toString() {
-      return super.toString();
-    }
   }
 }

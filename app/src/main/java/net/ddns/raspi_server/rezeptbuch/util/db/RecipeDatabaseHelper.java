@@ -50,16 +50,15 @@ public class RecipeDatabaseHelper extends SQLiteOpenHelper {
     String[] columns = new String[]{"mesage"};
     //an array list of cursor to save two cursors one has results from the query
     //other cursor stores error message if any errors are triggered
-    ArrayList<Cursor> alc = new ArrayList<Cursor>(2);
+    ArrayList<Cursor> alc = new ArrayList<>(2);
     MatrixCursor Cursor2 = new MatrixCursor(columns);
     alc.add(null);
     alc.add(null);
 
 
     try {
-      String maxQuery = Query;
       //execute the query results will be save in Cursor c
-      Cursor c = sqlDB.rawQuery(maxQuery, null);
+      Cursor c = sqlDB.rawQuery(Query, null);
 
 
       //add value to cursor2

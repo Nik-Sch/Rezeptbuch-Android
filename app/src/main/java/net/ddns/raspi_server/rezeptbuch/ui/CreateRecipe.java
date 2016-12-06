@@ -32,7 +32,6 @@ public class CreateRecipe extends AppCompatActivity {
   public static final String ARG_RECIPE = "mRecipe";
 
   private Menu mMenu;
-  private DataStructures.Recipe mRecipe;
   private List<DataStructures.Category> mCategories;
   private Spinner mSpinner;
   private EditText mTitleEdit;
@@ -78,7 +77,7 @@ public class CreateRecipe extends AppCompatActivity {
     if (bundle != null && bundle.containsKey(ARG_RECIPE)) {
       Serializable s = bundle.getSerializable(ARG_RECIPE);
       if (s instanceof DataStructures.Recipe) {
-        mRecipe = (DataStructures.Recipe) s;
+        DataStructures.Recipe mRecipe = (DataStructures.Recipe) s;
         mTitleEdit.setText(mRecipe.mTitle);
         mIngredientsEdit.setText(mRecipe.mIngredients);
         mDescriptionEdit.setText(mRecipe.mDescription);

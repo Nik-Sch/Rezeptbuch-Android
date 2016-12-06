@@ -15,6 +15,7 @@ package net.ddns.raspi_server.rezeptbuch.util.db;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -59,6 +60,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
   TextView tv;
   indexInfo info = new indexInfo();
 
+  @SuppressLint("SetTextI18n")
   @Override
   protected void onCreate(Bundle savedInstanceState){
     super.onCreate(savedInstanceState);
@@ -197,6 +199,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
     //display results in tablelayout
     submitQuery.setOnClickListener(new View.OnClickListener(){
 
+      @SuppressLint("SetTextI18n")
       @Override
       public void onClick(View v){
 
@@ -297,6 +300,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
     // when a table names is selecte display the table contents
     select_table.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 
+      @SuppressLint("SetTextI18n")
       @Override
       public void onItemSelected(AdapterView<?> parent,
                                  View view, int pos, long id){
@@ -405,6 +409,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
                                 .setPositiveButton("yes",
                                         new DialogInterface.OnClickListener(){
                                           // when user confirms by clicking on yes we drop the table by executing drop table query
+                                          @SuppressLint("SetTextI18n")
                                           public void onClick(DialogInterface dialog, int which){
 
                                             String Query6 = "Drop table " + indexInfo.table_name;
@@ -450,6 +455,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
                                         new DialogInterface.OnClickListener(){
 
                                           // when user confirms by clicking on yes we drop the table by executing delete table query
+                                          @SuppressLint("SetTextI18n")
                                           public void onClick(DialogInterface dialog, int which){
                                             String Query7 = "Delete  from " + indexInfo.table_name;
                                             Log.d("delete table query", Query7);
@@ -564,6 +570,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
                                 .setPositiveButton("Add",
                                         new DialogInterface.OnClickListener(){
                                           // after entering values if user clicks on add we take the values and run a insert query
+                                          @SuppressLint("SetTextI18n")
                                           public void onClick(DialogInterface dialog, int which){
 
                                             indexInfo.index = 10;
@@ -843,6 +850,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
                           new DialogInterface.OnClickListener(){
 
                             //this code will be executed when user changes values of edit text or spinner and clicks on ok button
+                            @SuppressLint("SetTextI18n")
                             public void onClick(DialogInterface dialog, int which){
 
                               //get spinner value
@@ -970,6 +978,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
     startActivity(getIntent());
   }
 
+  @SuppressLint("SetTextI18n")
   public void refreshTable(int d){
     Cursor c3 = null;
     tableLayout.removeAllViews();
@@ -1106,6 +1115,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
 
     // when user clicks on the previous button update the table with the previous 10 tuples from the database
     previous.setOnClickListener(new View.OnClickListener(){
+      @SuppressLint("SetTextI18n")
       @Override
       public void onClick(View v){
         int tobestartindex = (indexInfo.currentpage - 2) * 10;
@@ -1150,6 +1160,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
 
     // when user clicks on the next button update the table with the next 10 tuples from the database
     next.setOnClickListener(new View.OnClickListener(){
+      @SuppressLint("SetTextI18n")
       @Override
       public void onClick(View v){
 

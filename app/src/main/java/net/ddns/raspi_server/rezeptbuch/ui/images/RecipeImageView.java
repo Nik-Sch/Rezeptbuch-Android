@@ -45,7 +45,6 @@ public class RecipeImageView extends ImageView{
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
     int width = getMeasuredWidth();
-    int height = width;
-    setMeasuredDimension(width, height);
+    setMeasuredDimension(width, width);
   }
 }

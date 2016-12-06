@@ -18,8 +18,8 @@ public class RecipeDatabase {
 
   private final static String TAG = "RecipeDatabase";
 
-  private RecipeDatabaseHelper mDbHelper;
-  private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd " +
+  private final RecipeDatabaseHelper mDbHelper;
+  private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd " +
       "HH:mm:ss", Locale.getDefault());
 
   public RecipeDatabase(Context context) {

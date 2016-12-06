@@ -29,5 +29,4 @@
     <string name="error_title_internet">Keine Internetverbindung</string>
     <string name="ok">Ok</string>
     <string name="action_refresh">Aktualisieren</string>
-    <string name="success_title_add_recipe"></string>
 </resources>

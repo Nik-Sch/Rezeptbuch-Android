@@ -70,12 +70,12 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {
-    View mView;
+    final View mView;
     Recipe mItem;
-    ImageView mImage;
-    TextView mTitle;
-    TextView mCategory;
-    TextView mDescription;
+    final ImageView mImage;
+    final TextView mTitle;
+    final TextView mCategory;
+    final TextView mDescription;
 
     ViewHolder(View view) {
       super(view);
@@ -86,9 +86,5 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
       mDescription = (TextView) view.findViewById(R.id.description);
     }
 
-    @Override
-    public String toString() {
-      return super.toString();
-    }
   }
 }
