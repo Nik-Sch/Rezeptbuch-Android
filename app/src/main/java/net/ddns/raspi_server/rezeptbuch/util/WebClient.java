@@ -1,29 +1,37 @@
 package net.ddns.raspi_server.rezeptbuch.util;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.ParseException;
@@ -219,13 +227,20 @@ public class WebClient {
   public void uploadRecipe(final DataStructures.Recipe recipe,
                            final RecipeUploadCallback callback) {
     String url = mBaseUrl + ":" + mServicePort + "/recipes";
+    String imageName = recipe.mImageName != null && !recipe.mImageName
+        .isEmpty()
+        ? Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients)
+        + ".jpg"
+        : null;
     try {
       JSONObject body = new JSONObject();
       body.put("titel", recipe.mTitle);
       body.put("kategorie", recipe.mCategory);
       body.put("zutaten", recipe.mIngredients);
       body.put("beschreibung", recipe.mDescription);
-      JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
+      if (imageName != null)
+        body.put("bild", imageName);
+      final JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
           .Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -258,14 +273,121 @@ public class WebClient {
       };
 
       // if an image is provided, upload it first
-      if (recipe.mImageName != null && !recipe.mImageName.equals("")) {
-        // TODO: upload the image
+      if (imageName != null) {
+        uploadImage(recipe.mImageName, imageName, new ImageUploadProgressCallback() {
+          @Override
+          public void onProgress(int progress) {
+            callback.onProgress(progress);
+          }
+
+          @Override
+          public void finished(boolean success) {
+            if (success)
+              mRequestQueue.add(request);
+            else
+              new AlertDialog.Builder(mContext)
+                  .setTitle(R.string.error_title_image_upload)
+                  .setMessage(R.string.error_description_image_upload)
+                  .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                      mRequestQueue.add(request);
+                    }
+                  })
+                  .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                      callback.finished(null);
+                    }
+                  })
+                  .show();
+          }
+        });
       } else
         mRequestQueue.add(request);
     } catch (JSONException e) {
       e.printStackTrace();
       callback.finished(null);
     }
+  }
+
+  // TODO: need a callback for this stuff, too.
+  private void uploadImage(final String path, final String name,
+                           final ImageUploadProgressCallback callback) {
+    String url = mBaseUrl + "/Rezeptbuch/upload_image.php";
+
+    VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest
+        (Request.Method.POST, url, new Response.Listener<NetworkResponse>() {
+          @Override
+          public void onResponse(NetworkResponse response) {
+            String res = new String(response.data);
+            Log.i(TAG, "image upload success: " + res);
+            callback.finished(true);
+          }
+        }, new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError error) {
+            callback.finished(false);
+            NetworkResponse networkResponse = error.networkResponse;
+            String errorMessage = "Unknown error";
+            if (networkResponse == null) {
+              if (error.getClass().equals(TimeoutError.class)) {
+                errorMessage = "Request timeout";
+              } else if (error.getClass().equals(NoConnectionError.class)) {
+                errorMessage = "Failed to connect server";
+              }
+            } else {
+              String result = new String(networkResponse.data);
+              try {
+                JSONObject response = new JSONObject(result);
+                String status = response.getString("status");
+                String message = response.getString("message");
+
+                Log.e("Error Status", status);
+                Log.e("Error Message", message);
+
+                if (networkResponse.statusCode == 404) {
+                  errorMessage = "Resource not found";
+                } else if (networkResponse.statusCode == 401) {
+                  errorMessage = message + " Please login again";
+                } else if (networkResponse.statusCode == 400) {
+                  errorMessage = message + " Check your inputs";
+                } else if (networkResponse.statusCode == 500) {
+                  errorMessage = message + " Something is getting wrong";
+                }
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+            }
+            Log.i("Error", errorMessage);
+            error.printStackTrace();
+          }
+        }, new VolleyMultipartRequest.MultipartProgressListener() {
+          @Override
+          public void transferred(long transferred, int progress) {
+            callback.onProgress(progress);
+            Log.i(TAG, "image uploading is at: " + progress + "%.");
+          }
+        }) {
+      @Override
+      protected Map<String, String> getParams() throws AuthFailureError {
+        Map<String, String> params = new HashMap<>();
+        params.put("name", name);
+        return params;
+      }
+
+      @Override
+      protected Map<String, DataPart> getByteData() throws AuthFailureError {
+        Map<String, DataPart> params = new HashMap<>();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        params.put("image", new DataPart(name, stream.toByteArray(), stream.size()));
+        return params;
+      }
+    };
+
+    mRequestQueue.add(multipartRequest);
   }
 
   /*
@@ -291,6 +413,12 @@ public class WebClient {
   ##################################################################################################
    */
 
+  private interface ImageUploadProgressCallback {
+    void onProgress(int progress);
+
+    void finished(boolean success);
+  }
+
   public interface DownloadCallback {
     void finished(boolean success);
   }
@@ -309,9 +437,9 @@ public class WebClient {
     void finished(DataStructures.Recipe recipe);
 
     /**
-     * @param status 0-100 percent of uploading the image. if no image is to
-     *               be uploaded, this method won't be called at all.
+     * @param progress 0-100 percent of uploading the image. if no image is to
+     *                 be uploaded, this method won't be called at all.
      */
-    void onProgress(int status);
+    void onProgress(int progress);
   }
 }

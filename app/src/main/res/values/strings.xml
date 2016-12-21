@@ -34,4 +34,10 @@
     <string name="error_title_internet">No internet connection</string>
     <string name="create_recipe_dialog_title">Creating a new recipe</string>
     <string name="action_refresh">Refresh</string>
+    <string name="permission_needed">A permission is needed</string>
+    <string name="permission_read_storage_image">Searching for recipe images requires the app to have access to your files.</string>
+    <string name="error_description_image_upload">Failed to upload the image. Do you want to try to upload the recipe anyway?\\r\\nHint: You may add an image afterwards.</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="error_title_image_upload">Failed to upload the image</string>
 </resources>

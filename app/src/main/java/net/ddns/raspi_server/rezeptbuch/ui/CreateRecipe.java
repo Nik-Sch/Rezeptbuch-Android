@@ -3,7 +3,14 @@ package net.ddns.raspi_server.rezeptbuch.ui;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,18 +25,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
+import net.ddns.raspi_server.rezeptbuch.util.Util;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.jar.Manifest;
+
+import static net.ddns.raspi_server.rezeptbuch.R.menu.recipe;
 
 public class CreateRecipe extends AppCompatActivity {
 
   public static final String ARG_RECIPE = "mRecipe";
+  private static final int PERMISSION_REQUEST_READ_EXTERNAL = 1;
+  private static final int PICK_IMAGE = 2;
+
 
   private Menu mMenu;
   private List<DataStructures.Category> mCategories;
@@ -37,6 +57,52 @@ public class CreateRecipe extends AppCompatActivity {
   private EditText mTitleEdit;
   private EditText mIngredientsEdit;
   private EditText mDescriptionEdit;
+  private ImageView mImageView;
+
+  private String mImagePath;
+
+  private void browseForImage() {
+    Intent intent = new Intent(Intent.ACTION_PICK,
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    startActivityForResult(intent, PICK_IMAGE);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    switch (requestCode) {
+      case PERMISSION_REQUEST_READ_EXTERNAL:
+        if (grantResults.length > 0 && grantResults[0] == PackageManager
+            .PERMISSION_GRANTED)
+          browseForImage();
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    switch (requestCode) {
+      case PICK_IMAGE:
+        if (resultCode == RESULT_OK && data != null) {
+          Uri imageUri = data.getData();
+
+          String[] filePathColumn = {MediaStore.Images.Media.DATA};
+          Cursor cursor = getContentResolver().query(imageUri,
+              filePathColumn, null, null, null);
+          cursor.moveToFirst();
+          int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+          mImagePath = cursor.getString(columnIndex);
+          cursor.close();
+
+          Glide.with(this)
+              .load(mImagePath)
+              .placeholder(R.drawable.default_recipe_image_low)
+              .crossFade()
+              .into(mImageView);
+//          new WebClient(this).uploadImage(mImagePath, "TestImage_" + new
+//              SimpleDateFormat("yyyy-mm-dd_hh:mm:ss", Locale.GERMANY).format
+//              (new GregorianCalendar().getTime()));
+        }
+    }
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +115,39 @@ public class CreateRecipe extends AppCompatActivity {
     mTitleEdit = (EditText) findViewById(R.id.title);
     mIngredientsEdit = (EditText) findViewById(R.id.ingredients);
     mDescriptionEdit = (EditText) findViewById(R.id.description);
-    mSpinner = ((Spinner) findViewById(R.id.category));
+    mSpinner = (Spinner) findViewById(R.id.category);
+    mImageView = (ImageView) findViewById(R.id.add_image);
+    mImageView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        if (ContextCompat.checkSelfPermission(CreateRecipe.this, android.Manifest
+            .permission.READ_EXTERNAL_STORAGE) != PackageManager
+            .PERMISSION_GRANTED) {
+          if (ActivityCompat.shouldShowRequestPermissionRationale
+              (CreateRecipe.this, android.Manifest.permission
+                  .READ_EXTERNAL_STORAGE)) {
+            new AlertDialog.Builder(CreateRecipe.this)
+                .setTitle(R.string.permission_needed)
+                .setMessage(R.string.permission_read_storage_image)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    ActivityCompat.requestPermissions(CreateRecipe.this, new
+                            String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_READ_EXTERNAL);
+                  }
+                })
+                .show();
+          } else {
+            ActivityCompat.requestPermissions(CreateRecipe.this, new
+                String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                PERMISSION_REQUEST_READ_EXTERNAL);
+          }
+        } else {
+          browseForImage();
+        }
+      }
+    });
 
     ChangeListener changeListener = new ChangeListener();
     mTitleEdit.addTextChangedListener(changeListener);
@@ -133,7 +231,7 @@ public class CreateRecipe extends AppCompatActivity {
             mSpinner.getSelectedItemPosition() - 1,
             mIngredientsEdit.getText().toString(),
             mDescriptionEdit.getText().toString(),
-            null /*image*/,
+            mImagePath,
             null /*date*/), new WebClient.RecipeUploadCallback() {
           @Override
           public void finished(DataStructures.Recipe recipe) {

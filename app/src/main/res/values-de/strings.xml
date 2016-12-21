@@ -29,4 +29,11 @@
     <string name="error_title_internet">Keine Internetverbindung</string>
     <string name="ok">Ok</string>
     <string name="action_refresh">Aktualisieren</string>
+    <string name="create_recipe_dialog_title">Erzeuge ein neues Rezept</string>
+    <string name="error_description_image_upload">Es ist ein Fehler beim hochladen des Bildes aufgetreten. Soll das Rezept trotzdem ohne das Bild erstellt werden?\\r\\n\\r\\nHinweis: Ein Bild kann jederzeit im Nachhinein hinzugefügt werden.</string>
+    <string name="error_title_image_upload">Bild konnte nicht hochgeladen werden</string>
+    <string name="no">Nein</string>
+    <string name="permission_needed">Die App benötigt eine Berechtigung</string>
+    <string name="permission_read_storage_image">Das Suchen nach Bildern auf der SD-Karte erfordert, dass die App Zugriff auf die Dateien hat.</string>
+    <string name="yes">Ja</string>
 </resources>

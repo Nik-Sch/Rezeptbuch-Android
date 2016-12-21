@@ -1,10 +1,15 @@
 package net.ddns.raspi_server.rezeptbuch.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Util {
   private static int sScreenWidth = 0;
@@ -28,5 +33,26 @@ public class Util {
       result = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
     }
     return result;
+  }
+
+  @NonNull
+  public static String md5(final String s) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("MD5");
+      digest.update(s.getBytes());
+      byte messageDigest[] = digest.digest();
+
+      StringBuilder hexString = new StringBuilder();
+      for (byte b : messageDigest) {
+        String h = Integer.toHexString(0xFF & b);
+        while (h.length() < 2)
+          h = "0" + h;
+        hexString.append(h);
+      }
+      return hexString.toString();
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    return "";
   }
 }
