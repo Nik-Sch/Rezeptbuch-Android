@@ -2,10 +2,12 @@ package net.ddns.raspi_server.rezeptbuch.util;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.util.Log;
@@ -43,6 +45,11 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class WebClient {
+  public static final String EVENT_BROADCAST_DOWNLOAD_FINISHED =
+      "net.ddns.raspi_server.rezeptbuch.util.WebClient.DOWNLOAD_FINISHED";
+  public static final String ARG_BROADCAST_DOWNLOAD_FINISHED_SUCCESS =
+      "SUCCESS";
+
   private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" +
       ".rezeptbuch.util.WebClient.SYNC_DATE";
   private static final String TAG = "WebClient";
@@ -82,11 +89,13 @@ public class WebClient {
       public void onResponse(JSONObject response) {
         Log.d(TAG, "received recipes.");
         saveJsonToDB(response);
+        broadcastDownloadFinished(true);
       }
     }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
         Log.e(TAG, "receiving recipes failed.");
+        broadcastDownloadFinished(error.networkResponse.statusCode == 418);
       }
     }) {
       @Override
@@ -95,6 +104,13 @@ public class WebClient {
       }
     };
     mRequestQueue.add(request);
+  }
+
+  private void broadcastDownloadFinished(boolean success) {
+    Log.d(TAG, "Broadcasting message: " + success);
+    Intent intent = new Intent(EVENT_BROADCAST_DOWNLOAD_FINISHED);
+    intent.putExtra(ARG_BROADCAST_DOWNLOAD_FINISHED_SUCCESS, success);
+    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
   }
 
   private void saveJsonToDB(JSONObject object) {

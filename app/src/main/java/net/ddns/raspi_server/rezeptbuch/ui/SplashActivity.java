@@ -1,12 +1,10 @@
-package net.ddns.raspi_server.rezeptbuch;
+package net.ddns.raspi_server.rezeptbuch.ui;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import net.ddns.raspi_server.rezeptbuch.ui.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
   @Override

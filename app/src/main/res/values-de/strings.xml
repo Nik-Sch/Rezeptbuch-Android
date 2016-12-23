@@ -30,10 +30,15 @@
     <string name="ok">Ok</string>
     <string name="action_refresh">Aktualisieren</string>
     <string name="create_recipe_dialog_title">Erzeuge ein neues Rezept</string>
-    <string name="error_description_image_upload">Es ist ein Fehler beim hochladen des Bildes aufgetreten. Soll das Rezept trotzdem ohne das Bild erstellt werden?\\r\\n\\r\\nHinweis: Ein Bild kann jederzeit im Nachhinein hinzugefügt werden.</string>
+    <string name="error_description_image_upload">"Es ist ein Fehler beim hochladen des Bildes aufgetreten. Soll das Rezept trotzdem ohne das Bild erstellt werden?\n\nHinweis: Ein Bild kann jederzeit im Nachhinein hinzugefügt werden."</string>
     <string name="error_title_image_upload">Bild konnte nicht hochgeladen werden</string>
     <string name="no">Nein</string>
     <string name="permission_needed">Die App benötigt eine Berechtigung</string>
     <string name="permission_read_storage_image">Das Suchen nach Bildern auf der SD-Karte erfordert, dass die App Zugriff auf die Dateien hat.</string>
     <string name="yes">Ja</string>
+    <string name="downloading_recipes">Die Rezepte werden gerade heruntergeladen.</string>
+    <string name="notification_failed_download">Die Rezepte konnten nicht herunter geladen werden. Bitte überprüfe deine Internetverbindung und versuche es später erneut.</string>
+    <string name="notification_failed_update">"Die Rezepte konnten nicht aktualisiert werden.\nDie App ist offline."</string>
+    <string name="notification_updated">Die Rezepte wurden erfolgreich um %s Uhr aktualisiert.</string>
+    <string name="search_hint">Suchen…</string>
 </resources>

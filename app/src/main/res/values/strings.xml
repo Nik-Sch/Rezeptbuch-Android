@@ -36,9 +36,14 @@
     <string name="action_refresh">Refresh</string>
     <string name="permission_needed">A permission is needed</string>
     <string name="permission_read_storage_image">Searching for recipe images requires the app to have access to your files.</string>
-    <string name="error_description_image_upload">Failed to upload the image. Do you want to try to upload the recipe anyway?\\r\\nHint: You may add an image afterwards.</string>
+    <string name="error_description_image_upload">"Failed to upload the
+        image. Do you want to try to upload the recipe anyway?\n\nHint: You may add an image afterwards."</string>
     <string name="yes">yes</string>
     <string name="no">no</string>
     <string name="error_title_image_upload">Failed to upload the image</string>
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search…</string>
+    <string name="downloading_recipes">The recipes are currently being downloaded…</string>
+    <string name="notification_updated">Successfully updated recipes at %s.</string>
+    <string name="notification_failed_update">"Failed to update the recipes.\nYou are using the app offline."</string>
+    <string name="notification_failed_download">Could not download the recipes. Please check your internet connection and try again.</string>
 </resources>
