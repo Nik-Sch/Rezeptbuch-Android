@@ -25,26 +25,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
-import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
-import net.ddns.raspi_server.rezeptbuch.util.Util;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
-import java.util.jar.Manifest;
 
-import static net.ddns.raspi_server.rezeptbuch.R.menu.recipe;
-
-public class CreateRecipe extends AppCompatActivity {
+public class CreateRecipeActivity extends AppCompatActivity {
 
   public static final String ARG_RECIPE = "mRecipe";
   private static final int PERMISSION_REQUEST_READ_EXTERNAL = 1;
@@ -68,7 +60,8 @@ public class CreateRecipe extends AppCompatActivity {
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[]
+      permissions, @NonNull int[] grantResults) {
     switch (requestCode) {
       case PERMISSION_REQUEST_READ_EXTERNAL:
         if (grantResults.length > 0 && grantResults[0] == PackageManager
@@ -97,9 +90,6 @@ public class CreateRecipe extends AppCompatActivity {
               .placeholder(R.drawable.default_recipe_image_low)
               .crossFade()
               .into(mImageView);
-//          new WebClient(this).uploadImage(mImagePath, "TestImage_" + new
-//              SimpleDateFormat("yyyy-mm-dd_hh:mm:ss", Locale.GERMANY).format
-//              (new GregorianCalendar().getTime()));
         }
     }
   }
@@ -120,26 +110,26 @@ public class CreateRecipe extends AppCompatActivity {
     mImageView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (ContextCompat.checkSelfPermission(CreateRecipe.this, android.Manifest
+        if (ContextCompat.checkSelfPermission(CreateRecipeActivity.this, android.Manifest
             .permission.READ_EXTERNAL_STORAGE) != PackageManager
             .PERMISSION_GRANTED) {
           if (ActivityCompat.shouldShowRequestPermissionRationale
-              (CreateRecipe.this, android.Manifest.permission
+              (CreateRecipeActivity.this, android.Manifest.permission
                   .READ_EXTERNAL_STORAGE)) {
-            new AlertDialog.Builder(CreateRecipe.this)
+            new AlertDialog.Builder(CreateRecipeActivity.this)
                 .setTitle(R.string.permission_needed)
                 .setMessage(R.string.permission_read_storage_image)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialogInterface, int i) {
-                    ActivityCompat.requestPermissions(CreateRecipe.this, new
+                    ActivityCompat.requestPermissions(CreateRecipeActivity.this, new
                             String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
                         PERMISSION_REQUEST_READ_EXTERNAL);
                   }
                 })
                 .show();
           } else {
-            ActivityCompat.requestPermissions(CreateRecipe.this, new
+            ActivityCompat.requestPermissions(CreateRecipeActivity.this, new
                 String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
                 PERMISSION_REQUEST_READ_EXTERNAL);
           }
@@ -184,7 +174,7 @@ public class CreateRecipe extends AppCompatActivity {
         int i = 0;
         // using for each loop because it might be faster?
         for (DataStructures.Category category : mCategories) {
-          if (category.mId == mRecipe.mCategory) {
+          if (category._ID == mRecipe.mCategory) {
             mSpinner.setSelection(i);
             break;
           }
@@ -214,60 +204,64 @@ public class CreateRecipe extends AppCompatActivity {
     switch (item.getItemId()) {
       case android.R.id.home:
         onBackPressed();
-        break;
+        return true;
       case R.id.action_save:
         // the progress dialog to show when waiting for a network response
-        final ProgressDialog progressDialog = new ProgressDialog(CreateRecipe
-            .this);
-        progressDialog.setTitle(CreateRecipe.this.getResources().getString(R
-            .string.create_recipe_dialog_title));
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        WebClient webClient = new WebClient(this);
-        webClient.uploadRecipe(new DataStructures.Recipe(
-            -1,
-            mTitleEdit.getText().toString(),
-            mSpinner.getSelectedItemPosition() - 1,
-            mIngredientsEdit.getText().toString(),
-            mDescriptionEdit.getText().toString(),
-            mImagePath,
-            null /*date*/), new WebClient.RecipeUploadCallback() {
-          @Override
-          public void finished(DataStructures.Recipe recipe) {
-            // always dismiss the progress dialog
-            progressDialog.dismiss();
-            // if an error occurred, show a message and store the recipe
-            // locally somehow
-            if (recipe == null) {
-
-              AlertDialog.Builder builder1 = new AlertDialog
-                  .Builder(CreateRecipe.this);
-              builder1.setTitle(R.string.error_title_internet);
-              builder1.setMessage(R.string.error_description_internet);
-              builder1.setPositiveButton(R.string.ok, null);
-              builder1.show();
-            } else {
-              // add the recipe to the local db
-              new RecipeDatabase(CreateRecipe.this).putRecipe(recipe);
-              CreateRecipe.this.finish();
-              // show the recipe
-              Intent intent = new Intent(CreateRecipe.this, RecipeActivity
-                  .class);
-              intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
-              CreateRecipe.this.startActivity(intent);
-            }
-
-          }
-
-          @Override
-          public void onProgress(int status) {
-
-          }
-        });
-        break;
+        saveImage();
+        return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void saveImage() {
+    final ProgressDialog progressDialog = new ProgressDialog(CreateRecipeActivity
+        .this);
+    progressDialog.setTitle(CreateRecipeActivity.this.getResources().getString(R
+        .string.create_recipe_dialog_title));
+    progressDialog.setIndeterminate(true);
+    progressDialog.setCancelable(false);
+    progressDialog.show();
+    WebClient webClient = new WebClient(this);
+    webClient.uploadRecipe(new DataStructures.Recipe(
+        -1,
+        mTitleEdit.getText().toString(),
+        mSpinner.getSelectedItemPosition() - 1,
+        mIngredientsEdit.getText().toString(),
+        mDescriptionEdit.getText().toString(),
+        mImagePath,
+        null /*date*/), new WebClient.RecipeUploadCallback() {
+      @Override
+      public void finished(DataStructures.Recipe recipe) {
+        // always dismiss the progress dialog
+        progressDialog.dismiss();
+        // if an error occurred, show a message and probably store the
+        // recipe locally somehow #TODO
+        if (recipe == null) {
+
+          AlertDialog.Builder builder1 = new AlertDialog
+              .Builder(CreateRecipeActivity.this);
+          builder1.setTitle(R.string.error_title_internet);
+          builder1.setMessage(R.string.error_description_internet);
+          builder1.setPositiveButton(R.string.ok, null);
+          builder1.show();
+        } else {
+          // add the recipe to the local db
+          new RecipeDatabase(CreateRecipeActivity.this).putRecipe(recipe);
+          CreateRecipeActivity.this.finish();
+          // show the recipe
+          Intent intent = new Intent(CreateRecipeActivity.this, RecipeActivity
+              .class);
+          intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
+          CreateRecipeActivity.this.startActivity(intent);
+        }
+
+      }
+
+      @Override
+      public void onProgress(int status) {
+
+      }
+    });
   }
 
   private void updateSaveItem() {
@@ -294,25 +288,25 @@ public class CreateRecipe extends AppCompatActivity {
 
     @Override
     public void afterTextChanged(Editable editable) {
-      CreateRecipe.this.updateSaveItem();
+      CreateRecipeActivity.this.updateSaveItem();
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-      CreateRecipe.this.updateSaveItem();
+      CreateRecipeActivity.this.updateSaveItem();
       // when choosing create category
       if (i == 1) {
         // the progress dialog to show when waiting for a network response
-        final ProgressDialog progressDialog = new ProgressDialog(CreateRecipe
+        final ProgressDialog progressDialog = new ProgressDialog(CreateRecipeActivity
             .this);
-        progressDialog.setTitle(CreateRecipe.this.getResources().getString(R
+        progressDialog.setTitle(CreateRecipeActivity.this.getResources().getString(R
             .string.create_category_dialog_title));
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);
 
         // the dialog to enter a new category with the EditText
-        final EditText input = new EditText(CreateRecipe.this);
-        final AlertDialog dialog = new AlertDialog.Builder(CreateRecipe
+        final EditText input = new EditText(CreateRecipeActivity.this);
+        final AlertDialog dialog = new AlertDialog.Builder(CreateRecipeActivity
             .this)
             .setTitle(R.string.create_category_title)
             .setMessage(R.string.create_category_message)
@@ -322,7 +316,7 @@ public class CreateRecipe extends AppCompatActivity {
               public void onClick(DialogInterface dialogInterface, int i) {
                 // when accepting show the progressDialog and request the server
                 progressDialog.show();
-                WebClient webClient = new WebClient(CreateRecipe.this);
+                WebClient webClient = new WebClient(CreateRecipeActivity.this);
                 webClient.uploadCategory(input.getText().toString(), new
                     WebClient.CategoryUploadCallback() {
                       @Override
@@ -333,19 +327,19 @@ public class CreateRecipe extends AppCompatActivity {
                         // selection back to "Choose a category"
                         if (category == null) {
                           AlertDialog.Builder builder1 = new AlertDialog
-                              .Builder(CreateRecipe.this);
+                              .Builder(CreateRecipeActivity.this);
                           builder1.setTitle(R.string.error_title_internet);
                           builder1.setMessage(R.string.error_description_internet);
                           builder1.setPositiveButton(R.string.ok, null);
                           builder1.show();
-                          CreateRecipe.this.mSpinner.setSelection(0);
+                          CreateRecipeActivity.this.mSpinner.setSelection(0);
                         } else {
                           // otherwise, store the recipe in the database and
                           // select it in the spinner
-                          new RecipeDatabase(CreateRecipe.this).putCategory(category);
-                          CreateRecipe.this.mCategories.add(category);
-                          CreateRecipe.this.mSpinner.invalidate();
-                          CreateRecipe.this.mSpinner.setSelection(CreateRecipe.this
+                          new RecipeDatabase(CreateRecipeActivity.this).putCategory(category);
+                          CreateRecipeActivity.this.mCategories.add(category);
+                          CreateRecipeActivity.this.mSpinner.invalidate();
+                          CreateRecipeActivity.this.mSpinner.setSelection(CreateRecipeActivity.this
                               .mSpinner.getCount() - 1);
                         }
                       }
@@ -356,7 +350,7 @@ public class CreateRecipe extends AppCompatActivity {
               @Override
               public void onClick(DialogInterface dialogInterface, int i) {
                 // cancelling will result in "Choose a category" to be selected
-                CreateRecipe.this.mSpinner.setSelection(0);
+                CreateRecipeActivity.this.mSpinner.setSelection(0);
               }
             }).create();
 

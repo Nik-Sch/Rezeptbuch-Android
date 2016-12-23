@@ -86,10 +86,15 @@ public class WebClient {
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
         url, null, new Response.Listener<JSONObject>() {
       @Override
-      public void onResponse(JSONObject response) {
+      public void onResponse(final JSONObject response) {
         Log.d(TAG, "received recipes.");
-        saveJsonToDB(response);
-        broadcastDownloadFinished(true);
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            saveJsonToDB(response);
+            broadcastDownloadFinished(true);
+          }
+        }).start();
       }
     }, new Response.ErrorListener() {
       @Override
@@ -152,6 +157,7 @@ public class WebClient {
           .putString(PREFERENCE_SYNC_DATE,
               object.optString("time"))
           .apply();
+      Log.d(TAG, "stored recipes in db");
     } catch (ParseException | JSONException e) {
       Log.e(TAG, e.getMessage());
     }
@@ -260,7 +266,7 @@ public class WebClient {
           .Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-          recipe.mId = response.optInt("rezept_ID");
+          recipe._ID = response.optInt("rezept_ID");
           try {
             recipe.mDate = mServerResponseFormat.parse(response.optString
                 ("datum"));
@@ -269,12 +275,6 @@ public class WebClient {
             Log.e(TAG, e.getMessage());
           }
           callback.finished(recipe);
-          // make a request for the search index to be updated on the server.
-          String searchIndexUrl = mBaseUrl + "Rezeptbuch/update_search_index" +
-              ".php?recipe_id=" + recipe.mId;
-          StringRequest searchIndexRequest = new StringRequest
-              (searchIndexUrl, null, null);
-          mRequestQueue.add(searchIndexRequest);
         }
       }, new Response.ErrorListener() {
         @Override
@@ -408,6 +408,35 @@ public class WebClient {
 
   /*
   ##################################################################################################
+  #########################################   DELETE ###############################################
+  ##################################################################################################
+   */
+
+  public void deleteRecipe(final DataStructures.Recipe recipe,
+                           final DeleteRecipeCallback callback) {
+    String url = mBaseUrl + ":" + mServicePort + "/recipes/" + recipe._ID;
+    StringRequest request = new StringRequest(Request.Method.DELETE, url,
+        new Response.Listener<String>() {
+          @Override
+          public void onResponse(String response) {
+            callback.finished(true);
+          }
+        }, new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        callback.finished(false);
+      }
+    }) {
+      @Override
+      public Map<String, String> getHeaders() throws AuthFailureError {
+        return getAuthHeaders();
+      }
+    };
+    mRequestQueue.add(request);
+  }
+
+  /*
+  ##################################################################################################
   ####################################### AUTH HEADERS #############################################
   ##################################################################################################
    */
@@ -438,6 +467,11 @@ public class WebClient {
   public interface DownloadCallback {
     void finished(boolean success);
   }
+
+  public interface DeleteRecipeCallback {
+    void finished(boolean success);
+  }
+
 
   public interface CategoryUploadCallback {
     /**

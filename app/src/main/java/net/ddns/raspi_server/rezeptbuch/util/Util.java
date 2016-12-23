@@ -1,39 +1,14 @@
 package net.ddns.raspi_server.rezeptbuch.util;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Point;
 import android.support.annotation.NonNull;
-import android.util.TypedValue;
-import android.view.Display;
-import android.view.WindowManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Util {
-  private static int sScreenWidth = 0;
-
-  public static int getScreenWidth(Context context) {
-    if (sScreenWidth == 0) {
-      WindowManager wm = (WindowManager) context.getSystemService(Context
-          .WINDOW_SERVICE);
-      Display dp = wm.getDefaultDisplay();
-      Point size = new Point();
-      dp.getSize(size);
-      sScreenWidth = size.x;
-    }
-    return sScreenWidth;
-  }
-
-  public static int getToolbarHeight(Context context) {
-    int result = 0;
-    TypedValue tv = new TypedValue();
-    if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-      result = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
-    }
-    return result;
-  }
 
   @NonNull
   public static String md5(final String s) {
@@ -54,5 +29,15 @@ public class Util {
       e.printStackTrace();
     }
     return "";
+  }
+
+  public static <T> boolean listEqualsNoOrder(List<T> l1, List<T> l2) {
+    if (l1 == null && l2 == null)
+      return true;
+    if (l1 == null || l2 == null)
+      return false;
+    final Set<T> s1 = new HashSet<>(l1);
+    final Set<T> s2 = new HashSet<>(l2);
+    return s1.equals(s2);
   }
 }

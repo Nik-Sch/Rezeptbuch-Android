@@ -46,4 +46,9 @@
     <string name="notification_updated">Successfully updated recipes at %s.</string>
     <string name="notification_failed_update">"Failed to update the recipes.\nYou are using the app offline."</string>
     <string name="notification_failed_download">Could not download the recipes. Please check your internet connection and try again.</string>
+    <string name="action_delete">Delete Recipe</string>
+    <string name="title_delete_recipe">Delete the recipe</string>
+    <string name="description_delete_recipe">Are you sure that you want to delete the recipe?</string>
+    <string name="delete_recipe_dialog_title">Deleting the recipe</string>
+    <string name="error_description_delete_recipe">"Failed to delete the recipe.\nCheck your internet connection and try again later."</string>
 </resources>

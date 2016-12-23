@@ -10,9 +10,13 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +24,7 @@ import android.widget.TextView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
+import net.ddns.raspi_server.rezeptbuch.util.Util;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
@@ -31,13 +36,14 @@ import java.util.List;
  * A fragment representing a list of Items.
  * <p/>
  * Activities containing this fragment MUST implement the
- * {@link OnListFragmentInteractionListener}
+ * {@link OnRecipeClickListener}
  * interface.
  */
-public class RecipeListFragment extends Fragment {
+public class RecipeListFragment extends Fragment implements SearchView
+    .OnQueryTextListener {
 
-  private static final String ARG_SEARCH = "ARG_SEARCH";
-  private OnListFragmentInteractionListener mListener;
+  private static final String ARG_CATEGORY = "ARG_CATEGORY";
+  private OnRecipeClickListener mListener;
 
   private List<Recipe> mRecipeList;
   private RecyclerView.Adapter mAdapter;
@@ -58,7 +64,7 @@ public class RecipeListFragment extends Fragment {
         mNotificationView.setBackgroundColor(getResources().getColor(android.R
             .color.darker_gray));
         refresh();
-      } else if (!mRecipeList.isEmpty()){
+      } else if (!mRecipeList.isEmpty()) {
         mNotificationView.setText(R.string.notification_failed_update);
         mNotificationView.setBackgroundColor(getResources().getColor(android.R
             .color.holo_red_dark));
@@ -126,6 +132,7 @@ public class RecipeListFragment extends Fragment {
       }
     }
   };
+  private String mCurrentSearch = "";
 
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the
@@ -141,10 +148,10 @@ public class RecipeListFragment extends Fragment {
     return fragment;
   }
 
-  public static RecipeListFragment newInstance(String search) {
+  public static RecipeListFragment newInstance(int categoryID) {
     RecipeListFragment fragment = new RecipeListFragment();
     Bundle args = new Bundle();
-    args.putString(ARG_SEARCH, search);
+    args.putInt(ARG_CATEGORY, categoryID);
     fragment.setArguments(args);
     return fragment;
   }
@@ -180,10 +187,7 @@ public class RecipeListFragment extends Fragment {
       Context context = listView.getContext();
       RecyclerView recyclerView = (RecyclerView) listView;
       recyclerView.setLayoutManager(new LinearLayoutManager(context));
-      RecipeDatabase database = new RecipeDatabase(context);
-      mRecipeList = getArguments().containsKey(ARG_SEARCH)
-          ? database.getRecipesBySearch(getArguments().getString(ARG_SEARCH))
-          : database.getRecipes();
+      mRecipeList = getRecipes();
       if (mRecipeList.isEmpty()) {
         mMessageDownloadingView.setVisibility(View.VISIBLE);
       }
@@ -191,6 +195,14 @@ public class RecipeListFragment extends Fragment {
       recyclerView.setAdapter(mAdapter);
     }
     return rootView;
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu
+        .findItem(R.id.action_search));
+    searchView.setOnQueryTextListener(this);
   }
 
   @Override
@@ -211,28 +223,43 @@ public class RecipeListFragment extends Fragment {
   }
 
   private void refresh() {
-    List<Recipe> list = getArguments().containsKey(ARG_SEARCH)
-        ? new RecipeDatabase(getContext()).getRecipesBySearch
-        (getArguments().getString(ARG_SEARCH))
-        : new RecipeDatabase(getContext()).getRecipes();
+    List<Recipe> list = getRecipes();
 
-    mMessageDownloadingView.setVisibility(list.isEmpty()
-        ? View.VISIBLE : View.GONE);
+    if (list != null && !Util.listEqualsNoOrder(list, mRecipeList)) {
+      mMessageDownloadingView.setVisibility((list.isEmpty())
+          ? View.VISIBLE : View.GONE);
 
-    mRecipeList.clear();
-    for (Recipe recipe : list)
-      mRecipeList.add(recipe);
-    mAdapter.notifyDataSetChanged();
+      mRecipeList.clear();
+      for (Recipe recipe : list)
+        mRecipeList.add(recipe);
+
+      mAdapter.notifyDataSetChanged();
+    }
+  }
+
+  private List<Recipe> getRecipes() {
+    /* get either:
+     * - all recipes
+     * - recipes by search string
+     * - recipes by category
+     */
+    RecipeDatabase database = new RecipeDatabase(getContext());
+    return (mCurrentSearch != null && !mCurrentSearch.isEmpty())
+        ? database.getRecipesBySearch(mCurrentSearch)
+        : getArguments().containsKey(ARG_CATEGORY)
+
+        ? database.getRecipesByCategory(getArguments().getInt(ARG_CATEGORY))
+        : database.getRecipes();
   }
 
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof OnListFragmentInteractionListener) {
-      mListener = (OnListFragmentInteractionListener) context;
+    if (context instanceof OnRecipeClickListener) {
+      mListener = (OnRecipeClickListener) context;
     } else {
       throw new RuntimeException(context.toString()
-          + " must implement OnListFragmentInteractionListener");
+          + " must implement OnRecipeClickListener");
     }
   }
 
@@ -240,6 +267,18 @@ public class RecipeListFragment extends Fragment {
   public void onDetach() {
     super.onDetach();
     mListener = null;
+  }
+
+  @Override
+  public boolean onQueryTextSubmit(String query) {
+    return false;
+  }
+
+  @Override
+  public boolean onQueryTextChange(String newText) {
+    mCurrentSearch = newText;
+    refresh();
+    return false;
   }
 
   /**
@@ -252,7 +291,7 @@ public class RecipeListFragment extends Fragment {
    * "http://developer.android.com/training/basics/fragments/communicating.html"
    * >Communicating with Other Fragments</a> for more information.
    */
-  public interface OnListFragmentInteractionListener {
+  public interface OnRecipeClickListener {
     void onRecipeClicked(Recipe item);
   }
 }

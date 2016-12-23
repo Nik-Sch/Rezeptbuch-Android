@@ -28,7 +28,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".7"
+            android:layout_weight=".75"
             android:paddingBottom="2dp"
             android:paddingEnd="5dp"
             tools:ignore="RtlSymmetry">

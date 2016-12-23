@@ -6,7 +6,13 @@ import java.util.Date;
 public final class DataStructures {
 
   public static class Recipe implements Serializable {
-    public int mId;
+    public int _ID;
+
+    @Override
+    public boolean equals(Object obj) {
+      return ((obj instanceof Recipe) && ((Recipe) obj)._ID == _ID);
+    }
+
     public String mTitle;
     public int mCategory;
     public String mIngredients;
@@ -17,9 +23,9 @@ public final class DataStructures {
     public Recipe() {
     }
 
-    public Recipe(int mId, String mTitle, int mCategory, String mIngredients, String
+    public Recipe(int _ID, String mTitle, int mCategory, String mIngredients, String
         mDescription, String mImageName, Date mDate) {
-      this.mId = mId;
+      this._ID = _ID;
       this.mTitle = mTitle;
       this.mCategory = mCategory;
       this.mIngredients = mIngredients;
@@ -35,14 +41,19 @@ public final class DataStructures {
   }
 
   public static class Category implements Serializable {
-    public int mId;
+    public int _ID;
     public String mName;
+
+    @Override
+    public boolean equals(Object obj) {
+      return ((obj instanceof Category) && ((Category) obj)._ID == _ID);
+    }
 
     public Category() {
     }
 
-    public Category(int mId, String mName) {
-      this.mId = mId;
+    public Category(int _ID, String mName) {
+      this._ID = _ID;
       this.mName = mName;
     }
 

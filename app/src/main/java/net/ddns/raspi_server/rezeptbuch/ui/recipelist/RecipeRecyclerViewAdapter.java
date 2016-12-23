@@ -10,25 +10,27 @@ import android.widget.TextView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
-import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnListFragmentInteractionListener;
+import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnRecipeClickListener;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Recipe} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link Recipe} and makes a
+ * call to the specified {@link OnRecipeClickListener}.
  */
-public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecyclerViewAdapter.ViewHolder> {
+public class RecipeRecyclerViewAdapter extends RecyclerView
+    .Adapter<RecipeRecyclerViewAdapter.ViewHolder> {
 
   private final List<Recipe> mValues;
-  private final OnListFragmentInteractionListener mListener;
+  private final OnRecipeClickListener mListener;
   private final Context mContext;
   private final RecipeDatabase database;
 
-  public RecipeRecyclerViewAdapter(List<Recipe> items, OnListFragmentInteractionListener
-          listener, Context context) {
+  public RecipeRecyclerViewAdapter(final List<Recipe> items,
+                                   RecipeListFragment.OnRecipeClickListener
+                                       listener, Context context) {
     mValues = items;
     mListener = listener;
     this.mContext = context;
@@ -38,7 +40,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.fragment_recipe_list_item, parent, false);
+        .inflate(R.layout.fragment_recipe_list_item, parent, false);
     return new ViewHolder(view);
   }
 

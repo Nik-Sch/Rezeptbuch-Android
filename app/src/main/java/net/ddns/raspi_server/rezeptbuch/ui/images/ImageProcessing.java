@@ -21,8 +21,17 @@ public class ImageProcessing {
 
   public static void loadRecipeImage(final Context context, final Recipe recipe,
                                      final ImageView imageView, final boolean dark) {
-    if (recipe == null || recipe.mImageName == null)
+    if (recipe == null || recipe.mImageName == null) {
+      Glide.with(context)
+          .load(dark
+              ? R.drawable.default_recipe_image_high_dark
+              : R.drawable.default_recipe_image_high)
+          .placeholder(dark
+              ? R.drawable.default_recipe_image_low_dark
+              : R.drawable.default_recipe_image_low)
+          .into(imageView);
       return;
+    }
 
     final File imageFile = new File(context.getFilesDir(), recipe.mImageName);
 
@@ -41,14 +50,14 @@ public class ImageProcessing {
                   .with(context)
                   // if successful, load the downloaded image, otherwise
                   // load the resource
-                  .load(success ?
-                      imageFile :
-                      dark ?
-                          R.drawable.default_recipe_image_high_dark :
-                          R.drawable.default_recipe_image_high)
-                  .placeholder(dark ?
-                      R.drawable.default_recipe_image_low_dark :
-                      R.drawable.default_recipe_image_low);
+                  .load(success
+                      ? imageFile
+                      : dark
+                      ? R.drawable.default_recipe_image_high_dark
+                      : R.drawable.default_recipe_image_high)
+                  .placeholder(dark
+                      ? R.drawable.default_recipe_image_low_dark
+                      : R.drawable.default_recipe_image_low);
               if (success)
                 builder.crossFade();
               builder.into(imageView);
@@ -62,14 +71,14 @@ public class ImageProcessing {
         .with(context)
         // if the file exists load it (no matter if it is being downloaded
         // atm), otherwise, show the resource
-        .load(image ?
-            imageFile :
-            dark ?
-                R.drawable.default_recipe_image_high_dark :
-                R.drawable.default_recipe_image_high)
-        .placeholder(dark ?
-            R.drawable.default_recipe_image_low_dark :
-            R.drawable.default_recipe_image_low);
+        .load(image
+            ? imageFile
+            : dark
+            ? R.drawable.default_recipe_image_high_dark
+            : R.drawable.default_recipe_image_high)
+        .placeholder(dark
+            ? R.drawable.default_recipe_image_low_dark
+            : R.drawable.default_recipe_image_low);
     if (image)
       builder.crossFade();
     builder.into(imageView);

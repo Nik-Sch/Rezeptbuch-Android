@@ -41,4 +41,8 @@
     <string name="notification_failed_update">"Die Rezepte konnten nicht aktualisiert werden.\nDie App ist offline."</string>
     <string name="notification_updated">Die Rezepte wurden erfolgreich um %s Uhr aktualisiert.</string>
     <string name="search_hint">Suchen…</string>
+    <string name="delete_recipe_dialog_title">Lösche das Rezept</string>
+    <string name="description_delete_recipe">Bist du sicher, dass du das Rezept löschen willst?</string>
+    <string name="error_description_delete_recipe">"Das Rezept konnte nicht gelöscht werden\nÜberprüfe deine Internetverbindung und versuche es später erneut."</string>
+    <string name="title_delete_recipe">Rezept löschen</string>
 </resources>
