@@ -124,7 +124,14 @@ public class RecipeDatabase {
 
   public List<Recipe> getRecipesBySearch(String searchString) {
     // TODO: find a useful search algorithm
-    return new ArrayList<>();
+    try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+      List<Recipe> result = new ArrayList<>();
+      result.add(getRecipeById(117));
+      return result;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
   }
 
   public Recipe getRecipeById(int id) {

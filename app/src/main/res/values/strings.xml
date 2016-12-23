@@ -40,4 +40,5 @@
     <string name="yes">yes</string>
     <string name="no">no</string>
     <string name="error_title_image_upload">Failed to upload the image</string>
+    <string name="search_hint">Search...</string>
 </resources>

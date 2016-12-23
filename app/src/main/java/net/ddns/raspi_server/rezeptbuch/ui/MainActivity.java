@@ -1,15 +1,20 @@
 package net.ddns.raspi_server.rezeptbuch.ui;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,13 +25,15 @@ import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.AndroidDatabaseManager;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RecipeListFragment.OnListFragmentInteractionListener{
+    implements NavigationView.OnNavigationItemSelectedListener,
+    RecipeListFragment.OnListFragmentInteractionListener {
 
+  private static final String TAG = "MainActivity";
   ActionBarDrawerToggle mToggle;
   NavigationView mNavigationView;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState){
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -34,43 +41,75 @@ public class MainActivity extends AppCompatActivity
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
     mToggle = new ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
     mNavigationView = (NavigationView) findViewById(R.id.nav_view);
     mNavigationView.setNavigationItemSelectedListener(this);
 
     // retrieve new recipes if there are any
-    new WebClient(getApplicationContext()).downloadRecipes();
+    if (!handleIntent(getIntent())) {
+      new WebClient(getApplicationContext()).downloadRecipes();
 
-    if (savedInstanceState == null)
-      mNavigationView.getMenu().performIdentifierAction(R.id.nav_home, 0);
+      if (savedInstanceState == null) {
+        mNavigationView.getMenu().performIdentifierAction(R.id.nav_home, 0);
+        mNavigationView.getMenu().getItem(0).setChecked(true);
+      }
+    }
+  }
+
+  private boolean handleIntent(Intent intent) {
+    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+      String query = intent.getStringExtra(SearchManager.QUERY);
+      Log.i(TAG, "Searching for query: " + query);
+      RecipeListFragment recipeListFragment = RecipeListFragment.newInstance
+          (query);
+      getSupportFragmentManager()
+          .beginTransaction()
+          .replace(R.id.content_main, recipeListFragment)
+          .commit();
+      return true;
+    }
+    return false;
   }
 
   @Override
-  protected void onPostCreate(@Nullable Bundle savedInstanceState){
+  protected void onNewIntent(Intent intent) {
+    handleIntent(intent);
+  }
+
+  @Override
+  protected void onPostCreate(@Nullable Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     mToggle.syncState();
   }
 
   @Override
-  public void onBackPressed(){
+  public void onBackPressed() {
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-    if (drawer.isDrawerOpen(GravityCompat.START)){
+    if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
-    }else{
+    } else {
       super.onBackPressed();
     }
   }
 
   @Override
-  public boolean onCreateOptionsMenu(Menu menu){
+  public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.main, menu);
+
+    // for searchView
+    SearchManager searchManager = (SearchManager) getSystemService(Context
+        .SEARCH_SERVICE);
+    SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu
+        .findItem(R.id.action_search));
+    searchView.setSearchableInfo(searchManager.getSearchableInfo
+        (getComponentName()));
     return true;
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item){
+  public boolean onOptionsItemSelected(MenuItem item) {
     // Handle action bar item clicks here. The action bar will
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
@@ -78,7 +117,7 @@ public class MainActivity extends AppCompatActivity
 
     //noinspection SimplifiableIfStatement
     Intent intent;
-    switch (id){
+    switch (id) {
       case R.id.action_settings:
         return true;
       case R.id.action_create_recipe:
@@ -95,16 +134,16 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public boolean onNavigationItemSelected(@NonNull MenuItem item){
+  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     // Handle navigation view item clicks here.
     int id = item.getItemId();
-    switch (id){
+    switch (id) {
       case R.id.nav_home:
         RecipeListFragment recipeListFragment = RecipeListFragment.newInstance();
         getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_main, recipeListFragment)
-                .commit();
+            .beginTransaction()
+            .replace(R.id.content_main, recipeListFragment)
+            .commit();
     }
 
     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -113,7 +152,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public void onRecipeClicked(DataStructures.Recipe recipe){
+  public void onRecipeClicked(DataStructures.Recipe recipe) {
     Intent intent = new Intent(this, RecipeActivity.class);
     intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
     startActivity(intent);

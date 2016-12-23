@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class RecipeListFragment extends Fragment {
 
+  private static final String ARG_SEARCH = "ARG_SEARCH";
   private OnListFragmentInteractionListener mListener;
 
   private List<Recipe> mRecipeList;
@@ -43,6 +44,15 @@ public class RecipeListFragment extends Fragment {
     return fragment;
   }
 
+  public static RecipeListFragment newInstance(String search) {
+    RecipeListFragment fragment = new RecipeListFragment();
+    Bundle args = new Bundle();
+    args.putString(ARG_SEARCH, search);
+    fragment.setArguments(args);
+    return fragment;
+  }
+
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
@@ -54,7 +64,9 @@ public class RecipeListFragment extends Fragment {
       RecyclerView recyclerView = (RecyclerView) view;
       recyclerView.setLayoutManager(new LinearLayoutManager(context));
       RecipeDatabase database = new RecipeDatabase(context);
-      mRecipeList = database.getRecipes();
+      mRecipeList = getArguments().containsKey(ARG_SEARCH)
+          ? database.getRecipesBySearch(getArguments().getString(ARG_SEARCH))
+          : database.getRecipes();
       mAdapter = new RecipeRecyclerViewAdapter(mRecipeList, mListener, context);
       recyclerView.setAdapter(mAdapter);
     }
@@ -69,7 +81,7 @@ public class RecipeListFragment extends Fragment {
         // TODO: isn't quite working, though
         List<Recipe> list = new RecipeDatabase(getContext()).getRecipes();
         mRecipeList.clear();
-        for (Recipe recipe: list)
+        for (Recipe recipe : list)
           mRecipeList.add(recipe);
         mAdapter.notifyDataSetChanged();
         return true;
@@ -80,11 +92,11 @@ public class RecipeListFragment extends Fragment {
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof OnListFragmentInteractionListener){
+    if (context instanceof OnListFragmentInteractionListener) {
       mListener = (OnListFragmentInteractionListener) context;
-    }else{
+    } else {
       throw new RuntimeException(context.toString()
-              + " must implement OnListFragmentInteractionListener");
+          + " must implement OnListFragmentInteractionListener");
     }
   }
 
