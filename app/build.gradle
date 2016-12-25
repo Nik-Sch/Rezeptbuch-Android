@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'keystore'
+            keyPassword '(iPod11)'
+            storeFile file('D:/nikla/AndroidStudioProjects/keystore.jks')
+            storePassword '(iPod11)'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "24.0.3"
     defaultConfig {

@@ -91,7 +91,8 @@
                     android:contentDescription="@string/desc_add_image"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
-                    android:src="@drawable/default_recipe_image_low"/>
+                    android:src="@drawable/default_recipe_image_low"
+                    android:scaleType="fitCenter"/>
             </LinearLayout>
 
             <View

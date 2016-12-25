@@ -100,7 +100,8 @@ public class WebClient {
       @Override
       public void onErrorResponse(VolleyError error) {
         Log.e(TAG, "receiving recipes failed.");
-        broadcastDownloadFinished(error.networkResponse.statusCode == 418);
+        broadcastDownloadFinished(!(error == null || error.networkResponse
+            == null || error.networkResponse.statusCode != 418));
       }
     }) {
       @Override
@@ -246,9 +247,24 @@ public class WebClient {
     }
   }
 
-  public void uploadRecipe(final DataStructures.Recipe recipe,
-                           final RecipeUploadCallback callback) {
+
+  public void updateRecipe(final DataStructures.Recipe recipe, final
+  RecipeUploadCallback callback) {
+    deleteRecipe(recipe, new DeleteRecipeCallback() {
+      @Override
+      public void finished(boolean success) {
+        if (success)
+          uploadRecipe(recipe, callback);
+        else
+          callback.finished(null);
+      }
+    });
+  }
+
+  public void uploadRecipe(final DataStructures.Recipe recipe, final
+  RecipeUploadCallback callback) {
     String url = mBaseUrl + ":" + mServicePort + "/recipes";
+
     String imageName = recipe.mImageName != null && !recipe.mImageName
         .isEmpty()
         ? Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients)
@@ -262,21 +278,22 @@ public class WebClient {
       body.put("beschreibung", recipe.mDescription);
       if (imageName != null)
         body.put("bild", imageName);
-      final JsonObjectRequest request = new JsonObjectRequest(url, body, new Response
-          .Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-          recipe._ID = response.optInt("rezept_ID");
-          try {
-            recipe.mDate = mServerResponseFormat.parse(response.optString
-                ("datum"));
-          } catch (ParseException e) {
-            e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-          }
-          callback.finished(recipe);
-        }
-      }, new Response.ErrorListener() {
+      final JsonObjectRequest request = new JsonObjectRequest(url, body, new
+          Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+              recipe._ID = response.optInt("rezept_ID");
+              try {
+                recipe.mDate = mServerResponseFormat.parse(response.optString
+                    ("datum"));
+                recipe.mImageName = response.optString("bild_Path");
+              } catch (ParseException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
+              }
+              callback.finished(recipe);
+            }
+          }, new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
           callback.finished(null);
@@ -327,7 +344,6 @@ public class WebClient {
     }
   }
 
-  // TODO: need a callback for this stuff, too.
   private void uploadImage(final String path, final String name,
                            final ImageUploadProgressCallback callback) {
     String url = mBaseUrl + "/Rezeptbuch/upload_image.php";

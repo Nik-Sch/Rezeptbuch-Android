@@ -47,7 +47,7 @@ public class RecipeListFragment extends Fragment implements SearchView
 
   private List<Recipe> mRecipeList;
   private RecyclerView.Adapter mAdapter;
-  private TextView mMessageDownloadingView;
+  private TextView mInfoTextView;
   private TextView mNotificationView;
   private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
     @Override
@@ -70,8 +70,8 @@ public class RecipeListFragment extends Fragment implements SearchView
             .color.holo_red_dark));
       } else {
         showNotification = false;
-        mMessageDownloadingView.setText(R.string.notification_failed_download);
-        mMessageDownloadingView.setTextColor(getResources().getColor(android
+        mInfoTextView.setText(R.string.notification_failed_download);
+        mInfoTextView.setTextColor(getResources().getColor(android
             .R.color.holo_red_dark));
       }
 
@@ -179,8 +179,8 @@ public class RecipeListFragment extends Fragment implements SearchView
     View rootView = inflater.inflate(R.layout.fragment_recipe_list,
         container, false);
     View listView = rootView.findViewById(R.id.list);
-    mMessageDownloadingView = (TextView) rootView.findViewById(R.id
-        .message_downloading);
+    mInfoTextView = (TextView) rootView.findViewById(R.id
+        .info_text);
     mNotificationView = (TextView) rootView.findViewById(R.id.notification);
     // Set the adapter
     if (listView instanceof RecyclerView) {
@@ -189,7 +189,7 @@ public class RecipeListFragment extends Fragment implements SearchView
       recyclerView.setLayoutManager(new LinearLayoutManager(context));
       mRecipeList = getRecipes();
       if (mRecipeList.isEmpty()) {
-        mMessageDownloadingView.setVisibility(View.VISIBLE);
+        mInfoTextView.setVisibility(View.VISIBLE);
       }
       mAdapter = new RecipeRecyclerViewAdapter(mRecipeList, mListener, context);
       recyclerView.setAdapter(mAdapter);
@@ -200,6 +200,8 @@ public class RecipeListFragment extends Fragment implements SearchView
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
+    menu.findItem(R.id.action_search).setVisible(true);
+    menu.findItem(R.id.action_refresh).setVisible(true);
     SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu
         .findItem(R.id.action_search));
     searchView.setOnQueryTextListener(this);
@@ -226,8 +228,15 @@ public class RecipeListFragment extends Fragment implements SearchView
     List<Recipe> list = getRecipes();
 
     if (list != null && !Util.listEqualsNoOrder(list, mRecipeList)) {
-      mMessageDownloadingView.setVisibility((list.isEmpty())
-          ? View.VISIBLE : View.GONE);
+      if (list.isEmpty()) {
+        mInfoTextView.setText((mCurrentSearch == null || mCurrentSearch
+            .isEmpty())
+            ? R.string.downloading_recipes
+            : R.string.no_search_results);
+        mInfoTextView.setVisibility(View.VISIBLE);
+      } else
+        mInfoTextView.setVisibility(View.GONE);
+
 
       mRecipeList.clear();
       for (Recipe recipe : list)

@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -33,10 +35,14 @@ import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-public class CreateRecipeActivity extends AppCompatActivity {
+public class CreateRecipeActivity extends AppCompatActivity implements WebClient.RecipeUploadCallback {
 
   public static final String ARG_RECIPE = "mRecipe";
   private static final int PERMISSION_REQUEST_READ_EXTERNAL = 1;
@@ -52,6 +58,9 @@ public class CreateRecipeActivity extends AppCompatActivity {
   private ImageView mImageView;
 
   private String mImagePath;
+  private DataStructures.Recipe mRecipe;
+
+  private ProgressDialog uploadProgressDialog;
 
   private void browseForImage() {
     Intent intent = new Intent(Intent.ACTION_PICK,
@@ -102,6 +111,8 @@ public class CreateRecipeActivity extends AppCompatActivity {
     setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+    uploadProgressDialog = new ProgressDialog(this);
+
     mTitleEdit = (EditText) findViewById(R.id.title);
     mIngredientsEdit = (EditText) findViewById(R.id.ingredients);
     mDescriptionEdit = (EditText) findViewById(R.id.description);
@@ -130,7 +141,7 @@ public class CreateRecipeActivity extends AppCompatActivity {
                 .show();
           } else {
             ActivityCompat.requestPermissions(CreateRecipeActivity.this, new
-                String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                    String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
                 PERMISSION_REQUEST_READ_EXTERNAL);
           }
         } else {
@@ -165,7 +176,7 @@ public class CreateRecipeActivity extends AppCompatActivity {
     if (bundle != null && bundle.containsKey(ARG_RECIPE)) {
       Serializable s = bundle.getSerializable(ARG_RECIPE);
       if (s instanceof DataStructures.Recipe) {
-        DataStructures.Recipe mRecipe = (DataStructures.Recipe) s;
+        mRecipe = (DataStructures.Recipe) s;
         mTitleEdit.setText(mRecipe.mTitle);
         mIngredientsEdit.setText(mRecipe.mIngredients);
         mDescriptionEdit.setText(mRecipe.mDescription);
@@ -207,61 +218,35 @@ public class CreateRecipeActivity extends AppCompatActivity {
         return true;
       case R.id.action_save:
         // the progress dialog to show when waiting for a network response
-        saveImage();
+        saveRecipe();
         return true;
     }
     return super.onOptionsItemSelected(item);
   }
 
-  private void saveImage() {
-    final ProgressDialog progressDialog = new ProgressDialog(CreateRecipeActivity
-        .this);
-    progressDialog.setTitle(CreateRecipeActivity.this.getResources().getString(R
-        .string.create_recipe_dialog_title));
-    progressDialog.setIndeterminate(true);
-    progressDialog.setCancelable(false);
-    progressDialog.show();
+  private void saveRecipe() {
+    uploadProgressDialog.setIndeterminate(true);
+    uploadProgressDialog.setCancelable(false);
     WebClient webClient = new WebClient(this);
-    webClient.uploadRecipe(new DataStructures.Recipe(
-        -1,
+    DataStructures.Recipe recipe = new DataStructures.Recipe(
+        (mRecipe == null) ? -1 : mRecipe._ID,
         mTitleEdit.getText().toString(),
         mSpinner.getSelectedItemPosition() - 1,
         mIngredientsEdit.getText().toString(),
         mDescriptionEdit.getText().toString(),
         mImagePath,
-        null /*date*/), new WebClient.RecipeUploadCallback() {
-      @Override
-      public void finished(DataStructures.Recipe recipe) {
-        // always dismiss the progress dialog
-        progressDialog.dismiss();
-        // if an error occurred, show a message and probably store the
-        // recipe locally somehow #TODO
-        if (recipe == null) {
-
-          AlertDialog.Builder builder1 = new AlertDialog
-              .Builder(CreateRecipeActivity.this);
-          builder1.setTitle(R.string.error_title_internet);
-          builder1.setMessage(R.string.error_description_internet);
-          builder1.setPositiveButton(R.string.ok, null);
-          builder1.show();
-        } else {
-          // add the recipe to the local db
-          new RecipeDatabase(CreateRecipeActivity.this).putRecipe(recipe);
-          CreateRecipeActivity.this.finish();
-          // show the recipe
-          Intent intent = new Intent(CreateRecipeActivity.this, RecipeActivity
-              .class);
-          intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
-          CreateRecipeActivity.this.startActivity(intent);
-        }
-
-      }
-
-      @Override
-      public void onProgress(int status) {
-
-      }
-    });
+        null /*date*/);
+    if (mRecipe == null) {
+      uploadProgressDialog.setTitle(CreateRecipeActivity.this.getResources().getString(R
+          .string.create_recipe_dialog_title));
+      uploadProgressDialog.show();
+      webClient.uploadRecipe(recipe, this);
+    } else {
+      uploadProgressDialog.setTitle(CreateRecipeActivity.this.getResources().getString(R
+          .string.update_recipe_dialog_title));
+      uploadProgressDialog.show();
+      webClient.updateRecipe(recipe, this);
+    }
   }
 
   private void updateSaveItem() {
@@ -271,6 +256,54 @@ public class CreateRecipeActivity extends AppCompatActivity {
               !mTitleEdit.getText().toString().isEmpty() &&
               !mIngredientsEdit.getText().toString().isEmpty() &&
               !mDescriptionEdit.getText().toString().isEmpty());
+  }
+
+  @Override
+  public void finished(DataStructures.Recipe recipe) {
+    // always dismiss the progress dialog
+    uploadProgressDialog.dismiss();
+    // if an error occurred, show a message and probably store the
+    // recipe locally somehow #TODO
+    if (recipe == null) {
+
+      AlertDialog.Builder builder1 = new AlertDialog
+          .Builder(CreateRecipeActivity.this);
+      builder1.setTitle(R.string.error_title_internet);
+      builder1.setMessage(R.string.error_description_internet);
+      builder1.setPositiveButton(R.string.ok, null);
+      builder1.show();
+    } else {
+      // add the recipe to the local db
+      RecipeDatabase recipeDatabase = new RecipeDatabase(this);
+      if (mRecipe != null) {
+        File imageFile = new File(getFilesDir(), mRecipe.mImageName);
+        imageFile.delete();
+        recipeDatabase.deleteRecipe(mRecipe);
+      }
+
+      Bitmap bitmap = BitmapFactory.decodeFile(mImagePath);
+      File file = new File(getFilesDir(), recipe.mImageName);
+      try {
+        file.createNewFile();
+        FileOutputStream out = new FileOutputStream(file);
+        if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out))
+          throw new RuntimeException("couldn't compress image.");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      recipeDatabase.putRecipe(recipe);
+      finish();
+      // show the recipe
+      Intent intent = new Intent(CreateRecipeActivity.this, RecipeActivity
+          .class);
+      intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
+      CreateRecipeActivity.this.startActivity(intent);
+    }
+  }
+
+  @Override
+  public void onProgress(int progress) {
+
   }
 
   private class ChangeListener implements TextWatcher, AdapterView
@@ -314,7 +347,7 @@ public class CreateRecipeActivity extends AppCompatActivity {
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialogInterface, int i) {
-                // when accepting show the progressDialog and request the server
+                // when accepting show the uploadProgressDialog and request the server
                 progressDialog.show();
                 WebClient webClient = new WebClient(CreateRecipeActivity.this);
                 webClient.uploadCategory(input.getText().toString(), new

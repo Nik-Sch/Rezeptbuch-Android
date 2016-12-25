@@ -30,7 +30,7 @@
         android:layout_below="@+id/notification"/>
 
     <TextView
-        android:id="@+id/message_downloading"
+        android:id="@+id/info_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/downloading_recipes"

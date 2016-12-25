@@ -19,7 +19,7 @@
     <string name="spinner_add_category">Neue Kategorie erstellen</string>
     <string name="spinner_choose_category">Wähle eine Kategorie…</string>
     <string name="hint_category">Kategorie</string>
-    <string name="hint_image">Rezept Bild</string>
+    <string name="hint_image">Klicken um ein Rezeptbild hinzuzufügen</string>
     <string name="action_save">Speichern</string>
     <string name="cancel">Abbrechen</string>
     <string name="create_category_dialog_title">Neue Kategorie erstellen</string>
@@ -45,4 +45,7 @@
     <string name="description_delete_recipe">Bist du sicher, dass du das Rezept löschen willst?</string>
     <string name="error_description_delete_recipe">"Das Rezept konnte nicht gelöscht werden\nÜberprüfe deine Internetverbindung und versuche es später erneut."</string>
     <string name="title_delete_recipe">Rezept löschen</string>
+    <string name="action_delete">Rezept löschen</string>
+    <string name="no_search_results">Es gibt keine Rezepte, die den Suchkriterien entsprechen.</string>
+    <string name="update_recipe_dialog_title">Aktualisiere das Rezept</string>
 </resources>

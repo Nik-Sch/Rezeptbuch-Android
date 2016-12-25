@@ -309,11 +309,11 @@ public class RecipeDatabase {
         return recipe;
       } else {
         c.close();
-        return new Recipe();
+        return null;
       }
     } catch (Exception e) {
       e.printStackTrace();
-      return new Recipe();
+      return null;
     }
   }
 

@@ -90,6 +90,13 @@ public class RecipeActivity extends AppCompatActivity {
   }
 
   @Override
+  protected void onResume() {
+    super.onResume();
+    if (new RecipeDatabase(this).getRecipeById(mRecipe._ID) == null)
+      finish();
+  }
+
+  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.recipe, menu);
     return true;

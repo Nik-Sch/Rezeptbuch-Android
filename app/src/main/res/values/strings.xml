@@ -23,7 +23,7 @@
     <string name="action_create_recipe">Create a new recipe</string>
     <string name="spinner_choose_category">Choose a category…</string>
     <string name="hint_category">Category</string>
-    <string name="hint_image">Recipe image</string>
+    <string name="hint_image">Click to add a recipe image</string>
     <string name="action_save">save</string>
     <string name="create_category_title">Create category</string>
     <string name="create_category_message">Create a new category</string>
@@ -51,4 +51,6 @@
     <string name="description_delete_recipe">Are you sure that you want to delete the recipe?</string>
     <string name="delete_recipe_dialog_title">Deleting the recipe</string>
     <string name="error_description_delete_recipe">"Failed to delete the recipe.\nCheck your internet connection and try again later."</string>
+    <string name="no_search_results">There are no recipes matching the searched string.</string>
+    <string name="update_recipe_dialog_title">Updating the recipe</string>
 </resources>
