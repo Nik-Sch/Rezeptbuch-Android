@@ -18,6 +18,7 @@ import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.categorylist.CategoryListFragment;
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
+import net.ddns.raspi_server.rezeptbuch.util.History;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.AndroidDatabaseManager;
 
@@ -110,23 +111,31 @@ public class MainActivity extends AppCompatActivity
     getSupportFragmentManager().popBackStackImmediate();
     // Handle navigation view item clicks here.
     int id = item.getItemId();
+    RecipeListFragment recipeListFragment;
     switch (id) {
       case R.id.nav_home:
         mRootSelection = 0;
-        RecipeListFragment recipeListFragment = RecipeListFragment
-            .newInstance();
+         recipeListFragment = RecipeListFragment.newInstance();
         getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_main, recipeListFragment)
             .commit();
         break;
       case R.id.nav_category:
-        mRootSelection = 2;
-        CategoryListFragment categoryListFragment = CategoryListFragment
+      mRootSelection = 2;
+      CategoryListFragment categoryListFragment = CategoryListFragment
             .newInstance();
-        getSupportFragmentManager()
+      getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_main, categoryListFragment)
+            .commit();
+      break;
+      case R.id.nav_history:
+        mRootSelection = 3;
+        recipeListFragment = RecipeListFragment.newInstance(true);
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.content_main, recipeListFragment)
             .commit();
         break;
     }
@@ -138,6 +147,7 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onRecipeClicked(DataStructures.Recipe recipe) {
+    History.getInstance().putRecipe(recipe);
     Intent intent = new Intent(this, RecipeActivity.class);
     intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
     startActivity(intent);

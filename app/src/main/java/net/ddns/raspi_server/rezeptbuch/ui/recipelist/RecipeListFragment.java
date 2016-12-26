@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
+import net.ddns.raspi_server.rezeptbuch.util.History;
 import net.ddns.raspi_server.rezeptbuch.util.Util;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
@@ -43,6 +44,7 @@ public class RecipeListFragment extends Fragment implements SearchView
     .OnQueryTextListener {
 
   private static final String ARG_CATEGORY = "ARG_CATEGORY";
+  private static final String ARG_HISTORY = "ARG_HISTORY";
   private OnRecipeClickListener mListener;
 
   private List<Recipe> mRecipeList;
@@ -148,6 +150,14 @@ public class RecipeListFragment extends Fragment implements SearchView
     return fragment;
   }
 
+  public static RecipeListFragment newInstance(boolean history) {
+    RecipeListFragment fragment = new RecipeListFragment();
+    Bundle args = new Bundle();
+    args.putBoolean(ARG_HISTORY, history);
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   public static RecipeListFragment newInstance(int categoryID) {
     RecipeListFragment fragment = new RecipeListFragment();
     Bundle args = new Bundle();
@@ -227,20 +237,24 @@ public class RecipeListFragment extends Fragment implements SearchView
   private void refresh() {
     List<Recipe> list = getRecipes();
 
-    if (list != null && !Util.listEqualsNoOrder(list, mRecipeList)) {
-      if (list.isEmpty()) {
-        mInfoTextView.setText((mCurrentSearch == null || mCurrentSearch
-            .isEmpty())
-            ? R.string.downloading_recipes
-            : R.string.no_search_results);
-        mInfoTextView.setVisibility(View.VISIBLE);
-      } else
-        mInfoTextView.setVisibility(View.GONE);
+    if (list == null || list.isEmpty()) {
+      mInfoTextView.setText(getArguments().containsKey(ARG_HISTORY) &&
+          getArguments().getBoolean(ARG_HISTORY)
 
+          ? R.string.empty_history
+          : (mCurrentSearch == null || mCurrentSearch.isEmpty())
 
+          ? R.string.downloading_recipes
+          : R.string.no_search_results);
+      mInfoTextView.setVisibility(View.VISIBLE);
+    } else
+      mInfoTextView.setVisibility(View.GONE);
+
+    if (!Util.listEqualsNoOrder(list, mRecipeList)) {
       mRecipeList.clear();
-      for (Recipe recipe : list)
-        mRecipeList.add(recipe);
+      if (list != null)
+        for (Recipe recipe : list)
+          mRecipeList.add(recipe);
 
       mAdapter.notifyDataSetChanged();
     }
@@ -258,6 +272,10 @@ public class RecipeListFragment extends Fragment implements SearchView
         : getArguments().containsKey(ARG_CATEGORY)
 
         ? database.getRecipesByCategory(getArguments().getInt(ARG_CATEGORY))
+        : getArguments().containsKey(ARG_HISTORY) && getArguments()
+        .getBoolean(ARG_HISTORY)
+
+        ? History.getInstance().getRecipes()
         : database.getRecipes();
   }
 

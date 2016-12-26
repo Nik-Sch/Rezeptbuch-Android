@@ -53,4 +53,5 @@
     <string name="error_description_delete_recipe">"Failed to delete the recipe.\nCheck your internet connection and try again later."</string>
     <string name="no_search_results">There are no recipes matching the searched string.</string>
     <string name="update_recipe_dialog_title">Updating the recipe</string>
+    <string name="empty_history">"You have not viewed any recipes.\nTherefore, the history is empty."</string>
 </resources>

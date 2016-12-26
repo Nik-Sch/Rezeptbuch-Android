@@ -10,7 +10,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".Rezeptbuch">
         <activity android:name=".ui.SplashActivity"
                   android:theme="@style/SpashTheme">
             <intent-filter>

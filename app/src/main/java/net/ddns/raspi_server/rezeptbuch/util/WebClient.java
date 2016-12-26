@@ -152,7 +152,7 @@ public class WebClient {
         db.putRecipe(recipe);
       }
 
-      // store the sync time in preferences
+      // store the sync time in mPreferences
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
       preferences.edit()
           .putString(PREFERENCE_SYNC_DATE,
