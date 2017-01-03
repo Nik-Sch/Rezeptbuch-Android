@@ -10,24 +10,23 @@ import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class History {
+public class Favorite {
 
-  private static final String PREFERENCES = "HistoryPrefs";
-  private static final String KEY_HISTORY = "HistoryKey";
-  private static final int MAX_HISTORY_SIZE = 30;
+  private static final String PREFERENCES = "FavoritePrefs";
+  private static final String KEY_FAVORITE = "FavoriteKey";
 
   private final SharedPreferences mPreferences;
   private final RecipeDatabase mDB;
 
   private static class Holder {
-    private static final History INSTANCE = new History();
+    private static final Favorite INSTANCE = new Favorite();
   }
 
-  public static History getInstance() {
+  public static Favorite getInstance() {
     return Holder.INSTANCE;
   }
 
-  private History() {
+  private Favorite() {
     Context context = Rezeptbuch.getContext();
     mPreferences = context.getSharedPreferences(PREFERENCES, Context
         .MODE_PRIVATE);
@@ -36,8 +35,8 @@ public class History {
 
   public List<Recipe> getRecipes() {
     List<Recipe> list = new ArrayList<>();
-    String historyString = mPreferences.getString(KEY_HISTORY, "");
-    String[] strIDList = historyString.split(";");
+    String favoriteString = mPreferences.getString(KEY_FAVORITE, "");
+    String[] strIDList = favoriteString.split(";");
     for (String str : strIDList)
       try {
         int id = Integer.parseInt(str);
@@ -50,12 +49,20 @@ public class History {
     return list;
   }
 
-  public void putRecipe(Recipe recipe) {
-    String historyString = mPreferences.getString(KEY_HISTORY, "");
+  public boolean contains(Recipe recipe) {
+    return getRecipes().contains(recipe);
+  }
+
+  /**
+   * @param recipe the recipe to toggle
+   * @return true if the recipe was added, false if it was removed.
+   */
+  public boolean toggleRecipe(Recipe recipe) {
+    boolean result = true;
+    String favoriteString = mPreferences.getString(KEY_FAVORITE, "");
 
     int newItem = recipe._ID;
-    historyString = newItem + ";" + historyString;
-    String[] strIDArray = historyString.split(";");
+    String[] strIDArray = favoriteString.split(";");
     List<Integer> idList = new ArrayList<>();
     for (String str : strIDArray)
       try {
@@ -64,19 +71,21 @@ public class History {
         e.printStackTrace();
       }
 
-    for (int i = 1; i < idList.size(); i++) {
+    for (int i = 0; i < idList.size(); i++) {
       if (idList.get(i) == newItem) {
         idList.remove(i);
+        result = false;
         break;
       }
     }
-    if (idList.size() > MAX_HISTORY_SIZE)
-      idList.remove(idList.size() - 1);
-    historyString = "";
+    if (result)
+      idList.add(0, newItem);
+    favoriteString = "";
     for (Integer i : idList)
-      historyString += i + ";";
-    if (historyString.length() > 0)
-      historyString = historyString.substring(0, historyString.length() - 1);
-    mPreferences.edit().putString(KEY_HISTORY, historyString).apply();
+      favoriteString += i + ";";
+    if (favoriteString.length() > 0)
+      favoriteString = favoriteString.substring(0, favoriteString.length() - 1);
+    mPreferences.edit().putString(KEY_FAVORITE, favoriteString).apply();
+    return result;
   }
 }

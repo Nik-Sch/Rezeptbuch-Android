@@ -13,12 +13,12 @@ public final class DataStructures {
       return ((obj instanceof Recipe) && ((Recipe) obj)._ID == _ID);
     }
 
-    public String mTitle;
-    public int mCategory;
-    public String mIngredients;
-    public String mDescription;
-    public String mImageName;
-    public Date mDate;
+    public String mTitle = "INVALID";
+    public int mCategory = -1;
+    public String mIngredients = "INVALID";
+    public String mDescription = "INVALID";
+    public String mImageName = "INVALID";
+    public Date mDate = new Date(0);
 
     public Recipe() {
     }
@@ -41,8 +41,8 @@ public final class DataStructures {
   }
 
   public static class Category implements Serializable {
-    public int _ID;
-    public String mName;
+    public int _ID = -1;
+    public String mName = "INVALID";
 
     @Override
     public boolean equals(Object obj) {

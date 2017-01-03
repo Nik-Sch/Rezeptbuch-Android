@@ -18,11 +18,13 @@ import android.widget.TextView;
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
+import net.ddns.raspi_server.rezeptbuch.util.Favorite;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
 import java.io.File;
 import java.io.Serializable;
+
 
 public class RecipeActivity extends AppCompatActivity {
 
@@ -99,6 +101,10 @@ public class RecipeActivity extends AppCompatActivity {
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.recipe, menu);
+    menu.findItem(R.id.action_fav).setIcon(Favorite.getInstance()
+        .contains(mRecipe)
+        ? R.drawable.ic_favorite_white_24dp
+        : R.drawable.ic_favorite_border_white_24dp);
     return true;
   }
 
@@ -125,6 +131,11 @@ public class RecipeActivity extends AppCompatActivity {
             })
             .setNegativeButton(R.string.no, null)
             .show();
+        return true;
+      case R.id.action_fav:
+        item.setIcon(Favorite.getInstance().toggleRecipe(mRecipe)
+            ? R.drawable.ic_favorite_white_24dp
+            : R.drawable.ic_favorite_border_white_24dp);
         return true;
     }
     return super.onOptionsItemSelected(item);

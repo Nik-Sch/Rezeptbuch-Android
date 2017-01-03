@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
+import net.ddns.raspi_server.rezeptbuch.util.Favorite;
 import net.ddns.raspi_server.rezeptbuch.util.History;
 import net.ddns.raspi_server.rezeptbuch.util.Util;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
@@ -43,8 +44,12 @@ import java.util.List;
 public class RecipeListFragment extends Fragment implements SearchView
     .OnQueryTextListener {
 
+  public enum Typ {
+    ALL, HISTORY, INVALID, FAVORITE
+  }
+
   private static final String ARG_CATEGORY = "ARG_CATEGORY";
-  private static final String ARG_HISTORY = "ARG_HISTORY";
+  private static final String ARG_TYP = "ARG_TYP";
   private OnRecipeClickListener mListener;
 
   private List<Recipe> mRecipeList;
@@ -135,6 +140,7 @@ public class RecipeListFragment extends Fragment implements SearchView
     }
   };
   private String mCurrentSearch = "";
+  private Typ mTyp;
 
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the
@@ -143,17 +149,10 @@ public class RecipeListFragment extends Fragment implements SearchView
   public RecipeListFragment() {
   }
 
-  public static RecipeListFragment newInstance() {
+  public static RecipeListFragment newInstance(Typ typ) {
     RecipeListFragment fragment = new RecipeListFragment();
     Bundle args = new Bundle();
-    fragment.setArguments(args);
-    return fragment;
-  }
-
-  public static RecipeListFragment newInstance(boolean history) {
-    RecipeListFragment fragment = new RecipeListFragment();
-    Bundle args = new Bundle();
-    args.putBoolean(ARG_HISTORY, history);
+    args.putSerializable(ARG_TYP, typ);
     fragment.setArguments(args);
     return fragment;
   }
@@ -162,6 +161,7 @@ public class RecipeListFragment extends Fragment implements SearchView
     RecipeListFragment fragment = new RecipeListFragment();
     Bundle args = new Bundle();
     args.putInt(ARG_CATEGORY, categoryID);
+    args.putSerializable(ARG_TYP, Typ.INVALID);
     fragment.setArguments(args);
     return fragment;
   }
@@ -170,6 +170,8 @@ public class RecipeListFragment extends Fragment implements SearchView
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
+
+    mTyp = (Typ) getArguments().getSerializable(ARG_TYP);
 
     LocalBroadcastManager.getInstance(getContext()).registerReceiver
         (mBroadcastReceiver, new IntentFilter(WebClient
@@ -238,11 +240,13 @@ public class RecipeListFragment extends Fragment implements SearchView
     List<Recipe> list = getRecipes();
 
     if (list == null || list.isEmpty()) {
-      mInfoTextView.setText(getArguments().containsKey(ARG_HISTORY) &&
-          getArguments().getBoolean(ARG_HISTORY)
+      mInfoTextView.setText(mTyp == Typ.HISTORY
 
           ? R.string.empty_history
-          : (mCurrentSearch == null || mCurrentSearch.isEmpty())
+          : mTyp == Typ.FAVORITE
+
+          ? R.string.no_favorite
+          :(mCurrentSearch == null || mCurrentSearch.isEmpty())
 
           ? R.string.downloading_recipes
           : R.string.no_search_results);
@@ -265,6 +269,7 @@ public class RecipeListFragment extends Fragment implements SearchView
      * - all recipes
      * - recipes by search string
      * - recipes by category
+     * - recipes by favorite
      */
     RecipeDatabase database = new RecipeDatabase(getContext());
     return (mCurrentSearch != null && !mCurrentSearch.isEmpty())
@@ -272,10 +277,12 @@ public class RecipeListFragment extends Fragment implements SearchView
         : getArguments().containsKey(ARG_CATEGORY)
 
         ? database.getRecipesByCategory(getArguments().getInt(ARG_CATEGORY))
-        : getArguments().containsKey(ARG_HISTORY) && getArguments()
-        .getBoolean(ARG_HISTORY)
+        : mTyp == Typ.HISTORY
 
         ? History.getInstance().getRecipes()
+        : mTyp == Typ.FAVORITE
+
+        ? Favorite.getInstance().getRecipes()
         : database.getRecipes();
   }
 

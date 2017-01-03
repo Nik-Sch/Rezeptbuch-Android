@@ -54,4 +54,6 @@
     <string name="no_search_results">There are no recipes matching the searched string.</string>
     <string name="update_recipe_dialog_title">Updating the recipe</string>
     <string name="empty_history">"You have not viewed any recipes.\nTherefore, the history is empty."</string>
+    <string name="action_fav">Favorite</string>
+    <string name="no_favorite">"You have not favored any recipes.\nTo do so, click the heart when viewing a recipe."</string>
 </resources>
