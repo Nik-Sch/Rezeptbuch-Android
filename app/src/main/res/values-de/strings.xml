@@ -49,4 +49,6 @@
     <string name="no_search_results">Es gibt keine Rezepte, die den Suchkriterien entsprechen.</string>
     <string name="update_recipe_dialog_title">Aktualisiere das Rezept</string>
     <string name="empty_history">"Du hast noch keine Rezepte geöffnet.\nDaher ist die Historie leer."</string>
+    <string name="no_favorite">"Du hast noch kein Rezept als Favorit markiert.\nUm dies zu tun klicke bei dem Anschauen eines Rezeptes auf das Herzchen."</string>
+    <string name="action_fav">Favorisieren</string>
 </resources>

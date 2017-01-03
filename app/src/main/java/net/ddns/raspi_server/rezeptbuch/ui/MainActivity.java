@@ -115,7 +115,17 @@ public class MainActivity extends AppCompatActivity
     switch (id) {
       case R.id.nav_home:
         mRootSelection = 0;
-         recipeListFragment = RecipeListFragment.newInstance();
+         recipeListFragment = RecipeListFragment.newInstance
+             (RecipeListFragment.Typ.ALL);
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.content_main, recipeListFragment)
+            .commit();
+        break;
+      case R.id.nav_favorites:
+        mRootSelection = 1;
+        recipeListFragment = RecipeListFragment.newInstance
+            (RecipeListFragment.Typ.FAVORITE);
         getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_main, recipeListFragment)
@@ -132,7 +142,8 @@ public class MainActivity extends AppCompatActivity
       break;
       case R.id.nav_history:
         mRootSelection = 3;
-        recipeListFragment = RecipeListFragment.newInstance(true);
+        recipeListFragment = RecipeListFragment.newInstance
+            (RecipeListFragment.Typ.HISTORY);
         getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_main, recipeListFragment)
