@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -56,6 +57,7 @@ public class RecipeListFragment extends Fragment implements SearchView
   private RecyclerView.Adapter mAdapter;
   private TextView mInfoTextView;
   private TextView mNotificationView;
+  private SwipeRefreshLayout refreshLayout;
   private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -137,6 +139,7 @@ public class RecipeListFragment extends Fragment implements SearchView
               }
             });
       }
+      refreshLayout.setRefreshing(false);
     }
   };
   private String mCurrentSearch = "";
@@ -206,6 +209,16 @@ public class RecipeListFragment extends Fragment implements SearchView
       mAdapter = new RecipeRecyclerViewAdapter(mRecipeList, mListener, context);
       recyclerView.setAdapter(mAdapter);
     }
+    refreshLayout = (SwipeRefreshLayout) rootView
+        .findViewById(R.id.refresh_layout);
+    refreshLayout.setOnRefreshListener(
+        new SwipeRefreshLayout.OnRefreshListener() {
+          @Override
+          public void onRefresh() {
+            new WebClient(getContext()).downloadRecipes();
+          }
+        }
+    );
     return rootView;
   }
 
@@ -230,6 +243,7 @@ public class RecipeListFragment extends Fragment implements SearchView
     int id = item.getItemId();
     switch (id) {
       case R.id.action_refresh:
+        refreshLayout.setRefreshing(true);
         new WebClient(getContext()).downloadRecipes();
         return true;
     }
