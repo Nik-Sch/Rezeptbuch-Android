@@ -20,7 +20,6 @@ import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures;
 import net.ddns.raspi_server.rezeptbuch.util.History;
 import net.ddns.raspi_server.rezeptbuch.util.WebClient;
-import net.ddns.raspi_server.rezeptbuch.util.db.AndroidDatabaseManager;
 
 public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener,
@@ -97,10 +96,10 @@ public class MainActivity extends AppCompatActivity
         intent = new Intent(this, CreateRecipeActivity.class);
         startActivity(intent);
         return true;
-      case R.id.action_database_debug:
-        intent = new Intent(this, AndroidDatabaseManager.class);
-        startActivity(intent);
-        return true;
+//      case R.id.action_database_debug:
+//        intent = new Intent(this, AndroidDatabaseManager.class);
+//        startActivity(intent);
+//        return true;
     }
 
     return super.onOptionsItemSelected(item);
