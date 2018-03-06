@@ -56,9 +56,8 @@ public class WebClient {
   private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" +
           ".rezeptbuch.util.WebClient.SYNC_DATE";
   private static final String TAG = "WebClient";
-  private static final String mBaseUrlRemote = "http://raspi-server.ddns.net";
+  private static final String mBaseUrlRemote = "http://raspi.myddns.me";
   private static final String mBaseUrlLocal = "http://192.168.1.250";
-  private static final String[] mBaseUrls = {mBaseUrlRemote, mBaseUrlLocal};
   private static final int mServicePort = 5425;
 
   private static final SimpleDateFormat mSyncTimeFormat = new
@@ -250,7 +249,14 @@ public class WebClient {
 
   public void uploadCategory(
           final String categoryName, final CategoryUploadCallback callback) {
-    String url = mBaseUrlRemote + ":" + mServicePort + "/categories";
+    uploadCategory(categoryName, callback, false);
+  }
+
+  public void uploadCategory(
+          final String categoryName, final CategoryUploadCallback callback, boolean remote) {
+//    String url = mBaseUrlRemote + ":" + mServicePort + "/categories";
+
+    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/categories";
     try {
       JSONObject body = new JSONObject();
       body.put("name", categoryName);
@@ -264,6 +270,10 @@ public class WebClient {
       }, new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
+          if (url.contains(mBaseUrlLocal)) {
+            uploadCategory(categoryName, callback, true);
+            return;
+          }
           callback.finished(null);
         }
       }) {
@@ -295,7 +305,14 @@ public class WebClient {
 
   public void uploadRecipe(final DataStructures.Recipe recipe, final
   RecipeUploadCallback callback) {
-    String url = mBaseUrlRemote + ":" + mServicePort + "/recipes";
+    uploadRecipe(recipe, callback, false);
+  }
+
+  public void uploadRecipe(final DataStructures.Recipe recipe, final
+  RecipeUploadCallback callback, final boolean remote) {
+    // String url = mBaseUrlRemote + ":" + mServicePort + "/recipes";
+
+    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/recipes";
 
     String imageName = recipe.mImageName != null && !recipe.mImageName
             .isEmpty()
@@ -328,6 +345,10 @@ public class WebClient {
               }, new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
+          if (url.contains(mBaseUrlLocal)) {
+            uploadRecipe(recipe, callback, true);
+            return;
+          }
           callback.finished(null);
         }
       }) {
@@ -378,7 +399,14 @@ public class WebClient {
 
   private void uploadImage(final String path, final String name,
                            final ImageUploadProgressCallback callback) {
-    String url = mBaseUrlRemote + "/Rezeptbuch/upload_image.php";
+    uploadImage(path, name, callback, false);
+  }
+
+  private void uploadImage(final String path, final String name,
+                           final ImageUploadProgressCallback callback, final boolean remote) {
+//    String url = mBaseUrlRemote + "/Rezeptbuch/upload_image.php";
+
+    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/Rezeptbuch/upload_image.php";
 
     VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest
             (Request.Method.POST, url, new Response.Listener<NetworkResponse>() {
@@ -391,6 +419,11 @@ public class WebClient {
             }, new Response.ErrorListener() {
               @Override
               public void onErrorResponse(VolleyError error) {
+                if (url.contains(mBaseUrlLocal)) {
+                  uploadImage(path, name, callback, true);
+                  return;
+                }
+
                 callback.finished(false);
                 NetworkResponse networkResponse = error.networkResponse;
                 String errorMessage = "Unknown error";
@@ -462,7 +495,15 @@ public class WebClient {
 
   public void deleteRecipe(final DataStructures.Recipe recipe,
                            final DeleteRecipeCallback callback) {
-    String url = mBaseUrlRemote + ":" + mServicePort + "/recipes/" + recipe._ID;
+    deleteRecipe(recipe, callback, false);
+  }
+
+  public void deleteRecipe(final DataStructures.Recipe recipe,
+                           final DeleteRecipeCallback callback, boolean remote) {
+    //String url = mBaseUrlRemote + ":" + mServicePort + "/recipes/" + recipe._ID;
+
+    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + ":" + mServicePort +
+            "/recipes/" + recipe._ID;
     StringRequest request = new StringRequest(Request.Method.DELETE, url,
             new Response.Listener<String>() {
               @Override
@@ -472,6 +513,9 @@ public class WebClient {
             }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
+        if (url.contains(mBaseUrlLocal)) {
+          deleteRecipe(recipe, callback, true);
+        }
         callback.finished(false);
       }
     }) {
