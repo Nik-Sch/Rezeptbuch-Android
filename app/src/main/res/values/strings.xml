@@ -56,4 +56,7 @@
     <string name="empty_history">"You have not viewed any recipes.\nTherefore, the history is empty."</string>
     <string name="action_fav">Favorite</string>
     <string name="no_favorite">"You have not favored any recipes.\nTo do so, click the heart when viewing a recipe."</string>
+    <string name="action_date">Date</string>
+    <string name="action_category">Category</string>
+    <string name="action_alpha">Alphabetically</string>
 </resources>
