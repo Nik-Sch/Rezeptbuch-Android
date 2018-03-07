@@ -261,7 +261,7 @@ public class RecipeDatabase {
         c.close();
         List<Recipe> res = new ArrayList<>();
         for (Category category : result)
-          res.addAll(getRecipesByCategory(category._ID));
+          res.addAll(getRecipesByCategory(category.get_ID()));
         return res;
       } else {
         c.close();
@@ -357,13 +357,13 @@ public class RecipeDatabase {
   public void putRecipe(Recipe recipe) {
     try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
       ContentValues values = new ContentValues();
-      values.put(RecipeContract.recipes._ID, recipe._ID);
-      values.put(RecipeContract.recipes.COLUMN_TITLE, recipe.mTitle);
-      values.put(RecipeContract.recipes.COLUMN_CATEGORY, recipe.mCategory);
-      values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.mIngredients);
-      values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.mDescription);
-      values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.mImageName);
-      values.put(RecipeContract.recipes.COLUMN_DATE, mDateFormat.format(recipe.mDate));
+      values.put(RecipeContract.recipes._ID, recipe.get_ID());
+      values.put(RecipeContract.recipes.COLUMN_TITLE, recipe.getMTitle());
+      values.put(RecipeContract.recipes.COLUMN_CATEGORY, recipe.getMCategory());
+      values.put(RecipeContract.recipes.COLUMN_INGREDIENTS, recipe.getMIngredients());
+      values.put(RecipeContract.recipes.COLUMN_DESCRIPTION, recipe.getMDescription());
+      values.put(RecipeContract.recipes.COLUMN_IMAGE_PATH, recipe.getMImageName());
+      values.put(RecipeContract.recipes.COLUMN_DATE, mDateFormat.format(recipe.getMDate()));
       db.insert(RecipeContract.recipes.TABLE_NAME, null, values);
     } catch (Exception e) {
       e.printStackTrace();
@@ -407,8 +407,8 @@ public class RecipeDatabase {
   public void putCategory(Category category) {
     try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
       ContentValues values = new ContentValues();
-      values.put(RecipeContract.categories._ID, category._ID);
-      values.put(RecipeContract.categories.COLUMN_NAME, category.mName);
+      values.put(RecipeContract.categories._ID, category.get_ID());
+      values.put(RecipeContract.categories.COLUMN_NAME, category.getMName());
       db.insert(RecipeContract.categories.TABLE_NAME, null, values);
     } catch (Exception e) {
       e.printStackTrace();
@@ -437,7 +437,7 @@ public class RecipeDatabase {
   public void deleteRecipe(Recipe recipe) {
     try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
       db.execSQL("DELETE FROM " + RecipeContract.recipes.TABLE_NAME +
-          " WHERE " + RecipeContract.recipes._ID + " = " + recipe._ID);
+          " WHERE " + RecipeContract.recipes._ID + " = " + recipe.get_ID());
     } catch (Exception e) {
       e.printStackTrace();
       Log.e(TAG, e.getMessage());

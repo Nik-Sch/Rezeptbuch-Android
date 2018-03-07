@@ -47,8 +47,8 @@ public class CategoryRecyclerViewAdapter extends RecyclerView
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
     holder.mCategory = mValues.get(position);
-    holder.mName.setText(holder.mCategory.mName);
-    List<Recipe> recipes = mDatabase.getRecipesByCategory(holder.mCategory._ID);
+    holder.mName.setText(holder.mCategory.getMName());
+    List<Recipe> recipes = mDatabase.getRecipesByCategory(holder.mCategory.get_ID());
     String text = "";
     if (recipes != null)
       for (int i = 0; i < 3; i++)

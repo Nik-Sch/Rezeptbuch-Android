@@ -50,12 +50,12 @@ public class RecipeRecyclerViewAdapter extends RecyclerView
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
     holder.mItem = mValues.get(position);
-    holder.mCategory.setText(database.getCategoryById(holder.mItem.mCategory).mName);
-    holder.mTitle.setText(holder.mItem.mTitle);
+    holder.mCategory.setText(database.getCategoryById(holder.mItem.getMCategory()).getMName());
+    holder.mTitle.setText(holder.mItem.getMTitle());
     // for making the marquee (auto scroll) work
     holder.mTitle.setSelected(true);
-    holder.mDescription.setText(holder.mItem.mDescription);
-    ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage);
+    holder.mDescription.setText(holder.mItem.getMDescription());
+    ImageProcessing.INSTANCE.loadRecipeImage(mContext, holder.mItem, holder.mImage);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -76,7 +76,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView
 
   @Override
   public String getSectionTitle(int position) {
-    return new SimpleDateFormat("MMM yy").format(mValues.get(position).mDate);
+    return new SimpleDateFormat("MMM yy").format(mValues.get(position).getMDate());
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {

@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onRecipeClicked(DataStructures.Recipe recipe) {
-    History.getInstance().putRecipe(recipe);
+    History.INSTANCE.putRecipe(recipe);
     Intent intent = new Intent(this, RecipeActivity.class);
     intent.putExtra(RecipeActivity.ARG_RECIPE, recipe);
     startActivity(intent);
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onCategoryClicked(DataStructures.Category category) {
     RecipeListFragment recipeListFragment = RecipeListFragment.newInstance
-        (category._ID);
+        (category.get_ID());
     getSupportFragmentManager()
         .beginTransaction()
         .replace(R.id.content_main, recipeListFragment)

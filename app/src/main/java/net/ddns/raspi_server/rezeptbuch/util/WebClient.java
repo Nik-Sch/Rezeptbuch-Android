@@ -272,28 +272,28 @@ public class WebClient {
     String url = mBaseUrl + ":" + mServicePort + "/recipes";
 
 
-    String imageName = recipe.mImageName != null && !recipe.mImageName
+    String imageName = recipe.getMImageName() != null && !recipe.getMImageName()
             .isEmpty()
-            ? Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients)
+            ? Util.INSTANCE.md5(recipe.getMTitle() + recipe.getMDescription() + recipe.getMIngredients())
             + ".jpg"
             : null;
     try {
       JSONObject body = new JSONObject();
-      body.put("titel", recipe.mTitle);
-      body.put("kategorie", recipe.mCategory);
-      body.put("zutaten", recipe.mIngredients);
-      body.put("beschreibung", recipe.mDescription);
+      body.put("titel", recipe.getMTitle());
+      body.put("kategorie", recipe.getMCategory());
+      body.put("zutaten", recipe.getMIngredients());
+      body.put("beschreibung", recipe.getMDescription());
       if (imageName != null)
         body.put("bild", imageName);
       final JsonObjectRequest request = new JsonObjectRequest(url, body, new
               Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                  recipe._ID = response.optInt("rezept_ID");
+                  recipe.set_ID(response.optInt("rezept_ID"));
                   try {
-                    recipe.mDate = mServerResponseFormat.parse(response.optString
-                            ("datum"));
-                    recipe.mImageName = response.optString("bild_Path");
+                    recipe.setMDate(mServerResponseFormat.parse(response.optString
+                            ("datum")));
+                    recipe.setMImageName(response.optString("bild_Path"));
                   } catch (ParseException e) {
                     e.printStackTrace();
                     Log.e(TAG, e.getMessage());
@@ -314,7 +314,7 @@ public class WebClient {
 
       // if an image is provided, upload it first
       if (imageName != null) {
-        uploadImage(recipe.mImageName, imageName, new ImageUploadProgressCallback() {
+        uploadImage(recipe.getMImageName(), imageName, new ImageUploadProgressCallback() {
           @Override
           public void onProgress(int progress) {
             callback.onProgress(progress);
@@ -437,7 +437,7 @@ public class WebClient {
 
   public void deleteRecipe(final DataStructures.Recipe recipe,
                            final DeleteRecipeCallback callback) {
-    String url = mBaseUrl + ":" + mServicePort + "/recipes/" + recipe._ID;
+    String url = mBaseUrl + ":" + mServicePort + "/recipes/" + recipe.get_ID();
 
     StringRequest request = new StringRequest(Request.Method.DELETE, url,
             new Response.Listener<String>() {

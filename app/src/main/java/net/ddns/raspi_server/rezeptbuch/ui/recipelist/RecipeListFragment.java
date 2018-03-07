@@ -260,7 +260,7 @@ public class RecipeListFragment extends Fragment implements SearchView
     } else
       mInfoTextView.setVisibility(View.GONE);
 
-    if (!Util.listEqualsNoOrder(list, mRecipeList)) {
+    if (!Util.INSTANCE.listEqualsNoOrder(list, mRecipeList)) {
       mRecipeList.clear();
       if (list != null)
         for (Recipe recipe : list)
@@ -285,10 +285,10 @@ public class RecipeListFragment extends Fragment implements SearchView
         ? database.getRecipesByCategory(getArguments().getInt(ARG_CATEGORY))
         : mTyp == Typ.HISTORY
 
-        ? History.getInstance().getRecipes()
+        ? History.INSTANCE.getRecipes()
         : mTyp == Typ.FAVORITE
 
-        ? Favorite.getInstance().getRecipes()
+        ? Favorite.INSTANCE.getRecipes()
         : database.getRecipes();
   }
 

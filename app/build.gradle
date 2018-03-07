@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
@@ -39,4 +40,8 @@ dependencies {
     compile 'net.gotev:uploadservice:3.0.3'
     compile 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
     testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

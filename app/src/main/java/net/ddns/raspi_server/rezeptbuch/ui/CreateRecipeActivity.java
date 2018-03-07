@@ -177,15 +177,15 @@ public class CreateRecipeActivity extends AppCompatActivity implements WebClient
       Serializable s = bundle.getSerializable(ARG_RECIPE);
       if (s instanceof DataStructures.Recipe) {
         mRecipe = (DataStructures.Recipe) s;
-        mTitleEdit.setText(mRecipe.mTitle);
-        mIngredientsEdit.setText(mRecipe.mIngredients);
-        mDescriptionEdit.setText(mRecipe.mDescription);
-        ImageProcessing.loadRecipeImage(this, mRecipe, (ImageView)
+        mTitleEdit.setText(mRecipe.getMTitle());
+        mIngredientsEdit.setText(mRecipe.getMIngredients());
+        mDescriptionEdit.setText(mRecipe.getMDescription());
+        ImageProcessing.INSTANCE.loadRecipeImage(this, mRecipe, (ImageView)
             findViewById(R.id.add_image));
         int i = 0;
         // using for each loop because it might be faster?
         for (DataStructures.Category category : mCategories) {
-          if (category._ID == mRecipe.mCategory) {
+          if (category.get_ID() == mRecipe.getMCategory()) {
             mSpinner.setSelection(i);
             break;
           }
@@ -229,7 +229,7 @@ public class CreateRecipeActivity extends AppCompatActivity implements WebClient
     uploadProgressDialog.setCancelable(false);
     WebClient webClient = new WebClient(this);
     DataStructures.Recipe recipe = new DataStructures.Recipe(
-        (mRecipe == null) ? -1 : mRecipe._ID,
+        (mRecipe == null) ? -1 : mRecipe.get_ID(),
         mTitleEdit.getText().toString(),
         mSpinner.getSelectedItemPosition() - 1,
         mIngredientsEdit.getText().toString(),
@@ -276,13 +276,13 @@ public class CreateRecipeActivity extends AppCompatActivity implements WebClient
       // add the recipe to the local db
       RecipeDatabase recipeDatabase = new RecipeDatabase(this);
       if (mRecipe != null) {
-        File imageFile = new File(getFilesDir(), mRecipe.mImageName);
+        File imageFile = new File(getFilesDir(), mRecipe.getMImageName());
         imageFile.delete();
         recipeDatabase.deleteRecipe(mRecipe);
       }
 
       Bitmap bitmap = BitmapFactory.decodeFile(mImagePath);
-      File file = new File(getFilesDir(), recipe.mImageName);
+      File file = new File(getFilesDir(), recipe.getMImageName());
       try {
         file.createNewFile();
         FileOutputStream out = new FileOutputStream(file);
