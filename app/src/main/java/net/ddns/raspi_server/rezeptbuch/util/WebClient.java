@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -56,8 +54,7 @@ public class WebClient {
   private static final String PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" +
           ".rezeptbuch.util.WebClient.SYNC_DATE";
   private static final String TAG = "WebClient";
-  private static final String mBaseUrlRemote = "http://raspi.myddns.me";
-  private static final String mBaseUrlLocal = "http://192.168.1.250";
+  private static final String mBaseUrl = "http://raspi.myddns.me";
   private static final int mServicePort = 5425;
 
   private static final SimpleDateFormat mSyncTimeFormat = new
@@ -80,20 +77,14 @@ public class WebClient {
   ##################################################################################################
    */
 
-  public void downloadRecipes() {
-    downloadRecipes(false);
-  }
 
-  private void downloadRecipes(boolean remote) {
+  public void downloadRecipes() {
     SharedPreferences preferences = PreferenceManager
             .getDefaultSharedPreferences(mContext);
     String receive_time = preferences.getString(PREFERENCE_SYNC_DATE,
             mSyncTimeFormat.format(new Date(0))).replace(" ", "%20");
 
-    // if remote is true always use the remote address, otherwise, check if wifi is connected and
-    // eventually use local address
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + ":" + mServicePort +
-            "/recipes/" + receive_time;
+    final String url = mBaseUrl + ":" + mServicePort + "/recipes/" + receive_time;
 
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
             url, null, new Response.Listener<JSONObject>() {
@@ -112,10 +103,6 @@ public class WebClient {
       @Override
       public void onErrorResponse(VolleyError error) {
         Log.e(TAG, "receiving recipes failed.");
-        if (url.contains(mBaseUrlLocal)) {
-          downloadRecipes(true);
-          return;
-        }
         broadcastDownloadFinished(!(error == null || error.networkResponse
                 == null || error.networkResponse.statusCode != 418));
       }
@@ -190,20 +177,9 @@ public class WebClient {
   ##################################################################################################
    */
 
-  public void downloadImage(String fileName) {
-    downloadImage(fileName, null);
-  }
-
-
   public void downloadImage(final String fileName, final DownloadCallback
           downloadCallback) {
-    downloadImage(fileName, downloadCallback, false);
-  }
-
-  private void downloadImage(final String fileName, final DownloadCallback
-          downloadCallback, boolean remote) {
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/Rezeptbuch/images/" +
-            fileName;
+    final String url = mBaseUrl + "/Rezeptbuch/images/" + fileName;
 
     ImageRequest request = new ImageRequest(url, new Response.Listener<Bitmap>() {
 
@@ -230,10 +206,6 @@ public class WebClient {
       @Override
       public void onErrorResponse(VolleyError error) {
         Log.d(TAG, "failed to retrieve image");
-        if (url.contains(mBaseUrlLocal)) {
-          downloadImage(fileName, downloadCallback, true);
-          return;
-        }
         if (downloadCallback != null)
           downloadCallback.finished(false);
       }
@@ -247,16 +219,12 @@ public class WebClient {
   ##################################################################################################
    */
 
+
   public void uploadCategory(
           final String categoryName, final CategoryUploadCallback callback) {
-    uploadCategory(categoryName, callback, false);
-  }
+//    String url = mBaseUrl + ":" + mServicePort + "/categories";
 
-  public void uploadCategory(
-          final String categoryName, final CategoryUploadCallback callback, boolean remote) {
-//    String url = mBaseUrlRemote + ":" + mServicePort + "/categories";
-
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/categories";
+    final String url = mBaseUrl + "/categories";
     try {
       JSONObject body = new JSONObject();
       body.put("name", categoryName);
@@ -270,10 +238,6 @@ public class WebClient {
       }, new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-          if (url.contains(mBaseUrlLocal)) {
-            uploadCategory(categoryName, callback, true);
-            return;
-          }
           callback.finished(null);
         }
       }) {
@@ -305,14 +269,8 @@ public class WebClient {
 
   public void uploadRecipe(final DataStructures.Recipe recipe, final
   RecipeUploadCallback callback) {
-    uploadRecipe(recipe, callback, false);
-  }
+    String url = mBaseUrl + ":" + mServicePort + "/recipes";
 
-  public void uploadRecipe(final DataStructures.Recipe recipe, final
-  RecipeUploadCallback callback, final boolean remote) {
-    // String url = mBaseUrlRemote + ":" + mServicePort + "/recipes";
-
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/recipes";
 
     String imageName = recipe.mImageName != null && !recipe.mImageName
             .isEmpty()
@@ -345,10 +303,6 @@ public class WebClient {
               }, new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-          if (url.contains(mBaseUrlLocal)) {
-            uploadRecipe(recipe, callback, true);
-            return;
-          }
           callback.finished(null);
         }
       }) {
@@ -399,14 +353,7 @@ public class WebClient {
 
   private void uploadImage(final String path, final String name,
                            final ImageUploadProgressCallback callback) {
-    uploadImage(path, name, callback, false);
-  }
-
-  private void uploadImage(final String path, final String name,
-                           final ImageUploadProgressCallback callback, final boolean remote) {
-//    String url = mBaseUrlRemote + "/Rezeptbuch/upload_image.php";
-
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + "/Rezeptbuch/upload_image.php";
+    String url = mBaseUrl + "/Rezeptbuch/upload_image.php";
 
     VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest
             (Request.Method.POST, url, new Response.Listener<NetworkResponse>() {
@@ -419,11 +366,6 @@ public class WebClient {
             }, new Response.ErrorListener() {
               @Override
               public void onErrorResponse(VolleyError error) {
-                if (url.contains(mBaseUrlLocal)) {
-                  uploadImage(path, name, callback, true);
-                  return;
-                }
-
                 callback.finished(false);
                 NetworkResponse networkResponse = error.networkResponse;
                 String errorMessage = "Unknown error";
@@ -495,15 +437,8 @@ public class WebClient {
 
   public void deleteRecipe(final DataStructures.Recipe recipe,
                            final DeleteRecipeCallback callback) {
-    deleteRecipe(recipe, callback, false);
-  }
+    String url = mBaseUrl + ":" + mServicePort + "/recipes/" + recipe._ID;
 
-  public void deleteRecipe(final DataStructures.Recipe recipe,
-                           final DeleteRecipeCallback callback, boolean remote) {
-    //String url = mBaseUrlRemote + ":" + mServicePort + "/recipes/" + recipe._ID;
-
-    final String url = (remote ? mBaseUrlRemote : getFirstBaseUrl()) + ":" + mServicePort +
-            "/recipes/" + recipe._ID;
     StringRequest request = new StringRequest(Request.Method.DELETE, url,
             new Response.Listener<String>() {
               @Override
@@ -513,9 +448,6 @@ public class WebClient {
             }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
-        if (url.contains(mBaseUrlLocal)) {
-          deleteRecipe(recipe, callback, true);
-        }
         callback.finished(false);
       }
     }) {
@@ -542,14 +474,6 @@ public class WebClient {
     headers.put("Content-Type", "application/json");
     headers.put("Authorization", auth);
     return headers;
-  }
-
-  private String getFirstBaseUrl() {
-    ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService
-            (Context.CONNECTIVITY_SERVICE);
-    NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-    return wifiInfo.isConnected() ? mBaseUrlLocal : mBaseUrlRemote;
   }
 
   /*
