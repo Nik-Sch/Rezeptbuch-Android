@@ -59,7 +59,6 @@ public class RecipeListFragment extends Fragment implements SearchView
   private RecyclerView.Adapter mAdapter;
   private TextView mInfoTextView;
   private TextView mNotificationView;
-  private SwipeRefreshLayout refreshLayout;
   private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -141,7 +140,6 @@ public class RecipeListFragment extends Fragment implements SearchView
               }
             });
       }
-      refreshLayout.setRefreshing(false);
     }
   };
   private String mCurrentSearch = "";
@@ -214,16 +212,6 @@ public class RecipeListFragment extends Fragment implements SearchView
       // FastScroller
       ((FastScroller) rootView.findViewById(R.id.fastscroll)).setRecyclerView(recyclerView);
     }
-    refreshLayout = (SwipeRefreshLayout) rootView
-        .findViewById(R.id.refresh_layout);
-    refreshLayout.setOnRefreshListener(
-        new SwipeRefreshLayout.OnRefreshListener() {
-          @Override
-          public void onRefresh() {
-            new WebClient(getContext()).downloadRecipes();
-          }
-        }
-    );
     return rootView;
   }
 
@@ -248,7 +236,6 @@ public class RecipeListFragment extends Fragment implements SearchView
     int id = item.getItemId();
     switch (id) {
       case R.id.action_refresh:
-        refreshLayout.setRefreshing(true);
         new WebClient(getContext()).downloadRecipes();
         return true;
     }
