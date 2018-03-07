@@ -8,12 +8,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
+
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing;
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnRecipeClickListener;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -21,7 +24,7 @@ import java.util.List;
  * call to the specified {@link OnRecipeClickListener}.
  */
 public class RecipeRecyclerViewAdapter extends RecyclerView
-    .Adapter<RecipeRecyclerViewAdapter.ViewHolder> {
+    .Adapter<RecipeRecyclerViewAdapter.ViewHolder> implements SectionTitleProvider {
 
   private final List<Recipe> mValues;
   private final OnRecipeClickListener mListener;
@@ -69,6 +72,11 @@ public class RecipeRecyclerViewAdapter extends RecyclerView
   @Override
   public int getItemCount() {
     return mValues.size();
+  }
+
+  @Override
+  public String getSectionTitle(int position) {
+    return new SimpleDateFormat("MMM yy").format(mValues.get(position).mDate);
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {

@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.futuremind.recyclerviewfastscroll.FastScroller;
+
 import net.ddns.raspi_server.rezeptbuch.R;
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe;
 import net.ddns.raspi_server.rezeptbuch.util.Favorite;
@@ -208,6 +210,9 @@ public class RecipeListFragment extends Fragment implements SearchView
       }
       mAdapter = new RecipeRecyclerViewAdapter(mRecipeList, mListener, context);
       recyclerView.setAdapter(mAdapter);
+
+      // FastScroller
+      ((FastScroller) rootView.findViewById(R.id.fastscroll)).setRecyclerView(recyclerView);
     }
     refreshLayout = (SwipeRefreshLayout) rootView
         .findViewById(R.id.refresh_layout);

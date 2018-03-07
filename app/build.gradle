@@ -37,5 +37,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.6.0'
     compile 'me.henrytao:smooth-app-bar-layout:25.0.0.0'
     compile 'net.gotev:uploadservice:3.0.3'
+    compile 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
     testCompile 'junit:junit:4.12'
 }
