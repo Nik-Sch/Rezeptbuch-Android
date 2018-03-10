@@ -24,7 +24,7 @@ object Favorite {
     mDB = RecipeDatabase(context)
   }
 
-  fun getRecipes(): List<Recipe> {
+  fun getRecipes(): MutableList<Recipe> {
     val list = ArrayList<Recipe>()
     val favoriteString = mPreferences.getString(KEY_FAVORITE, "")
     val strIDList = favoriteString!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

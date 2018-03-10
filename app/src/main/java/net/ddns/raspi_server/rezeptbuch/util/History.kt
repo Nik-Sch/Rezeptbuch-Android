@@ -24,7 +24,7 @@ object History {
     mDB = RecipeDatabase(context)
   }
 
-  fun getRecipes(): List<Recipe> {
+  fun getRecipes(): MutableList<Recipe> {
     val list = ArrayList<Recipe>()
     val historyString = mPreferences.getString(KEY_HISTORY, "")
     val strIDList = historyString!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

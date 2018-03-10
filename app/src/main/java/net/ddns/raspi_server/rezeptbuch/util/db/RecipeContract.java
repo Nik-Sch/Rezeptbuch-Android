@@ -1,8 +1,9 @@
 package net.ddns.raspi_server.rezeptbuch.util.db;
 
-
 import android.provider.BaseColumns;
-
+/*
+ * Not converted to Kotlin because it doesn't make sense
+ */
 final class RecipeContract {
 
   private RecipeContract() {
