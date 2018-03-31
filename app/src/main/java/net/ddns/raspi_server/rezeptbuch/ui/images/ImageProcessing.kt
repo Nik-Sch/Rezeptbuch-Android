@@ -3,20 +3,21 @@ package net.ddns.raspi_server.rezeptbuch.ui.images
 import android.content.Context
 import android.widget.ImageView
 
-import com.bumptech.glide.DrawableRequestBuilder
-import com.bumptech.glide.Glide
-
-import net.ddns.raspi_server.rezeptbuch.R
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe
-import net.ddns.raspi_server.rezeptbuch.util.WebClient
-
-import java.io.File
 
 object ImageProcessing {
 
   @JvmOverloads
   fun loadRecipeImage(context: Context, recipe: Recipe?,
                       imageView: ImageView, dark: Boolean = false) {
+
+//    val url = ""
+//    Glide
+//            .with(context)
+//            .load(url)
+//            .centerCrop()
+
+    /*
     if (recipe?.mImageName == null) {
       Glide.with(context)
               .load(if (dark)
@@ -27,6 +28,7 @@ object ImageProcessing {
                 R.drawable.default_recipe_image_low_dark
               else
                 R.drawable.default_recipe_image_low)
+              .centerCrop()
               .into(imageView)
       return
     }
@@ -54,7 +56,9 @@ object ImageProcessing {
                     R.drawable.default_recipe_image_low)
           if (success)
             builder.crossFade()
-          builder.into(imageView)
+
+          builder.centerCrop()
+                  .into(imageView)
         }
       }
     }
@@ -74,6 +78,8 @@ object ImageProcessing {
               R.drawable.default_recipe_image_low)
     if (image)
       builder.crossFade()
-    builder.into(imageView)
+    builder.centerCrop()
+            .into(imageView)
+  */
   }
 }

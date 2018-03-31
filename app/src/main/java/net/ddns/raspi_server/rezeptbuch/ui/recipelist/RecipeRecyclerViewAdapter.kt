@@ -11,9 +11,9 @@ import android.widget.TextView
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider
 
 import net.ddns.raspi_server.rezeptbuch.R
-import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnRecipeClickListener
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures.Recipe
+import net.ddns.raspi_server.rezeptbuch.util.WebClient
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
 
 import java.text.SimpleDateFormat
@@ -42,8 +42,14 @@ class RecipeRecyclerViewAdapter(private val mValues: List<Recipe>,
     holder.mTitle.text = holder.mItem?.mTitle
     // for making the marquee (auto scroll) work
     holder.mTitle.isSelected = true
-    holder.mDescription.text = holder.mItem?.mDescription
-    ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage)
+    holder.mDescription.text = holder.mItem?.mDescription + "\n\n"
+
+    val imageUrl = "${WebClient.mBaseUrl}/Rezeptbuch/images/${holder.mItem?.mImageName}"
+//    Glide.with(mContext)
+//            .load(imageUrl)
+//            .into(holder.mImage)
+
+//    ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage)
 
     holder.mView.setOnClickListener {
       mListener.onRecipeClicked(holder.mItem!!)

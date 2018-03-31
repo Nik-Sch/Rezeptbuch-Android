@@ -133,7 +133,7 @@ class RecipeActivity : AppCompatActivity() {
     progressDialog.isIndeterminate = true
     progressDialog.setCancelable(false)
     progressDialog.show()
-    WebClient(this).deleteRecipe(mRecipe) { success ->
+    WebClient(this).deleteRecipe(mRecipe._ID) { success ->
       progressDialog.dismiss()
       if (success) {
         val imageFile = File(this@RecipeActivity.filesDir, mRecipe.mImageName)

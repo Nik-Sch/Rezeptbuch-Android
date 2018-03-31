@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:paddingEnd="10dp"
     android:paddingStart="10dp"
-    tools:ignore="HardcodedText">
+    tools:ignore="HardcodedText"
+    android:textIsSelectable="true">
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -15,7 +16,8 @@
         android:textSize="28sp"
         android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textIsSelectable="true"/>
 
     <TextView
         android:id="@+id/category"
@@ -40,7 +42,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="15sp"
-        android:text="Ingredient1\nIngredient2\nIngredient3"/>
+        android:text="Ingredient1\nIngredient2\nIngredient3"
+        android:textIsSelectable="true"/>
 
     <TextView
         android:id="@+id/description_title"
@@ -57,6 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="15sp"
-        android:text="Description1\nDescription2\nDescription3"/>
+        android:text="Description1\nDescription2\nDescription3"
+        android:textIsSelectable="true"/>
 
 </LinearLayout>

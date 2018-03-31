@@ -22,8 +22,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
 
-import com.bumptech.glide.Glide
-
 import net.ddns.raspi_server.rezeptbuch.R
 import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures
@@ -79,11 +77,11 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         mImagePath = cursor?.getString(columnIndex)
         cursor?.close()
 
-        Glide.with(this)
-                .load(mImagePath)
-                .placeholder(R.drawable.default_recipe_image_low)
-                .crossFade()
-                .into(mImageView)
+//        Glide.with(this)
+//                .load(mImagePath)
+//                .placeholder(R.drawable.default_recipe_image_low)
+//                .crossFade()
+//                .into(mImageView)
       }
     }
   }

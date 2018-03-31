@@ -48,7 +48,8 @@ class WebClient(private val mContext: Context) {
   ##################################################################################################
    */
 
-  private// Wouldn't call it secure but it works and the service is not open to anyone...
+  // Wouldn't call it secure but it works and the service is not open to anyone...
+  private
   val authHeaders: Map<String, String>
     get() {
       val headers = HashMap<String, String>()
@@ -222,12 +223,30 @@ class WebClient(private val mContext: Context) {
 
 
   fun updateRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
-    deleteRecipe(recipe) { success ->
-      if (success)
-        uploadRecipe(recipe, callback)
-      else
-        callback.finished(null)
+    val oldId = recipe._ID
+
+    val innerCallback = object  : RecipeUploadCallback {
+      override fun finished(recipe: DataStructures.Recipe?) {
+        if (recipe != null) {
+          Log.i(TAG, "recipe update: uploading successful. ID: " + recipe._ID)
+          deleteRecipe(oldId) { success ->
+            if (success) {
+              Log.i(TAG, "recipe update: deleted old recipe (ID: $oldId) successfully.")
+              callback.finished(recipe)
+            }else {
+              Log.i(TAG, "recipe update: deleting not successful.")
+              callback.finished(null)
+            }
+          }
+        }
+      }
+
+      override fun onProgress(progress: Int) {
+        callback.onProgress(progress)
+      }
     }
+
+    uploadRecipe(recipe, innerCallback)
   }
 
   fun uploadRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
@@ -318,14 +337,12 @@ class WebClient(private val mContext: Context) {
           Log.e("Error Status", status)
           Log.e("Error Message", message)
 
-          if (networkResponse.statusCode == 404) {
-            errorMessage = "Resource not found"
-          } else if (networkResponse.statusCode == 401) {
-            errorMessage = "$message Please login again"
-          } else if (networkResponse.statusCode == 400) {
-            errorMessage = "$message Check your inputs"
-          } else if (networkResponse.statusCode == 500) {
-            errorMessage = "$message Something is getting wrong"
+          errorMessage = when {
+            networkResponse.statusCode == 404 -> "Resource not found"
+            networkResponse.statusCode == 401 -> "$message Please login again"
+            networkResponse.statusCode == 400 -> "$message Check your inputs"
+            networkResponse.statusCode == 500 -> "$message Something is getting wrong"
+            else                              -> errorMessage
           }
         } catch (e: JSONException) {
           e.printStackTrace()
@@ -369,8 +386,8 @@ class WebClient(private val mContext: Context) {
   ##################################################################################################
    */
 
-  fun deleteRecipe(recipe: DataStructures.Recipe, callback: (Boolean) -> Unit) {
-    val url = mBaseUrl + ":" + mServicePort + "/recipes/" + recipe._ID
+  fun deleteRecipe(recipeId: Int, callback: (Boolean) -> Unit) {
+    val url = "$mBaseUrl:$mServicePort/recipes/$recipeId"
 
     val request = object : StringRequest(Request.Method.DELETE, url,
             Response.Listener { callback(true) },
@@ -414,7 +431,7 @@ class WebClient(private val mContext: Context) {
 
     private const val PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" + ".rezeptbuch.util.WebClient.SYNC_DATE"
     private const val TAG = "WebClient"
-    private const val mBaseUrl = "http://raspi.myddns.me"
+    const val mBaseUrl = "http://192.168.1.250"
     private const val mServicePort = 5425
 
     private val mSyncTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())

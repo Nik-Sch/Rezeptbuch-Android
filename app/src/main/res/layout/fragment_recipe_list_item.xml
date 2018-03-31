@@ -22,8 +22,7 @@
             android:layout_weight=".3"
             android:contentDescription="@string/fragment_recipe_image_description"
             android:paddingEnd="5dp"
-            android:paddingStart="5dp"
-            android:scaleType="fitCenter"/>
+            android:paddingStart="5dp"/>
 
         <RelativeLayout
             android:layout_width="0dp"
