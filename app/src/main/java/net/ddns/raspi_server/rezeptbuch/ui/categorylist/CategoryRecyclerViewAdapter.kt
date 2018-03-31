@@ -34,12 +34,11 @@ class CategoryRecyclerViewAdapter(context: Context, private val mListener: OnCat
     holder.mName.text = holder.mCategory?.mName
     val recipes = mDatabase.getRecipesByCategory(holder.mCategory?._ID)
     var text = ""
-    if (recipes != null)
-      for (i in 0..2)
-        if (recipes.size <= i || recipes[i] == null)
-          break
-        else
-          text += recipes[i].toString() + "\n"
+    for (i in 0..2)
+      if (recipes.size <= i)
+        break
+      else
+        text += recipes[i].toString() + "\n"
     holder.mExample1.text =
             if (text.isEmpty())
               ""

@@ -144,10 +144,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     return true
   }
 
-  override fun onRecipeClicked(recipe: DataStructures.Recipe) {
-    History.putRecipe(recipe)
+  override fun onRecipeClicked(item: DataStructures.Recipe) {
+    History.putRecipe(item)
     val intent = Intent(this, RecipeActivity::class.java)
-    intent.putExtra(RecipeActivity.ARG_RECIPE, recipe)
+    intent.putExtra(RecipeActivity.ARG_RECIPE, item)
     startActivity(intent)
   }
 

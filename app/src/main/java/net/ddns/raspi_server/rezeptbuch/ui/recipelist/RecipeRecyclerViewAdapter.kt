@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider
+import net.ddns.raspi_server.rezeptbuch.GlideApp
 
 import net.ddns.raspi_server.rezeptbuch.R
 import net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment.OnRecipeClickListener
@@ -44,12 +45,14 @@ class RecipeRecyclerViewAdapter(private val mValues: List<Recipe>,
     holder.mTitle.isSelected = true
     holder.mDescription.text = holder.mItem?.mDescription + "\n\n"
 
-    val imageUrl = "${WebClient.mBaseUrl}/Rezeptbuch/images/${holder.mItem?.mImageName}"
-//    Glide.with(mContext)
-//            .load(imageUrl)
-//            .into(holder.mImage)
 
-//    ImageProcessing.loadRecipeImage(mContext, holder.mItem, holder.mImage)
+    GlideApp.with(mContext)
+            .load(WebClient.getImageUrl(holder.mItem))
+            .placeholder(R.drawable.default_recipe_image_low)
+            .fallback(R.drawable.default_recipe_image_high)
+            .centerCrop()
+            .into(holder.mImage)
+
 
     holder.mView.setOnClickListener {
       mListener.onRecipeClicked(holder.mItem!!)

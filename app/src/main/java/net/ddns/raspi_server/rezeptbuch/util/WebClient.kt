@@ -41,7 +41,6 @@ import java.util.TimeZone
 
 class WebClient(private val mContext: Context) {
   private val mRequestQueue: RequestQueue
-
   /*
   ##################################################################################################
   ####################################### AUTH HEADERS #############################################
@@ -225,7 +224,7 @@ class WebClient(private val mContext: Context) {
   fun updateRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
     val oldId = recipe._ID
 
-    val innerCallback = object  : RecipeUploadCallback {
+    val innerCallback = object : RecipeUploadCallback {
       override fun finished(recipe: DataStructures.Recipe?) {
         if (recipe != null) {
           Log.i(TAG, "recipe update: uploading successful. ID: " + recipe._ID)
@@ -233,7 +232,7 @@ class WebClient(private val mContext: Context) {
             if (success) {
               Log.i(TAG, "recipe update: deleted old recipe (ID: $oldId) successfully.")
               callback.finished(recipe)
-            }else {
+            } else {
               Log.i(TAG, "recipe update: deleting not successful.")
               callback.finished(null)
             }
@@ -342,7 +341,7 @@ class WebClient(private val mContext: Context) {
             networkResponse.statusCode == 401 -> "$message Please login again"
             networkResponse.statusCode == 400 -> "$message Check your inputs"
             networkResponse.statusCode == 500 -> "$message Something is getting wrong"
-            else                              -> errorMessage
+            else -> errorMessage
           }
         } catch (e: JSONException) {
           e.printStackTrace()
@@ -431,11 +430,15 @@ class WebClient(private val mContext: Context) {
 
     private const val PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" + ".rezeptbuch.util.WebClient.SYNC_DATE"
     private const val TAG = "WebClient"
-    const val mBaseUrl = "http://192.168.1.250"
+    private const val mBaseUrl = "http://192.168.1.250"
     private const val mServicePort = 5425
 
     private val mSyncTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     // date format for rfc2822 which the server outputs
     private val mServerResponseFormat = SimpleDateFormat("EEE, dd " + "MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
+
+    fun getImageUrl(recipe: DataStructures.Recipe?): String {
+      return "${WebClient.mBaseUrl}/Rezeptbuch/images/${recipe?.mImageName}"
+    }
   }
 }

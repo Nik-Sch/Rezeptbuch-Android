@@ -155,6 +155,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         mTitleEdit.setText(mRecipe?.mTitle)
         mIngredientsEdit.setText(mRecipe?.mIngredients)
         mDescriptionEdit.setText(mRecipe?.mDescription)
+
         ImageProcessing.loadRecipeImage(this, mRecipe, findViewById<View>(R.id.add_image) as ImageView)
         var i = 0
         for (category in mCategories) {
