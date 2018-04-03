@@ -21,9 +21,9 @@ import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
+import net.ddns.raspi_server.rezeptbuch.GlideApp
 
 import net.ddns.raspi_server.rezeptbuch.R
-import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures
 import net.ddns.raspi_server.rezeptbuch.util.WebClient
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
@@ -77,11 +77,12 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         mImagePath = cursor?.getString(columnIndex)
         cursor?.close()
 
-//        Glide.with(this)
-//                .load(mImagePath)
-//                .placeholder(R.drawable.default_recipe_image_low)
-//                .crossFade()
-//                .into(mImageView)
+        GlideApp.with(this)
+                .load(mImagePath)
+                .error(R.drawable.default_recipe_image_high)
+                .placeholder(R.drawable.default_recipe_image_low)
+                .centerCrop()
+                .into(mImageView)
       }
     }
   }
@@ -156,7 +157,13 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         mIngredientsEdit.setText(mRecipe?.mIngredients)
         mDescriptionEdit.setText(mRecipe?.mDescription)
 
-        ImageProcessing.loadRecipeImage(this, mRecipe, findViewById<View>(R.id.add_image) as ImageView)
+        GlideApp.with(this)
+                .load(WebClient.getImageUrl(mRecipe))
+                .error(R.drawable.default_recipe_image_high)
+                .placeholder(R.drawable.default_recipe_image_low)
+                .centerCrop()
+                .into(findViewById(R.id.add_image))
+
         var i = 0
         for (category in mCategories) {
           if (category._ID == mRecipe?.mCategory) {

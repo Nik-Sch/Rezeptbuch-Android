@@ -126,32 +126,39 @@ class RecipeListFragment : Fragment(), SearchView.OnQueryTextListener {
      * - recipes by category
      * - recipes by favorite
      */
-    val database = RecipeDatabase(context)
-    return if (!mCurrentSearch.isEmpty())
-      database.getRecipesBySearch(mCurrentSearch)
-    else if (arguments.containsKey(ARG_CATEGORY))
-      database.getRecipesByCategory(arguments.getInt(ARG_CATEGORY))
-    else if (mType == Type.HISTORY)
-      History.getRecipes()
-    else if (mType == Type.FAVORITE)
-      Favorite.getRecipes()
-    else
-      database.recipes
+    context?.let { ctx ->
+      val database = RecipeDatabase(ctx)
+      val args = arguments
+      return if (!mCurrentSearch.isEmpty())
+        database.getRecipesBySearch(mCurrentSearch)
+      else if (args != null && args.containsKey(ARG_CATEGORY))
+        database.getRecipesByCategory(args.getInt(ARG_CATEGORY))
+      else if (mType == Type.HISTORY)
+        History.getRecipes()
+      else if (mType == Type.FAVORITE)
+        Favorite.getRecipes()
+      else
+        database.recipes
+    }
+    return mutableListOf()
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setHasOptionsMenu(true)
 
-    mType = arguments.getSerializable(ARG_TYP) as Type
+    val args = arguments
+    mType = args?.getSerializable(ARG_TYP) as Type
 
-    LocalBroadcastManager.getInstance(context).registerReceiver(mBroadcastReceiver, IntentFilter(WebClient
-            .EVENT_BROADCAST_DOWNLOAD_FINISHED))
+    context?.let { ctx ->
+      LocalBroadcastManager.getInstance(ctx).registerReceiver(mBroadcastReceiver,
+              IntentFilter(WebClient.EVENT_BROADCAST_DOWNLOAD_FINISHED))
+    }
   }
 
-  override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View? {
-    val rootView = inflater!!.inflate(R.layout.fragment_recipe_list,
+    val rootView = inflater.inflate(R.layout.fragment_recipe_list,
             container, false)
     val listView = rootView.findViewById<View>(R.id.list)
     mInfoTextView = rootView.findViewById(R.id.info_text)
@@ -188,15 +195,19 @@ class RecipeListFragment : Fragment(), SearchView.OnQueryTextListener {
 
   override fun onDestroy() {
     super.onDestroy()
-    LocalBroadcastManager.getInstance(context).unregisterReceiver(mBroadcastReceiver)
+    context?.let { ctx ->
+      LocalBroadcastManager.getInstance(ctx).unregisterReceiver(mBroadcastReceiver)
+    }
   }
 
   override fun onOptionsItemSelected(item: MenuItem?): Boolean {
     val id = item?.itemId
     when (id) {
       R.id.action_refresh -> {
-        WebClient(context).downloadRecipes()
-        return true
+        context?.let { ctx ->
+          WebClient(ctx).downloadRecipes()
+          return true
+        }
       }
     }
     return super.onOptionsItemSelected(item)

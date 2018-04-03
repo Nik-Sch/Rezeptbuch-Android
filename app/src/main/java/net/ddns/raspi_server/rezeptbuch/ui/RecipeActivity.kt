@@ -1,30 +1,26 @@
 package net.ddns.raspi_server.rezeptbuch.ui
 
 import android.app.ProgressDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CollapsingToolbarLayout
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
+import net.ddns.raspi_server.rezeptbuch.GlideApp
 
 import net.ddns.raspi_server.rezeptbuch.R
-import net.ddns.raspi_server.rezeptbuch.ui.images.ImageProcessing
 import net.ddns.raspi_server.rezeptbuch.util.DataStructures
 import net.ddns.raspi_server.rezeptbuch.util.Favorite
 import net.ddns.raspi_server.rezeptbuch.util.WebClient
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
 
 import java.io.File
-import java.io.Serializable
 
 
 class RecipeActivity : AppCompatActivity() {
@@ -52,8 +48,20 @@ class RecipeActivity : AppCompatActivity() {
     (findViewById<View>(R.id.ingredients) as TextView).text = mRecipe.mIngredients
     (findViewById<View>(R.id.description) as TextView).text = mRecipe.mDescription
 
-    ImageProcessing.loadRecipeImage(this, mRecipe, findViewById<View>(R
-            .id.app_bar_image) as ImageView, true)
+    GlideApp.with(this)
+            .load(WebClient.getImageUrl(mRecipe))
+            .error(
+                    GlideApp.with(this)
+                            .load(R.drawable.default_recipe_image_high_dark)
+                            .centerCrop()
+            )
+            .thumbnail(
+                    GlideApp.with(this)
+                            .load(R.drawable.default_recipe_image_low_dark)
+                            .centerCrop()
+            )
+            .centerCrop()
+            .into(findViewById(R.id.app_bar_image))
 
     // make the title only appear if the toolbar is collapsed
     val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.toolbar_layout)

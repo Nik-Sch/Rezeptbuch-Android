@@ -29,14 +29,14 @@ class CategoryListFragment : Fragment() {
 
   private lateinit var mListener: OnCategoryClickListener
 
-  override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View? {
-    val view = inflater?.inflate(R.layout.fragment_category_list, container, false)
+    val view = inflater.inflate(R.layout.fragment_category_list, container, false)
 
     // Set the adapter
     if (view is RecyclerView) {
       view.layoutManager = LinearLayoutManager(view.getContext())
-      view.adapter = CategoryRecyclerViewAdapter(context, mListener)
+      view.adapter = CategoryRecyclerViewAdapter(context!!, mListener)
     }
     return view
   }

@@ -17,7 +17,8 @@ import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
  * [RecyclerView.Adapter] that can display a [Category] and makes
  * a call to the specified [OnCategoryClickListener].
  */
-class CategoryRecyclerViewAdapter(context: Context, private val mListener: OnCategoryClickListener?)
+class CategoryRecyclerViewAdapter(context: Context, private val mListener:
+OnCategoryClickListener?)
   : RecyclerView.Adapter<CategoryRecyclerViewAdapter.ViewHolder>() {
 
   private val mDatabase: RecipeDatabase = RecipeDatabase(context)

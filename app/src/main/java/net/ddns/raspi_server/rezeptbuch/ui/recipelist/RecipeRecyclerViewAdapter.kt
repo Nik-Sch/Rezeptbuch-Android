@@ -48,8 +48,8 @@ class RecipeRecyclerViewAdapter(private val mValues: List<Recipe>,
 
     GlideApp.with(mContext)
             .load(WebClient.getImageUrl(holder.mItem))
+            .error(R.drawable.default_recipe_image_high)
             .placeholder(R.drawable.default_recipe_image_low)
-            .fallback(R.drawable.default_recipe_image_high)
             .centerCrop()
             .into(holder.mImage)
 
