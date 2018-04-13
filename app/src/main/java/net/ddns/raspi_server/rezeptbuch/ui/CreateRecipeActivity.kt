@@ -256,7 +256,8 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
       // show the recipe
       val intent = Intent(this, RecipeActivity::class.java)
       intent.putExtra(RecipeActivity.ARG_RECIPE, recipe)
-      this.startActivity(intent)
+      startActivity(intent)
+
     }
   }
 

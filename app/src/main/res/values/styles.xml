@@ -13,10 +13,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!--<style name="AppTheme.AppBarOverlay"-->
-    <!--parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
-    <!--<item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>-->
-    <!--</style>-->
     <style name="AppTheme.AppBarOverlay"
            parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
@@ -38,4 +34,5 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <color name="black_overlay">#bbbbbb</color>
 </resources>

@@ -442,17 +442,20 @@ class RecipeDatabase(context: Context) {
 
   }
 
-  fun deleteRecipe(recipe: Recipe?) {
+  fun deleteRecipe(recipe: Recipe) {
+    deleteRecipe(recipe._ID)
+  }
+
+  fun deleteRecipe(id: Int) {
     try {
       mDbHelper.writableDatabase.use { db ->
         db.execSQL("DELETE FROM " + RecipeContract.recipes.TABLE_NAME +
-                " WHERE " + RecipeContract.recipes._ID + " = " + recipe?._ID)
+                " WHERE " + RecipeContract.recipes._ID + " = " + id)
       }
     } catch (e: Exception) {
       e.printStackTrace()
       Log.e(TAG, e.message)
     }
-
   }
 
   companion object {

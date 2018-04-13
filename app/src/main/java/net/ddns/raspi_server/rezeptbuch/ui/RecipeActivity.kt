@@ -191,8 +191,6 @@ class RecipeActivity : AppCompatActivity() {
     WebClient(this).deleteRecipe(mRecipe._ID) { success ->
       progressDialog.dismiss()
       if (success) {
-        val imageFile = File(this@RecipeActivity.filesDir, mRecipe.mImageName)
-        imageFile.delete()
         RecipeDatabase(this@RecipeActivity).deleteRecipe(mRecipe)
         finish()
       } else

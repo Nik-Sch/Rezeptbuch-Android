@@ -200,6 +200,7 @@ class WebClient(private val mContext: Context) {
           Log.i(TAG, "recipe update: uploading successful. ID: " + recipe._ID)
           deleteRecipe(oldId) { success ->
             if (success) {
+              RecipeDatabase(this@WebClient.mContext).deleteRecipe(oldId)
               Log.i(TAG, "recipe update: deleted old recipe (ID: $oldId) successfully.")
               callback.finished(recipe)
             } else {
@@ -251,7 +252,7 @@ class WebClient(private val mContext: Context) {
       }
 
       // if an image is provided, upload it first
-      if (remoteImageName != null) {
+      if (remoteImageName != "") {
         uploadImage(recipe.mImageName, remoteImageName, object : ImageUploadProgressCallback {
           override fun onProgress(progress: Int) {
             callback.onProgress(progress)
