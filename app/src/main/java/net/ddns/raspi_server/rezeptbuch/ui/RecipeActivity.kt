@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.signature.ObjectKey
 import net.ddns.raspi_server.rezeptbuch.GlideApp
@@ -57,6 +58,8 @@ class RecipeActivity : AppCompatActivity() {
     (findViewById<View>(R.id.ingredients) as TextView).text = mRecipe.mIngredients
     (findViewById<View>(R.id.description) as TextView).text = mRecipe.mDescription
 
+    val imageView = findViewById<ImageView>(R.id.app_bar_image)
+
     GlideApp.with(this)
             .load(WebClient.getImageUrl(mRecipe))
             .error(
@@ -71,7 +74,13 @@ class RecipeActivity : AppCompatActivity() {
             )
             .centerCrop()
             .signature(ObjectKey(mRecipe.mDate))
-            .into(findViewById(R.id.app_bar_image))
+            .into(imageView)
+    imageView.setOnClickListener({ _ ->
+      // show the image
+      val intent = Intent(this@RecipeActivity, ViewImageActivity::class.java)
+      intent.putExtra(RecipeActivity.ARG_RECIPE, mRecipe)
+      this.startActivity(intent)
+    })
 
     // make the title only appear if the toolbar is collapsed
     val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.toolbar_layout)

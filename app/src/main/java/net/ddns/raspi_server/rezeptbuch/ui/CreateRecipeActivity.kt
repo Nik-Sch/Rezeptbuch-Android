@@ -28,8 +28,6 @@ import net.ddns.raspi_server.rezeptbuch.util.WebClient
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
 
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 
 class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback {
@@ -43,7 +41,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
   private lateinit var mDescriptionEdit: EditText
   private lateinit var mImageView: ImageView
 
-  private var mImagePath: String? = null
+  private var mLocalImagePath: String? = null
   private var mRecipe: DataStructures.Recipe? = null
 
   private lateinit var uploadProgressDialog: ProgressDialog
@@ -73,11 +71,11 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
                 filePathColumn, null, null, null)
         cursor.moveToFirst()
         val columnIndex = cursor.getColumnIndex(filePathColumn[0])
-        mImagePath = cursor?.getString(columnIndex)
+        mLocalImagePath = cursor?.getString(columnIndex)
         cursor?.close()
 
         GlideApp.with(this)
-                .load(mImagePath)
+                .load(mLocalImagePath)
                 .error(R.drawable.default_recipe_image_high)
                 .placeholder(R.drawable.default_recipe_image_low)
                 .centerCrop()
@@ -213,7 +211,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
             mSpinner.selectedItemPosition - 1,
             mIngredientsEdit.text.toString(),
             mDescriptionEdit.text.toString(),
-            mImagePath ?: "",
+            mLocalImagePath ?: "",
             Date())
     if (mRecipe == null) {
       uploadProgressDialog.setTitle(this@CreateRecipeActivity.resources.getString(R
@@ -252,11 +250,6 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
     } else {
       // add the recipe to the local db
       val recipeDatabase = RecipeDatabase(this)
-      if (mRecipe != null) {
-        val imageFile = File(filesDir, mRecipe?.mImageName)
-        imageFile.delete()
-        recipeDatabase.deleteRecipe(mRecipe)
-      }
 
       recipeDatabase.putRecipe(recipe)
       finish()

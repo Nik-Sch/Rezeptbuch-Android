@@ -222,21 +222,21 @@ class WebClient(private val mContext: Context) {
     val url = "$mBaseUrl:$mServicePort/recipes"
 
 
-    val imageName = if (!recipe.mImageName.isEmpty())
-      Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients) + ".jpg" else null
+    val remoteImageName = if (!recipe.mImageName.isEmpty())
+      Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients) + ".jpg" else ""
     try {
       val body = JSONObject()
       body.put("titel", recipe.mTitle)
       body.put("kategorie", recipe.mCategory)
       body.put("zutaten", recipe.mIngredients)
       body.put("beschreibung", recipe.mDescription)
-      if (imageName != null)
-        body.put("bild", imageName)
+      if (remoteImageName == "")
+        body.put("bild", remoteImageName)
       val request = object : JsonObjectRequest(url, body, Response.Listener { response ->
         recipe._ID = response.optInt("rezept_ID")
         try {
           recipe.mDate = mServerResponseFormat.parse(response.optString("datum"))
-          recipe.mImageName = response.optString("bild_Path")
+          recipe.mImageName = remoteImageName
         } catch (e: ParseException) {
           e.printStackTrace()
           Log.e(TAG, e.message)
@@ -251,8 +251,8 @@ class WebClient(private val mContext: Context) {
       }
 
       // if an image is provided, upload it first
-      if (imageName != null) {
-        uploadImage(recipe.mImageName, imageName, object : ImageUploadProgressCallback {
+      if (remoteImageName != null) {
+        uploadImage(recipe.mImageName, remoteImageName, object : ImageUploadProgressCallback {
           override fun onProgress(progress: Int) {
             callback.onProgress(progress)
           }
