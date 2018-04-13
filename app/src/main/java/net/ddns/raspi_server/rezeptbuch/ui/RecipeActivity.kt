@@ -1,17 +1,24 @@
 package net.ddns.raspi_server.rezeptbuch.ui
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CollapsingToolbarLayout
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import net.ddns.raspi_server.rezeptbuch.GlideApp
 
 import net.ddns.raspi_server.rezeptbuch.R
@@ -19,8 +26,10 @@ import net.ddns.raspi_server.rezeptbuch.util.DataStructures
 import net.ddns.raspi_server.rezeptbuch.util.Favorite
 import net.ddns.raspi_server.rezeptbuch.util.WebClient
 import net.ddns.raspi_server.rezeptbuch.util.db.RecipeDatabase
+import java.io.ByteArrayOutputStream
 
 import java.io.File
+import java.io.FileOutputStream
 
 
 class RecipeActivity : AppCompatActivity() {
@@ -61,6 +70,7 @@ class RecipeActivity : AppCompatActivity() {
                             .centerCrop()
             )
             .centerCrop()
+            .signature(ObjectKey(mRecipe.mDate))
             .into(findViewById(R.id.app_bar_image))
 
     // make the title only appear if the toolbar is collapsed
@@ -130,8 +140,36 @@ class RecipeActivity : AppCompatActivity() {
           R.drawable.ic_favorite_border_white_24dp)
         return true
       }
+      R.id.action_share -> {
+        shareRecipe()
+        return true
+      }
     }
     return super.onOptionsItemSelected(item)
+  }
+
+  private fun shareRecipe() {
+    val view = findViewById<View>(R.id.recipe)
+    val bitmap = createBitmapFromView(view)
+
+    // save image to internal storage
+    val path = File(applicationContext.cacheDir, "images")
+    path.mkdirs()
+    val fos = FileOutputStream("$path/image.jpeg")
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+    fos.close()
+
+    // share the image
+    val newFile = File(path, "image.jpeg")
+    val uri = FileProvider.getUriForFile(applicationContext, "net.ddns.raspi_server.rezeptbuch",
+            newFile)
+    if (uri != null) {
+      val intent = Intent()
+      intent.action = Intent.ACTION_SEND
+      intent.putExtra(Intent.EXTRA_STREAM, uri)
+      intent.type = "image/jpeg"
+      startActivity(Intent.createChooser(intent, "Share the recipe as an image"))
+    }
   }
 
   private fun deleteRecipe() {
@@ -158,7 +196,18 @@ class RecipeActivity : AppCompatActivity() {
   }
 
   companion object {
-    const
-    val ARG_RECIPE = "mRecipe"
+    const val ARG_RECIPE = "mRecipe"
+
+    private fun createBitmapFromView(view: View): Bitmap {
+      val ret = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+      val canvas = Canvas(ret)
+      val bgDrawable = view.background
+      if (bgDrawable != null)
+        bgDrawable.draw(canvas)
+      else
+        canvas.drawColor(Color.WHITE)
+      view.draw(canvas)
+      return ret
+    }
   }
 }

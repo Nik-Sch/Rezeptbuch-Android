@@ -7,7 +7,8 @@
     android:paddingEnd="10dp"
     android:paddingStart="10dp"
     tools:ignore="HardcodedText"
-    android:textIsSelectable="true">
+    android:textIsSelectable="true"
+    android:id="@+id/recipe">
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"

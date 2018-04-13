@@ -4,8 +4,6 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
@@ -21,6 +19,7 @@ import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
+import com.bumptech.glide.signature.ObjectKey
 import net.ddns.raspi_server.rezeptbuch.GlideApp
 
 import net.ddns.raspi_server.rezeptbuch.R
@@ -162,6 +161,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
                 .error(R.drawable.default_recipe_image_high)
                 .placeholder(R.drawable.default_recipe_image_low)
                 .centerCrop()
+                .signature(ObjectKey(mRecipe?.mDate ?: Date()))
                 .into(findViewById(R.id.add_image))
 
         var i = 0
@@ -236,14 +236,15 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
             && !mDescriptionEdit.text.toString().isEmpty()
   }
 
+  // overrides WebClient.RecipeUploadCallback
   override fun finished(recipe: DataStructures.Recipe?) {
     // always dismiss the progress dialog
     uploadProgressDialog.dismiss()
     // if an error occurred, show a message and probably store the
     // recipe locally somehow #TODO
-    if (recipe == null) {
 
-      val builder = AlertDialog.Builder(this@CreateRecipeActivity)
+    if (recipe == null) {
+      val builder = AlertDialog.Builder(this)
       builder.setTitle(R.string.error_title_internet)
       builder.setMessage(R.string.error_description_internet)
       builder.setPositiveButton(R.string.ok, null)
@@ -257,23 +258,12 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         recipeDatabase.deleteRecipe(mRecipe)
       }
 
-      val bitmap = BitmapFactory.decodeFile(mImagePath)
-      val file = File(filesDir, recipe.mImageName)
-      try {
-        file.createNewFile()
-        val out = FileOutputStream(file)
-        if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out))
-          throw RuntimeException("couldn't compress image.")
-      } catch (e: IOException) {
-        e.printStackTrace()
-      }
-
       recipeDatabase.putRecipe(recipe)
       finish()
       // show the recipe
-      val intent = Intent(this@CreateRecipeActivity, RecipeActivity::class.java)
+      val intent = Intent(this, RecipeActivity::class.java)
       intent.putExtra(RecipeActivity.ARG_RECIPE, recipe)
-      this@CreateRecipeActivity.startActivity(intent)
+      this.startActivity(intent)
     }
   }
 

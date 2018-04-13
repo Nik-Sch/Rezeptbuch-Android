@@ -9,7 +9,6 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
 import android.util.Base64
 import android.util.Log
-import android.widget.ImageView
 
 import com.android.volley.AuthFailureError
 import com.android.volley.DefaultRetryPolicy
@@ -18,7 +17,6 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.TimeoutError
-import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -30,8 +28,6 @@ import org.json.JSONException
 import org.json.JSONObject
 
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -157,32 +153,6 @@ class WebClient(private val mContext: Context) {
       Log.e(TAG, e.message)
     }
 
-  }
-
-  /*
-  ##################################################################################################
-  #####################################   DOWNLOAD IMAGE   #########################################
-  ##################################################################################################
-   */
-
-  fun downloadImage(fileName: String, downloadCallback: (Boolean) -> Unit) {
-    val url = "$mBaseUrl/Rezeptbuch/images/$fileName"
-
-    val request = ImageRequest(url, Response.Listener { response ->
-      Thread(Runnable {
-        try {
-          val file = File(mContext.filesDir, fileName)
-          response.compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
-          downloadCallback(true)
-        } catch (e: java.io.IOException) {
-          downloadCallback(false)
-        }
-      }).start()
-    }, 0, 0, ImageView.ScaleType.CENTER_INSIDE, null, Response.ErrorListener {
-      Log.d(TAG, "failed to retrieve image")
-      downloadCallback(false)
-    })
-    mRequestQueue.add(request)
   }
 
   /*

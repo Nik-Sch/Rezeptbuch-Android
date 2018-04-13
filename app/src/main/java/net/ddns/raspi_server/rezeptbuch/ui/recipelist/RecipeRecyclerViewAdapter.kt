@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.signature.ObjectKey
 
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider
 import net.ddns.raspi_server.rezeptbuch.GlideApp
@@ -45,14 +46,13 @@ class RecipeRecyclerViewAdapter(private val mValues: List<Recipe>,
     holder.mTitle.isSelected = true
     holder.mDescription.text = holder.mItem?.mDescription + "\n\n"
 
-
     GlideApp.with(mContext)
             .load(WebClient.getImageUrl(holder.mItem))
             .error(R.drawable.default_recipe_image_high)
             .placeholder(R.drawable.default_recipe_image_low)
             .centerCrop()
+            .signature(ObjectKey(holder.mItem?.mDate ?: Date()))
             .into(holder.mImage)
-
 
     holder.mView.setOnClickListener {
       mListener.onRecipeClicked(holder.mItem!!)
