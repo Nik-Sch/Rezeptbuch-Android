@@ -51,4 +51,5 @@
     <string name="empty_history">"Du hast noch keine Rezepte geöffnet.\nDaher ist die Historie leer."</string>
     <string name="no_favorite">"Du hast noch kein Rezept als Favorit markiert.\nUm dies zu tun klicke bei dem Anschauen eines Rezeptes auf das Herzchen."</string>
     <string name="action_fav">Favorisieren</string>
+    <string name="action_share">Teilen</string>
 </resources>

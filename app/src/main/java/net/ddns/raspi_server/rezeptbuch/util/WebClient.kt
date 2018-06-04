@@ -231,7 +231,7 @@ class WebClient(private val mContext: Context) {
       body.put("kategorie", recipe.mCategory)
       body.put("zutaten", recipe.mIngredients)
       body.put("beschreibung", recipe.mDescription)
-      if (remoteImageName == "")
+      if (remoteImageName != "")
         body.put("bild", remoteImageName)
       val request = object : JsonObjectRequest(url, body, Response.Listener { response ->
         recipe._ID = response.optInt("rezept_ID")
@@ -281,7 +281,8 @@ class WebClient(private val mContext: Context) {
 
   private fun uploadImage(path: String, name: String,
                           callback: ImageUploadProgressCallback) {
-    val url = "$mBaseUrl/Rezeptbuch/upload_image.php"
+//    val url = "$mBaseUrl/Rezeptbuch/upload_image.php"
+     val url = "$mBaseUrl:$mServicePort/images"
 
     val multipartRequest = object : VolleyMultipartRequest(Request.Method.POST, url, Response.Listener { response ->
       val res = String(response.data)
@@ -329,7 +330,6 @@ class WebClient(private val mContext: Context) {
     }) {
 
       override val byteData: Map<String, VolleyMultipartRequest.DataPart>?
-        @Throws(AuthFailureError::class)
         get() {
           val params = HashMap<String, VolleyMultipartRequest.DataPart>()
           val stream = ByteArrayOutputStream()
