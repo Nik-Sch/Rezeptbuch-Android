@@ -28,7 +28,7 @@ class ViewImageActivity : AppCompatActivity() {
             View.SYSTEM_UI_FLAG_IMMERSIVE
 
     GlideApp.with(this)
-            .load(WebClient.getImageUrl(recipe))
+            .load(WebClient.getImageUrl(recipe, this))
             .error(
                     GlideApp.with(this)
                             .load(R.drawable.default_recipe_image_high)

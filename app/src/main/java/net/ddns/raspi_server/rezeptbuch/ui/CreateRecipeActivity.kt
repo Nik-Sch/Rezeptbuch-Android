@@ -155,7 +155,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
         mDescriptionEdit.setText(mRecipe?.mDescription)
 
         GlideApp.with(this)
-                .load(WebClient.getImageUrl(mRecipe))
+                .load(WebClient.getImageUrl(mRecipe, this))
                 .error(R.drawable.default_recipe_image_high)
                 .placeholder(R.drawable.default_recipe_image_low)
                 .centerCrop()

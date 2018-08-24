@@ -52,4 +52,8 @@
     <string name="no_favorite">"Du hast noch kein Rezept als Favorit markiert.\nUm dies zu tun klicke bei dem Anschauen eines Rezeptes auf das Herzchen."</string>
     <string name="action_fav">Favorisieren</string>
     <string name="action_share">Teilen</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="pref_title_ip_address">IP-Adresse</string>
+    <string name="pref_title_port">Service Port</string>
+    <string name="pref_header_general">Allgemeine Einstellungen</string>
 </resources>

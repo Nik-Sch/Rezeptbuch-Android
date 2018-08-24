@@ -2,6 +2,7 @@ package net.ddns.raspi_server.rezeptbuch.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.preference.PreferenceManager
@@ -37,6 +38,7 @@ import java.util.TimeZone
 
 class WebClient(private val mContext: Context) {
   private val mRequestQueue: RequestQueue
+  private val mPrefs: SharedPreferences
   /*
   ##################################################################################################
   ####################################### AUTH HEADERS #############################################
@@ -58,6 +60,7 @@ class WebClient(private val mContext: Context) {
   init {
     mSyncTimeFormat.timeZone = TimeZone.getTimeZone("UTC")
     mRequestQueue = Volley.newRequestQueue(mContext)
+    mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext)
   }
 
   /*
@@ -68,12 +71,16 @@ class WebClient(private val mContext: Context) {
 
 
   fun downloadRecipes() {
-    val preferences = PreferenceManager
-            .getDefaultSharedPreferences(mContext)
+    val preferences = PreferenceManager.getDefaultSharedPreferences(mContext)
     val receiveTime = preferences.getString(PREFERENCE_SYNC_DATE,
             mSyncTimeFormat.format(Date(0))).replace(" ", "%20")
 
-    val url = "$mBaseUrl:$mServicePort/recipes/$receiveTime"
+    val address = mPrefs.getString("ip_address",
+            mContext.getString(R.string.pref_default_ip_address))
+    val port = mPrefs.getString("port",
+            mContext.getString(R.string.pref_default_port))
+
+    val url = "$address:$port/recipes/$receiveTime"
 
     val request = object : JsonObjectRequest(Request.Method.GET, url, null,
             Response.Listener { response ->
@@ -164,7 +171,10 @@ class WebClient(private val mContext: Context) {
 
   fun uploadCategory(categoryName: String, callback: (DataStructures.Category?) -> Unit) {
 
-    val url = "$mBaseUrl/categories"
+    val address = mPrefs.getString("ip_address",
+            mContext.getString(R.string.pref_default_ip_address))
+
+    val url = "$address/categories"
     try {
       val body = JSONObject()
       body.put("name", categoryName)
@@ -220,7 +230,12 @@ class WebClient(private val mContext: Context) {
   }
 
   fun uploadRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
-    val url = "$mBaseUrl:$mServicePort/recipes"
+    val address = mPrefs.getString("ip_address",
+            mContext.getString(R.string.pref_default_ip_address))
+    val port = mPrefs.getString("port",
+            mContext.getString(R.string.pref_default_port))
+
+    val url = "$address:$port/recipes"
 
 
     val remoteImageName = if (!recipe.mImageName.isEmpty())
@@ -281,8 +296,13 @@ class WebClient(private val mContext: Context) {
 
   private fun uploadImage(path: String, name: String,
                           callback: ImageUploadProgressCallback) {
-//    val url = "$mBaseUrl/Rezeptbuch/upload_image.php"
-     val url = "$mBaseUrl:$mServicePort/images"
+
+    val address = mPrefs.getString("ip_address",
+            mContext.getString(R.string.pref_default_ip_address))
+    val port = mPrefs.getString("port",
+            mContext.getString(R.string.pref_default_port))
+
+    val url = "$address:$port/images"
 
     val multipartRequest = object : VolleyMultipartRequest(Request.Method.POST, url, Response.Listener { response ->
       val res = String(response.data)
@@ -357,7 +377,12 @@ class WebClient(private val mContext: Context) {
    */
 
   fun deleteRecipe(recipeId: Int, callback: (Boolean) -> Unit) {
-    val url = "$mBaseUrl:$mServicePort/recipes/$recipeId"
+    val address = mPrefs.getString("ip_address",
+            mContext.getString(R.string.pref_default_ip_address))
+    val port = mPrefs.getString("port",
+            mContext.getString(R.string.pref_default_port))
+
+    val url = "$address:$port/recipes/$recipeId"
 
     val request = object : StringRequest(Request.Method.DELETE, url,
             Response.Listener { callback(true) },
@@ -401,15 +426,19 @@ class WebClient(private val mContext: Context) {
 
     private const val PREFERENCE_SYNC_DATE = "net.ddns.raspi_server" + ".rezeptbuch.util.WebClient.SYNC_DATE"
     private const val TAG = "WebClient"
-    private const val mBaseUrl = "http://192.168.1.250"
-    private const val mServicePort = 5425
+//    private const val mBaseUrl = "http://192.168.1.250"
+//    private const val mServicePort = 5425
 
     private val mSyncTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     // date format for rfc2822 which the server outputs
     private val mServerResponseFormat = SimpleDateFormat("EEE, dd " + "MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
 
-    fun getImageUrl(recipe: DataStructures.Recipe?): String {
-      return "${WebClient.mBaseUrl}/Rezeptbuch/images/${recipe?.mImageName}"
+    fun getImageUrl(recipe: DataStructures.Recipe?, context: Context): String {
+
+      val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+      val address = prefs.getString("ip_address",
+              context.getString(R.string.pref_default_ip_address))
+      return "$address/Rezeptbuch/images/${recipe?.mImageName}"
     }
   }
 }

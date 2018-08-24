@@ -47,7 +47,7 @@ class RecipeRecyclerViewAdapter(private val mValues: List<Recipe>,
     holder.mDescription.text = holder.mItem?.mDescription + "\n\n"
 
     GlideApp.with(mContext)
-            .load(WebClient.getImageUrl(holder.mItem))
+            .load(WebClient.getImageUrl(holder.mItem, mContext))
             .error(R.drawable.default_recipe_image_high)
             .placeholder(R.drawable.default_recipe_image_low)
             .centerCrop()

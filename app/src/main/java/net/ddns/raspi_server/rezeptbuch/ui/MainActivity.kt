@@ -1,7 +1,9 @@
 package net.ddns.raspi_server.rezeptbuch.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.design.widget.NavigationView
 import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
@@ -11,6 +13,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 
 import net.ddns.raspi_server.rezeptbuch.R
 import net.ddns.raspi_server.rezeptbuch.ui.categorylist.CategoryListFragment
@@ -136,6 +139,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.content_main, recipeListFragment)
                 .addToBackStack(RecipeListFragment::class.java.name)
                 .commit()
+      }
+      R.id.nav_settings -> {
+        startActivity(Intent(this, SettingsActivity::class.java))
       }
     }
 

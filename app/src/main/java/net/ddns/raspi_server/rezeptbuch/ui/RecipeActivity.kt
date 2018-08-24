@@ -61,7 +61,7 @@ class RecipeActivity : AppCompatActivity() {
     val imageView = findViewById<ImageView>(R.id.app_bar_image)
 
     GlideApp.with(this)
-            .load(WebClient.getImageUrl(mRecipe))
+            .load(WebClient.getImageUrl(mRecipe, this))
             .error(
                     GlideApp.with(this)
                             .load(R.drawable.default_recipe_image_high_dark)
