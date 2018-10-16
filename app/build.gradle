@@ -9,8 +9,8 @@ android {
         applicationId "net.ddns.raspi_server.rezeptbuch"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 3
-        versionName "1.1"
+        versionCode 4
+        versionName "1.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -19,6 +19,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
     }
 }
 

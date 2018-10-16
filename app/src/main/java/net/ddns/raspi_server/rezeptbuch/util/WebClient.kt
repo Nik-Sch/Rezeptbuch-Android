@@ -438,7 +438,9 @@ class WebClient(private val mContext: Context) {
       val prefs = PreferenceManager.getDefaultSharedPreferences(context)
       val address = prefs.getString("ip_address",
               context.getString(R.string.pref_default_ip_address))
-      return "$address/Rezeptbuch/images/${recipe?.mImageName}"
+      val port = prefs.getString("image_port",
+              context.getString(R.string.pref_default_image_port))
+      return "$address:$port/Rezeptbuch/images/${recipe?.mImageName}"
     }
   }
 }
