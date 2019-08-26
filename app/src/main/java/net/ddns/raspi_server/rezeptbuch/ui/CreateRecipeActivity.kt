@@ -222,7 +222,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
       uploadProgressDialog.setTitle(this@CreateRecipeActivity.resources.getString(R
               .string.update_recipe_dialog_title))
       uploadProgressDialog.show()
-      webClient.updateRecipe(recipe, this)
+      webClient.updateRecipe(recipe, mRecipe?.mImageName, this)
     }
   }
 
@@ -235,18 +235,37 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
   }
 
   // overrides WebClient.RecipeUploadCallback
-  override fun finished(recipe: DataStructures.Recipe?) {
+  override fun finished(httpStatusCode: Int, recipe: DataStructures.Recipe?) {
     // always dismiss the progress dialog
     uploadProgressDialog.dismiss()
     // if an error occurred, show a message and probably store the
     // recipe locally somehow #TODO
 
     if (recipe == null) {
-      val builder = AlertDialog.Builder(this)
-      builder.setTitle(R.string.error_title_internet)
-      builder.setMessage(R.string.error_description_internet)
-      builder.setPositiveButton(R.string.ok, null)
-      builder.show()
+      when (httpStatusCode) {
+        405 -> {
+          AlertDialog.Builder(this)
+                  .setTitle(R.string.error_title_not_allowed)
+                  .setMessage(R.string.error_description_not_allowed)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+        }
+        403 -> {
+          AlertDialog.Builder(this)
+                  .setTitle(R.string.error_title_wrong_password)
+                  .setMessage(R.string.error_description_wrong_password)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+        }
+        else -> {
+          AlertDialog.Builder(this)
+                  .setTitle(R.string.error_title_internet)
+                  .setMessage(R.string.error_description_internet)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+
+        }
+      }
     } else {
       // add the recipe to the local db
       val recipeDatabase = RecipeDatabase(this)
@@ -294,7 +313,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
                   // when accepting show the uploadProgressDialog and request the server
                   progressDialog.show()
                   val webClient = WebClient(this@CreateRecipeActivity)
-                  webClient.uploadCategory(input.text.toString()) { category ->
+                  webClient.uploadCategory(input.text.toString()) { httpStatusCode, category ->
                     // always dismiss the dialog when the server responded
                     progressDialog.dismiss()
                     // if an error occurred, show a message and set the
@@ -302,7 +321,11 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
                     if (category == null) {
                       val builder1 = AlertDialog.Builder(this@CreateRecipeActivity)
                       builder1.setTitle(R.string.error_title_internet)
-                      builder1.setMessage(R.string.error_description_internet)
+                      when (httpStatusCode) {
+                        405 -> builder1.setMessage(R.string.error_description_not_allowed)
+                        403 -> builder1.setMessage(R.string.error_description_wrong_password)
+                        else -> builder1.setMessage(R.string.error_description_internet)
+                      }
                       builder1.setPositiveButton(R.string.ok, null)
                       builder1.show()
                       this@CreateRecipeActivity.mSpinner.setSelection(0)

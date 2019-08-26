@@ -14,6 +14,7 @@ import android.support.design.widget.CollapsingToolbarLayout
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -75,12 +76,12 @@ class RecipeActivity : AppCompatActivity() {
             .centerCrop()
             .signature(ObjectKey(mRecipe.mDate))
             .into(imageView)
-    imageView.setOnClickListener({ _ ->
+    imageView.setOnClickListener {
       // show the image
       val intent = Intent(this@RecipeActivity, ViewImageActivity::class.java)
-      intent.putExtra(RecipeActivity.ARG_RECIPE, mRecipe)
+      intent.putExtra(ARG_RECIPE, mRecipe)
       this.startActivity(intent)
-    })
+    }
 
     // make the title only appear if the toolbar is collapsed
     val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.toolbar_layout)
@@ -188,22 +189,43 @@ class RecipeActivity : AppCompatActivity() {
     progressDialog.isIndeterminate = true
     progressDialog.setCancelable(false)
     progressDialog.show()
-    WebClient(this).deleteRecipe(mRecipe._ID) { success ->
+    WebClient(this).deleteRecipe(mRecipe._ID, mRecipe.mImageName) { success ->
       progressDialog.dismiss()
-      if (success) {
-        RecipeDatabase(this@RecipeActivity).deleteRecipe(mRecipe)
-        finish()
-      } else
-        AlertDialog.Builder(this@RecipeActivity)
-                .setTitle(R.string.error_title_internet)
-                .setMessage(R.string.error_description_delete_recipe)
-                .setPositiveButton(R.string.ok, null)
-                .show()
+      Log.i(TAG, "delete returned $success")
+      when (success) {
+        200 -> {
+          RecipeDatabase(this@RecipeActivity).deleteRecipe(mRecipe)
+          finish()
+        }
+        405 -> {
+          AlertDialog.Builder(this@RecipeActivity)
+                  .setTitle(R.string.error_title_not_allowed)
+                  .setMessage(R.string.error_description_not_allowed)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+        }
+        403 -> {
+          AlertDialog.Builder(this@RecipeActivity)
+                  .setTitle(R.string.error_title_wrong_password)
+                  .setMessage(R.string.error_description_wrong_password)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+        }
+        else -> {
+          AlertDialog.Builder(this@RecipeActivity)
+                  .setTitle(R.string.error_title_internet)
+                  .setMessage(R.string.error_description_internet)
+                  .setPositiveButton(R.string.ok, null)
+                  .show()
+
+        }
+      }
     }
   }
 
   companion object {
     const val ARG_RECIPE = "mRecipe"
+    private const val TAG = "RecipeActivity"
 
     private fun createBitmapFromView(view: View): Bitmap {
       val ret = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)

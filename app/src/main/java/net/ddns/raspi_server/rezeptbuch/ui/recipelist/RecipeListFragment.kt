@@ -61,26 +61,32 @@ class RecipeListFragment : Fragment(), SearchView.OnQueryTextListener {
 
   private val mBroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-      val success = intent.getBooleanExtra(WebClient
-              .ARG_BROADCAST_DOWNLOAD_FINISHED_SUCCESS, false)
+      val success = intent.getIntExtra(WebClient
+              .ARG_BROADCAST_DOWNLOAD_FINISHED_SUCCESS, 500)
       var showNotification = true
       val dateFormat = android.text.format.DateFormat.getTimeFormat(getContext())
-      if (success) {
-        mNotificationView.text = String.format(
-                context.resources.getString(R.string.notification_updated),
-                dateFormat.format(Date()))
-        mNotificationView.setBackgroundColor(resources.getColor(android.R
-                .color.darker_gray))
-        refresh()
-      } else if (!mRecipeList.isEmpty()) {
-        mNotificationView.setText(R.string.notification_failed_update)
-        mNotificationView.setBackgroundColor(resources.getColor(android.R
-                .color.holo_red_dark))
-      } else {
-        showNotification = false
-        mInfoTextView.setText(R.string.notification_failed_download)
-        mInfoTextView.setTextColor(resources.getColor(android
-                .R.color.holo_red_dark))
+      when {
+        success / 100 == 2 -> {
+          mNotificationView.text = String.format(
+                  context.resources.getString(R.string.notification_updated),
+                  dateFormat.format(Date()))
+          mNotificationView.setBackgroundColor(resources.getColor(android.R
+                  .color.darker_gray))
+          refresh()
+        }
+        mRecipeList.isNotEmpty() -> {
+          mNotificationView.text = context.getString(R.string.notification_failed_update,
+                  Util.httpStatusString(success))
+          mNotificationView.setBackgroundColor(resources.getColor(android.R
+                  .color.holo_red_dark))
+        }
+        else -> {
+          showNotification = false
+          mInfoTextView.text = context.getString(R.string.notification_failed_download, Util
+                  .httpStatusString(success))
+          mInfoTextView.setTextColor(resources.getColor(android
+                  .R.color.holo_red_dark))
+        }
       }
 
       if (showNotification) {
@@ -129,7 +135,7 @@ class RecipeListFragment : Fragment(), SearchView.OnQueryTextListener {
     context?.let { ctx ->
       val database = RecipeDatabase(ctx)
       val args = arguments
-      return if (!mCurrentSearch.isEmpty())
+      return if (mCurrentSearch.isNotEmpty())
         database.getRecipesBySearch(mCurrentSearch)
       else if (args != null && args.containsKey(ARG_CATEGORY))
         database.getRecipesByCategory(args.getInt(ARG_CATEGORY))

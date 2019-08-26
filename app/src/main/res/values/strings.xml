@@ -31,6 +31,8 @@
     <string name="cancel">Cancel</string>
     <string name="create_category_dialog_title">Creating a new category</string>
     <string name="error_description_internet">Failed to connect to the server. Check your Connection and try again later.</string>
+    <string name="error_description_not_allowed">Failed to connect to the server. You are not allowed to edit or add recipes.</string>
+    <string name="error_title_not_allowed">No Permissions</string>
     <string name="error_title_internet">No internet connection</string>
     <string name="create_recipe_dialog_title">Creating a new recipe</string>
     <string name="action_refresh">Refresh</string>
@@ -43,8 +45,9 @@
     <string name="search_hint">Search…</string>
     <string name="downloading_recipes">The recipes are currently being downloaded…</string>
     <string name="notification_updated">Successfully updated recipes at %s.</string>
-    <string name="notification_failed_update">"Failed to update the recipes.\nYou are using the app offline."</string>
-    <string name="notification_failed_download">Could not download the recipes. Please check your internet connection and try again.</string>
+    <string name="notification_failed_update">"Failed to update the recipes (%s).\nYou are using the app offline."</string>
+    <string name="notification_failed_download">Could not download the recipes (%s). Please check
+        your internet connection and try again.</string>
     <string name="action_delete">Delete Recipe</string>
     <string name="title_delete_recipe">Delete the recipe</string>
     <string name="description_delete_recipe">Are you sure that you want to delete the recipe?</string>
@@ -61,13 +64,21 @@
     <!-- Strings related to Settings -->
 
     <string name="pref_title_ip_address">IP Address</string>
-    <string name="pref_default_ip_address">http://raspi-server.servebeer.com</string>
+    <string name="pref_default_ip_address" translatable="false">http://raspi-server.servebeer.com</string>
 
     <string name="pref_title_port">Service Port</string>
-    <string name="pref_default_port">5425</string>
+    <string name="pref_default_port" translatable="false">5425</string>
 
     <string name="pref_title_image_port">HTTP Image Port</string>
-    <string name="pref_default_image_port">17255</string>
+    <string name="pref_default_image_port" translatable="false">17255</string>
+
+    <string name="pref_title_username">Username</string>
+    <string name="pref_default_username" translatable="false">gast</string>
+
+    <string name="pref_title_password">Password</string>
+    <string name="pref_default_password" translatable="false">1Gast!Passwort</string>
 
     <string name="pref_header_general">General Settings</string>
+    <string name="error_description_wrong_password">Failed to connect to the server. Check your username and password in the Settings.</string>
+    <string name="error_title_wrong_password">Wrong Credentials</string>
 </resources>

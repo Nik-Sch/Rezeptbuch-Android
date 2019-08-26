@@ -87,6 +87,9 @@ class SettingsActivity : AppCompatPreferenceActivity() {
       // guidelines.
       bindPreferenceSummaryToValue(findPreference("ip_address"))
       bindPreferenceSummaryToValue(findPreference("port"))
+      bindPreferenceSummaryToValue(findPreference("image_port"))
+      bindPreferenceSummaryToValue(findPreference("username"))
+//      bindPreferenceSummaryToValue(findPreference("password"))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

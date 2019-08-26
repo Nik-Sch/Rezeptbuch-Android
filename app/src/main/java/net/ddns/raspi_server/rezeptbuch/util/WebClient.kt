@@ -14,7 +14,6 @@ import android.util.Log
 import com.android.volley.AuthFailureError
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.NoConnectionError
-import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.TimeoutError
@@ -45,12 +44,15 @@ class WebClient(private val mContext: Context) {
   ##################################################################################################
    */
 
-  // Wouldn't call it secure but it works and the service is not open to anyone...
   private
   val authHeaders: Map<String, String>
     get() {
       val headers = HashMap<String, String>()
-      val credentials = "rezepte:shcaHML9aS"
+      val pwd = mPrefs.getString("password",
+              mContext.getString(R.string.pref_default_password))
+      val user = mPrefs.getString("username",
+              mContext.getString(R.string.pref_default_username))
+      val credentials = "$user:$pwd"
       val auth = "Basic " + Base64.encodeToString(credentials.toByteArray(), Base64.NO_WRAP)
       headers["Content-Type"] = "application/json"
       headers["Authorization"] = auth
@@ -82,18 +84,21 @@ class WebClient(private val mContext: Context) {
 
     val url = "$address:$port/recipes/$receiveTime"
 
-    val request = object : JsonObjectRequest(Request.Method.GET, url, null,
+    val request = object : JsonObjectRequest(Method.GET, url, null,
             Response.Listener { response ->
               Log.d(TAG, "received recipes.")
               Thread(Runnable {
                 saveJsonToDB(response)
-                broadcastDownloadFinished(true)
+                broadcastDownloadFinished(200)
               }).start()
             },
             Response.ErrorListener { error ->
-              Log.e(TAG, "receiving recipes failed.")
-              broadcastDownloadFinished(!(error?.networkResponse == null
-                      || error.networkResponse.statusCode != 418))
+              Log.e(TAG, "receiving recipes failed: $error.")
+              when {
+                error?.networkResponse == null -> broadcastDownloadFinished(404)
+                error.networkResponse.statusCode == 418 -> broadcastDownloadFinished(204)
+                else -> broadcastDownloadFinished(error.networkResponse.statusCode)
+              }
             }) {
       @Throws(AuthFailureError::class)
       override fun getHeaders(): Map<String, String> {
@@ -107,7 +112,7 @@ class WebClient(private val mContext: Context) {
     mRequestQueue.add(request)
   }
 
-  private fun broadcastDownloadFinished(success: Boolean) {
+  private fun broadcastDownloadFinished(success: Int) {
     Log.d(TAG, "Broadcasting message: $success")
     val intent = Intent(EVENT_BROADCAST_DOWNLOAD_FINISHED)
     intent.putExtra(ARG_BROADCAST_DOWNLOAD_FINISHED_SUCCESS, success)
@@ -169,7 +174,7 @@ class WebClient(private val mContext: Context) {
    */
 
 
-  fun uploadCategory(categoryName: String, callback: (DataStructures.Category?) -> Unit) {
+  fun uploadCategory(categoryName: String, callback: (Int, DataStructures.Category?) -> Unit) {
 
     val address = mPrefs.getString("ip_address",
             mContext.getString(R.string.pref_default_ip_address))
@@ -182,11 +187,17 @@ class WebClient(private val mContext: Context) {
               url,
               body,
               Response.Listener { response ->
-                callback(DataStructures.Category(
+                callback(200, DataStructures.Category(
                         response.optInt("id"),
                         categoryName))
               },
-              Response.ErrorListener { callback(null) }) {
+              Response.ErrorListener {error ->
+                if (error?.networkResponse != null) {
+                  callback(error.networkResponse.statusCode, null)
+                } else {
+                  callback(404, null)
+                }
+              }) {
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
           return authHeaders
@@ -195,29 +206,36 @@ class WebClient(private val mContext: Context) {
       mRequestQueue.add(request)
     } catch (e: JSONException) {
       e.printStackTrace()
-      callback(null)
+      callback(500, null)
     }
 
   }
 
 
-  fun updateRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
+  fun updateRecipe(recipe: DataStructures.Recipe, oldImageName: String?, callback: RecipeUploadCallback) {
     val oldId = recipe._ID
+    val newImageName = if (recipe.mImageName.isNotEmpty())
+      Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients) + ".jpg" else null
+
+    Log.i(TAG, "oldImageName: $oldImageName, new image name: $newImageName")
+    val oldImageToDelete = if (oldImageName != newImageName) oldImageName else null
 
     val innerCallback = object : RecipeUploadCallback {
-      override fun finished(recipe: DataStructures.Recipe?) {
+      override fun finished(httpStatusCode: Int, recipe: DataStructures.Recipe?) {
         if (recipe != null) {
           Log.i(TAG, "recipe update: uploading successful. ID: " + recipe._ID)
-          deleteRecipe(oldId) { success ->
-            if (success) {
+          deleteRecipe(oldId, oldImageToDelete) { success ->
+            if (success / 100 == 2) {
               RecipeDatabase(this@WebClient.mContext).deleteRecipe(oldId)
               Log.i(TAG, "recipe update: deleted old recipe (ID: $oldId) successfully.")
-              callback.finished(recipe)
+              callback.finished(200, recipe)
             } else {
               Log.i(TAG, "recipe update: deleting not successful.")
-              callback.finished(null)
             }
           }
+        } else {
+          Log.i(TAG, "recipe update: deleting not successful.")
+          callback.finished(httpStatusCode, null)
         }
       }
 
@@ -238,7 +256,7 @@ class WebClient(private val mContext: Context) {
     val url = "$address:$port/recipes"
 
 
-    val remoteImageName = if (!recipe.mImageName.isEmpty())
+    val remoteImageName = if (recipe.mImageName.isNotEmpty())
       Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients) + ".jpg" else ""
     try {
       val body = JSONObject()
@@ -257,9 +275,16 @@ class WebClient(private val mContext: Context) {
           e.printStackTrace()
           Log.e(TAG, e.message)
         }
-
-        callback.finished(recipe)
-      }, Response.ErrorListener { callback.finished(null) }) {
+        Log.i(TAG, "upload successful (id: ${recipe._ID})")
+        callback.finished(200, recipe)
+      }, Response.ErrorListener {error ->
+        Log.i(TAG, "upload not successful (${error?.networkResponse?.statusCode})")
+        if (error?.networkResponse != null) {
+          callback.finished(error.networkResponse.statusCode, null)
+        } else {
+          callback.finished(404, null)
+        }
+      }) {
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
           return authHeaders
@@ -273,23 +298,26 @@ class WebClient(private val mContext: Context) {
             callback.onProgress(progress)
           }
 
-          override fun finished(success: Boolean) {
-            if (success)
+          override fun finished(success: Int) {
+            if (success / 100 == 2) {
               mRequestQueue.add(request)
-            else
+            } else if (success == 403 || success == 405) {
+              callback.finished(success, null)
+            } else {
               AlertDialog.Builder(mContext)
                       .setTitle(R.string.error_title_image_upload)
                       .setMessage(R.string.error_description_image_upload)
                       .setPositiveButton(R.string.yes) { _, _ -> mRequestQueue.add(request) }
-                      .setNegativeButton(R.string.no) { _, _ -> callback.finished(null) }
+                      .setNegativeButton(R.string.no) { _, _ -> callback.finished(503, null) }
                       .show()
+            }
           }
         })
       } else
         mRequestQueue.add(request)
     } catch (e: JSONException) {
       e.printStackTrace()
-      callback.finished(null)
+      callback.finished(500, null)
     }
 
   }
@@ -304,12 +332,16 @@ class WebClient(private val mContext: Context) {
 
     val url = "$address:$port/images"
 
-    val multipartRequest = object : VolleyMultipartRequest(Request.Method.POST, url, Response.Listener { response ->
+    val multipartRequest = object : VolleyMultipartRequest(Method.POST, url, Response.Listener { response ->
       val res = String(response.data)
       Log.i(TAG, "image upload success: $res")
-      callback.finished(true)
+      callback.finished(200)
     }, Response.ErrorListener { error ->
-      callback.finished(false)
+      if (error?.networkResponse != null) {
+        callback.finished(error.networkResponse.statusCode)
+      } else {
+        callback.finished(404)
+      }
       val networkResponse = error.networkResponse
       var errorMessage = "Unknown error"
       if (networkResponse == null) {
@@ -342,20 +374,20 @@ class WebClient(private val mContext: Context) {
       }
       Log.i("Error", errorMessage)
       error.printStackTrace()
-    }, object : VolleyMultipartRequest.MultipartProgressListener {
+    }, object : MultipartProgressListener {
       override fun transferred(transferred: Long, progress: Int) {
         callback.onProgress(progress)
         Log.i(TAG, "image uploading is at: $progress%.")
       }
     }) {
 
-      override val byteData: Map<String, VolleyMultipartRequest.DataPart>?
+      override val byteData: Map<String, DataPart>?
         get() {
-          val params = HashMap<String, VolleyMultipartRequest.DataPart>()
+          val params = HashMap<String, DataPart>()
           val stream = ByteArrayOutputStream()
           val bitmap = BitmapFactory.decodeFile(path)
           bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream)
-          params["image"] = VolleyMultipartRequest.DataPart(name, stream.toByteArray(), stream.size().toLong())
+          params["image"] = DataPart(name, stream.toByteArray(), stream.size().toLong())
           return params
         }
 
@@ -364,6 +396,11 @@ class WebClient(private val mContext: Context) {
         val params = HashMap<String, String>()
         params["name"] = name
         return params
+      }
+
+      @Throws(AuthFailureError::class)
+      override fun getHeaders(): Map<String, String> {
+        return authHeaders
       }
     }
 
@@ -376,23 +413,54 @@ class WebClient(private val mContext: Context) {
   ##################################################################################################
    */
 
-  fun deleteRecipe(recipeId: Int, callback: (Boolean) -> Unit) {
+  fun deleteRecipe(recipeId: Int, imageName: String?, callback: (Int) -> Unit) {
     val address = mPrefs.getString("ip_address",
             mContext.getString(R.string.pref_default_ip_address))
     val port = mPrefs.getString("port",
             mContext.getString(R.string.pref_default_port))
 
-    val url = "$address:$port/recipes/$recipeId"
 
-    val request = object : StringRequest(Request.Method.DELETE, url,
-            Response.Listener { callback(true) },
-            Response.ErrorListener { callback(false) }) {
+    val imageUrl = "$address:$port/images/$imageName"
+    val imageRequest = object : StringRequest(Method.DELETE, imageUrl,
+            Response.Listener {
+              callback(200)
+            },
+            Response.ErrorListener { error ->
+              if (error?.networkResponse != null) {
+                callback(error.networkResponse.statusCode)
+              } else {
+                callback(404)
+              }
+            }) {
       @Throws(AuthFailureError::class)
       override fun getHeaders(): Map<String, String> {
         return authHeaders
       }
     }
-    mRequestQueue.add(request)
+
+
+    val url = "$address:$port/recipes/$recipeId"
+    val recipeRequest = object : StringRequest(Method.DELETE, url,
+            Response.Listener {
+              if (imageName != null && imageName.isNotBlank()) {
+                mRequestQueue.add(imageRequest)
+              } else {
+                callback(200)
+              }
+            },
+            Response.ErrorListener { error ->
+              if (error?.networkResponse != null) {
+                callback(error.networkResponse.statusCode)
+              } else {
+                callback(404)
+              }
+            }) {
+      @Throws(AuthFailureError::class)
+      override fun getHeaders(): Map<String, String> {
+        return authHeaders
+      }
+    }
+    mRequestQueue.add(recipeRequest)
   }
 
   /*
@@ -404,14 +472,15 @@ class WebClient(private val mContext: Context) {
   private interface ImageUploadProgressCallback {
     fun onProgress(progress: Int)
 
-    fun finished(success: Boolean)
+    fun finished(success: Int)
   }
 
   interface RecipeUploadCallback {
     /**
+     * @param httpStatusCode the resulting http status code
      * @param recipe the recipe uploaded or null if an error occurred
      */
-    fun finished(recipe: DataStructures.Recipe?)
+    fun finished(httpStatusCode: Int, recipe: DataStructures.Recipe?)
 
     /**
      * @param progress 0-100 percent of uploading the image. if no image is to

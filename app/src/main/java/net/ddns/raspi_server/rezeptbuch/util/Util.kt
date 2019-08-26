@@ -1,8 +1,13 @@
 package net.ddns.raspi_server.rezeptbuch.util
 
+import java.lang.reflect.Modifier
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.HashSet
+import java.lang.reflect.Modifier.isFinal
+import java.lang.reflect.Modifier.isPublic
+import java.net.HttpURLConnection
+
 
 object Util {
 
@@ -35,5 +40,22 @@ object Util {
     val s1 = HashSet(l1)
     val s2 = HashSet(l2)
     return s1 == s2
+  }
+
+  fun httpStatusString(status: Int): String {
+    val c = HttpURLConnection::class.java
+    for (f in c.declaredFields) {
+      val mod = f.modifiers
+      if (Modifier.isStatic(mod) && isPublic(mod) && isFinal(mod)) {
+        try {
+          if (f.get(null) == status) {
+            return f.name
+          }
+        } catch (e: IllegalAccessException) {
+          e.printStackTrace()
+        }
+      }
+    }
+    return status.toString()
   }
 }
