@@ -1,39 +1,26 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_ip_address"
+        android:defaultValue="@string/pref_default_api_address"
+        android:inputType="textUri"
+        android:key="api_address"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_api_address" />
+
+    <EditTextPreference
+        android:inputType="textUri"
+        android:defaultValue="@string/pref_default_image_address"
+        android:key="image_address"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_image_address" />
+
+    <EditTextPreference
         android:inputType="text"
-        android:key="ip_address"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_ip_address" />
-
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_port"
-        android:inputType="number"
-        android:key="port"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_port" />
-
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_image_port"
-        android:inputType="number"
-        android:key="image_port"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_image_port" />
-
-    <EditTextPreference
-        android:capitalize="words"
         android:defaultValue="@string/pref_default_username"
-        android:inputType="text"
         android:key="username"
         android:maxLines="1"
         android:selectAllOnFocus="true"
@@ -41,9 +28,8 @@
         android:title="@string/pref_title_username" />
 
     <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_password"
         android:inputType="textVisiblePassword"
+        android:defaultValue="@string/pref_default_password"
         android:key="password"
         android:maxLines="1"
         android:selectAllOnFocus="true"

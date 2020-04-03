@@ -85,9 +85,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
       // to their values. When their values change, their summaries are
       // updated to reflect the new value, per the Android Design
       // guidelines.
-      bindPreferenceSummaryToValue(findPreference("ip_address"))
-      bindPreferenceSummaryToValue(findPreference("port"))
-      bindPreferenceSummaryToValue(findPreference("image_port"))
+      bindPreferenceSummaryToValue(findPreference("api_address"))
+      bindPreferenceSummaryToValue(findPreference("image_address"))
       bindPreferenceSummaryToValue(findPreference("username"))
 //      bindPreferenceSummaryToValue(findPreference("password"))
     }

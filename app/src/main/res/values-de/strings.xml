@@ -55,14 +55,13 @@
     <string name="action_fav">Favorisieren</string>
     <string name="action_share">Teilen</string>
     <string name="title_activity_settings">Einstellungen</string>
-    <string name="pref_title_ip_address">IP-Adresse</string>
-    <string name="pref_title_port">Service Port</string>
     <string name="pref_header_general">Allgemeine Einstellungen</string>
-    <string name="pref_title_image_port">HTTP Port für Bilder</string>
     <string name="pref_title_password">Passwort</string>
     <string name="pref_title_username">Benutzername</string>
     <string name="error_description_not_allowed">Es ist ein Problem mit der Internetverbindung aufgetreten. Du darfst keine Rezepte editieren oder hochladen.</string>
     <string name="error_title_not_allowed">Keine Rechte</string>
     <string name="error_description_wrong_password">Es ist ein Problem mit der Internetverbindung aufgetreten.  Überprüfe deinen Benutzernamen und Passwort in den Einstellungen</string>
     <string name="error_title_wrong_password">Falsche Zugangsdaten</string>
+    <string name="pref_title_image_address">Bilder Adresse</string>
+    <string name="pref_title_api_address">API Adresse</string>
 </resources>

@@ -208,7 +208,7 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
     val webClient = WebClient(this)
     val recipe = DataStructures.Recipe(mRecipe?._ID ?: -1,
             mTitleEdit.text.toString(),
-            mSpinner.selectedItemPosition - 1,
+            (mSpinner.selectedItem as DataStructures.Category)._ID,
             mIngredientsEdit.text.toString(),
             mDescriptionEdit.text.toString(),
             mLocalImagePath ?: "",
@@ -334,6 +334,8 @@ class CreateRecipeActivity : AppCompatActivity(), WebClient.RecipeUploadCallback
                       // select it in the spinner
                       RecipeDatabase(this@CreateRecipeActivity).putCategory(category)
                       this@CreateRecipeActivity.mCategories.add(category)
+                      (this@CreateRecipeActivity.mSpinner.adapter as CategorySpinnerAdapter).add(category)
+                      (this@CreateRecipeActivity.mSpinner.adapter as CategorySpinnerAdapter).notifyDataSetChanged()
                       this@CreateRecipeActivity.mSpinner.invalidate()
                       this@CreateRecipeActivity.mSpinner.setSelection(this@CreateRecipeActivity
                               .mSpinner.count - 1)

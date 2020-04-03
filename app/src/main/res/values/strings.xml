@@ -63,14 +63,11 @@
 
     <!-- Strings related to Settings -->
 
-    <string name="pref_title_ip_address">IP Address</string>
-    <string name="pref_default_ip_address" translatable="false">http://raspi-server.servebeer.com</string>
+    <string name="pref_title_api_address">API Address</string>
+    <string name="pref_default_api_address" translatable="false">https://rezeptbuch.niklas-schelten.de/api/</string>
 
-    <string name="pref_title_port">Service Port</string>
-    <string name="pref_default_port" translatable="false">5425</string>
-
-    <string name="pref_title_image_port">HTTP Image Port</string>
-    <string name="pref_default_image_port" translatable="false">17255</string>
+    <string name="pref_title_image_address">Image address</string>
+    <string name="pref_default_image_address" translatable="false">https://rezeptbuch.niklas-schelten.de/images/</string>
 
     <string name="pref_title_username">Username</string>
     <string name="pref_default_username" translatable="false">gast</string>
