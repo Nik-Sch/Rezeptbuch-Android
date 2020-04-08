@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list"
-    android:name="net.ddns.raspi_server.rezeptbuch.ui.category.CategoryListFragment"
+    android:name="de.niklas_schelten.rezeptbuch.ui.category.CategoryListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
@@ -12,5 +12,5 @@
     android:scrollbarSize="1dp"
     android:scrollbars="vertical"
     app:layoutManager="LinearLayoutManager"
-    tools:context="net.ddns.raspi_server.rezeptbuch.ui.categorylist.CategoryListFragment"
+    tools:context="de.niklas_schelten.rezeptbuch.ui.categorylist.CategoryListFragment"
     tools:listitem="@layout/fragment_category_list_item"/>

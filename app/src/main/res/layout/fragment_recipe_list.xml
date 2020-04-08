@@ -18,11 +18,11 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_below="@id/notification"
-        android:name="net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment"
+        android:name="de.niklas_schelten.rezeptbuch.ui.recipelist.RecipeListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
-        tools:context="net.ddns.raspi_server.rezeptbuch.ui.recipelist.RecipeListFragment"
+        tools:context="de.niklas_schelten.rezeptbuch.ui.recipelist.RecipeListFragment"
         tools:listitem="@layout/fragment_recipe_list_item"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp"/>
