@@ -9,8 +9,8 @@ android {
         applicationId "de.niklas_schelten.rezeptbuch"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 5
-        versionName "1.1.2"
+        versionCode 6
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

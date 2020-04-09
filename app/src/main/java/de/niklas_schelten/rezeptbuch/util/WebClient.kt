@@ -71,8 +71,8 @@ class WebClient(private val mContext: Context) {
         val receiveTime = preferences.getString(PREFERENCE_SYNC_DATE,
                 mSyncTimeFormat.format(Date(0))).replace(" ", "%20")
 
-        val apiAddress = mPrefs.getString("api_address",
-                mContext.getString(R.string.pref_default_api_address))
+        val apiAddress = mPrefs.getString("url",
+                mContext.getString(R.string.pref_default_url)) + "/api"
 
         val url = "$apiAddress/recipes/$receiveTime"
 
@@ -170,10 +170,10 @@ class WebClient(private val mContext: Context) {
 
     fun uploadCategory(categoryName: String, callback: (Int, DataStructures.Category?) -> Unit) {
 
-        val address = mPrefs.getString("api_address",
-                mContext.getString(R.string.pref_default_api_address))
+        val apiAddress = mPrefs.getString("url",
+                mContext.getString(R.string.pref_default_url)) + "/api"
 
-        val url = "$address/categories"
+        val url = "$apiAddress/categories"
         try {
             val body = JSONObject()
             body.put("name", categoryName)
@@ -210,23 +210,19 @@ class WebClient(private val mContext: Context) {
 
     fun updateRecipe(recipe: DataStructures.Recipe, oldImageName: String?, callback: RecipeUploadCallback) {
         val oldId = recipe._ID
-        val newImageName = if (recipe.mImageName.isNotEmpty())
-            Util.md5(recipe.mTitle + recipe.mDescription + recipe.mIngredients) + ".jpg" else null
-
-        Log.i(TAG, "oldImageName: $oldImageName, new image name: $newImageName")
-        val oldImageToDelete = if (oldImageName != newImageName) oldImageName else null
 
         val innerCallback = object : RecipeUploadCallback {
             override fun finished(httpStatusCode: Int, recipe: DataStructures.Recipe?) {
                 if (recipe != null) {
                     Log.i(TAG, "recipe update: uploading successful. ID: " + recipe._ID)
-                    deleteRecipe(oldId, oldImageToDelete) { success ->
+                    deleteRecipe(oldId) { success ->
                         if (success / 100 == 2) {
                             RecipeDatabase(this@WebClient.mContext).deleteRecipe(oldId)
                             Log.i(TAG, "recipe update: deleted old recipe (ID: $oldId) successfully.")
                             callback.finished(200, recipe)
                         } else {
                             Log.i(TAG, "recipe update: deleting not successful.")
+                            callback.finished(httpStatusCode, null)
                         }
                     }
                 } else {
@@ -244,9 +240,10 @@ class WebClient(private val mContext: Context) {
     }
 
     private fun pushRecipe(recipe: DataStructures.Recipe, callback: RecipeUploadCallback) {
-        val address = mPrefs.getString("api_address",
-                mContext.getString(R.string.pref_default_api_address))
-        val url = "$address/recipes"
+
+        val apiAddress = mPrefs.getString("url",
+                mContext.getString(R.string.pref_default_url)) + "/api"
+        val url = "$apiAddress/recipes"
 
         val body = JSONObject()
         body.put("titel", recipe.mTitle)
@@ -322,10 +319,10 @@ class WebClient(private val mContext: Context) {
 
     private fun uploadImage(path: String, callback: ImageUploadProgressCallback) {
 
-        val address = mPrefs.getString("image_address",
-                mContext.getString(R.string.pref_default_image_address))
+        val apiAddress = mPrefs.getString("url",
+                mContext.getString(R.string.pref_default_url))
 
-        val url = "$address../upload_image.php"
+        val url = "$apiAddress/upload_image.php"
 
         val multipartRequest = object : VolleyMultipartRequest(Method.POST, url, Response.Listener { response ->
             val res = String(response.data)
@@ -408,9 +405,9 @@ class WebClient(private val mContext: Context) {
     ##################################################################################################
      */
 
-    fun deleteRecipe(recipeId: Int, imageName: String?, callback: (Int) -> Unit) {
-        val apiAddress = mPrefs.getString("api_address",
-                mContext.getString(R.string.pref_default_api_address))
+    fun deleteRecipe(recipeId: Int, callback: (Int) -> Unit) {
+        val apiAddress = mPrefs.getString("url",
+                mContext.getString(R.string.pref_default_url)) + "/api"
         val url = "$apiAddress/recipes/$recipeId"
         val recipeRequest = object : StringRequest(Method.DELETE, url,
                 Response.Listener {
@@ -472,9 +469,9 @@ class WebClient(private val mContext: Context) {
         fun getImageUrl(recipe: DataStructures.Recipe?, context: Context): String {
 
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val address = prefs.getString("image_address",
-                    context.getString(R.string.pref_default_image_address))
-            return "$address/${recipe?.mImageName}"
+            val address = prefs.getString("url",
+                    context.getString(R.string.pref_default_url))
+            return "$address/images/${recipe?.mImageName}"
         }
     }
 }

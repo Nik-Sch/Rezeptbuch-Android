@@ -53,7 +53,7 @@
     <string name="empty_history">"Du hast noch keine Rezepte geöffnet.\nDaher ist die Historie leer."</string>
     <string name="no_favorite">"Du hast noch kein Rezept als Favorit markiert.\nUm dies zu tun klicke bei dem Anschauen eines Rezeptes auf das Herzchen."</string>
     <string name="action_fav">Favorisieren</string>
-    <string name="action_share">Teilen</string>
+    <string name="action_share">Link teilen</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="pref_header_general">Allgemeine Einstellungen</string>
     <string name="pref_title_password">Passwort</string>
@@ -62,6 +62,11 @@
     <string name="error_title_not_allowed">Keine Rechte</string>
     <string name="error_description_wrong_password">Es ist ein Problem mit der Internetverbindung aufgetreten.  Überprüfe deinen Benutzernamen und Passwort in den Einstellungen</string>
     <string name="error_title_wrong_password">Falsche Zugangsdaten</string>
-    <string name="pref_title_image_address">Bilder Adresse</string>
-    <string name="pref_title_api_address">API Adresse</string>
+    <string name="update_notification_title">Ein Update ist verfügbar</string>
+    <string name="update_notification_description">Die Version %1$s ist verfügbar</string>
+    <string name="pref_title_url">Rezeptbuch URL</string>
+    <string name="action_share_image">Bild teilen</string>
+    <string name="share_image">Teile den Rezeptlink</string>
+    <string name="share">Teile das Rezept als Bild</string>
+    <string name="no_recipe">Es gibt kein Rezept mit dieser ID.</string>
 </resources>

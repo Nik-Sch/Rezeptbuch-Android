@@ -1,14 +1,12 @@
 package de.niklas_schelten.rezeptbuch.ui
 
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
+import android.preference.PreferenceManager
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CollapsingToolbarLayout
 import android.support.v4.content.FileProvider
@@ -20,6 +18,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.bumptech.glide.signature.ObjectKey
 import de.niklas_schelten.rezeptbuch.GlideApp
 
@@ -28,10 +27,10 @@ import de.niklas_schelten.rezeptbuch.util.DataStructures
 import de.niklas_schelten.rezeptbuch.util.Favorite
 import de.niklas_schelten.rezeptbuch.util.WebClient
 import de.niklas_schelten.rezeptbuch.util.db.RecipeDatabase
-import java.io.ByteArrayOutputStream
 
 import java.io.File
 import java.io.FileOutputStream
+import java.util.regex.Pattern
 
 
 class RecipeActivity : AppCompatActivity() {
@@ -41,8 +40,28 @@ class RecipeActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mRecipe = intent.extras?.getSerializable(ARG_RECIPE) as? DataStructures.Recipe
-            ?: throw RuntimeException("The recipe activity has to be called with a recipe argument")
+    try {
+      if (intent.action == Intent.ACTION_VIEW) {
+        Log.d(TAG, "actionView")
+        val matcher = Pattern.compile(".*recipe_id=(\\d+)", Pattern.COMMENTS).matcher(intent.dataString)
+        if (matcher.matches()) {
+          Log.d(TAG, "matches")
+          val recipeId = Integer.valueOf(matcher.group(1))
+          mRecipe = RecipeDatabase(this).getRecipeById(recipeId) ?: throw RuntimeException("No recipe with such an id")
+          Log.d(TAG, "found recipe")
+        }
+      } else {
+        mRecipe = intent.extras?.getSerializable(ARG_RECIPE) as? DataStructures.Recipe
+                ?: throw RuntimeException("The recipe activity has to be called with a recipe argument")
+      }
+    } catch (e: RuntimeException) {
+      Log.d(TAG, "exception: $e")
+      val parentIntent = Intent(this, MainActivity::class.java)
+      startActivity(parentIntent)
+      Toast.makeText(this, R.string.no_recipe, Toast.LENGTH_LONG).show()
+      finish()
+      return
+    }
 
     setContentView(R.layout.activity_recipe)
 
@@ -122,6 +141,16 @@ class RecipeActivity : AppCompatActivity() {
     return true
   }
 
+  override fun onBackPressed() {
+    if (isTaskRoot) {
+      val parentIntent = Intent(this, MainActivity::class.java)
+      startActivity(parentIntent)
+      finish()
+    } else {
+      super.onBackPressed()
+    }
+  }
+
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       android.R.id.home -> {
@@ -154,11 +183,29 @@ class RecipeActivity : AppCompatActivity() {
         shareRecipe()
         return true
       }
+      R.id.action_share_image -> {
+        shareRecipeImage()
+        return true
+      }
     }
     return super.onOptionsItemSelected(item)
   }
 
   private fun shareRecipe() {
+    val url = PreferenceManager.getDefaultSharedPreferences(this).getString("url",
+            getString(R.string.pref_default_url))
+    val sendIntent: Intent = Intent().apply {
+      action = Intent.ACTION_SEND
+      putExtra(Intent.EXTRA_TEXT, "$url/show_recipe.php?recipe_id=${mRecipe._ID}".replace("//show", "/show"))
+      type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, getString(R.string.share))
+    startActivity(shareIntent)
+
+  }
+
+  private fun shareRecipeImage() {
     val view = findViewById<View>(R.id.recipe)
     val bitmap = createBitmapFromView(view)
 
@@ -178,7 +225,7 @@ class RecipeActivity : AppCompatActivity() {
       intent.action = Intent.ACTION_SEND
       intent.putExtra(Intent.EXTRA_STREAM, uri)
       intent.type = "image/jpeg"
-      startActivity(Intent.createChooser(intent, "Share the recipe as an image"))
+      startActivity(Intent.createChooser(intent, getString(R.string.share_image)))
     }
   }
 
@@ -189,7 +236,7 @@ class RecipeActivity : AppCompatActivity() {
     progressDialog.isIndeterminate = true
     progressDialog.setCancelable(false)
     progressDialog.show()
-    WebClient(this).deleteRecipe(mRecipe._ID, mRecipe.mImageName) { success ->
+    WebClient(this).deleteRecipe(mRecipe._ID) { success ->
       progressDialog.dismiss()
       Log.i(TAG, "delete returned $success")
       when (success) {

@@ -1,9 +1,7 @@
 package de.niklas_schelten.rezeptbuch.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.design.widget.NavigationView
 import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
@@ -13,13 +11,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-
 import de.niklas_schelten.rezeptbuch.R
 import de.niklas_schelten.rezeptbuch.ui.categorylist.CategoryListFragment
 import de.niklas_schelten.rezeptbuch.ui.recipelist.RecipeListFragment
 import de.niklas_schelten.rezeptbuch.util.DataStructures
 import de.niklas_schelten.rezeptbuch.util.History
+import de.niklas_schelten.rezeptbuch.util.UpdateChecker
 import de.niklas_schelten.rezeptbuch.util.WebClient
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -45,6 +42,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // retrieve new recipes if there are any
     WebClient(applicationContext).downloadRecipes()
+
+    // check for updates
+    UpdateChecker(applicationContext).checkRelease()
 
     if (savedInstanceState == null) {
       mNavigationView.menu?.performIdentifierAction(R.id.nav_home, 0)
@@ -186,5 +186,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
       }
     }
     mNavigationView.menu?.getItem(mRootSelection)?.isChecked = true
+  }
+
+  companion object {
+    const val ARG_ERROR = "error"
   }
 }

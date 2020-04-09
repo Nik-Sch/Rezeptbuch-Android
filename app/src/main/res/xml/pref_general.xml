@@ -1,22 +1,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        android:defaultValue="@string/pref_default_api_address"
+        android:defaultValue="@string/pref_default_url"
         android:inputType="textUri"
-        android:key="api_address"
+        android:key="url"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:title="@string/pref_title_api_address" />
-
-    <EditTextPreference
-        android:inputType="textUri"
-        android:defaultValue="@string/pref_default_image_address"
-        android:key="image_address"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_image_address" />
+        android:title="@string/pref_title_url" />
 
     <EditTextPreference
         android:inputType="text"

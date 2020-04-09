@@ -58,16 +58,14 @@
     <string name="empty_history">"You have not viewed any recipes.\nTherefore, the history is empty."</string>
     <string name="action_fav">Favorite</string>
     <string name="no_favorite">"You have not favored any recipes.\nTo do so, click the heart when viewing a recipe."</string>
-    <string name="action_share">Share</string>
+    <string name="action_share">Share as Link</string>
+    <string name="action_share_image">Share as Image</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
 
-    <string name="pref_title_api_address">API Address</string>
-    <string name="pref_default_api_address" translatable="false">https://rezeptbuch.niklas-schelten.de/api/</string>
-
-    <string name="pref_title_image_address">Image address</string>
-    <string name="pref_default_image_address" translatable="false">https://rezeptbuch.niklas-schelten.de/images/</string>
+    <string name="pref_title_url">Recipe URL</string>
+    <string name="pref_default_url" translatable="false">https://rezeptbuch.niklas-schelten.de/</string>
 
     <string name="pref_title_username">Username</string>
     <string name="pref_default_username" translatable="false">gast</string>
@@ -78,4 +76,15 @@
     <string name="pref_header_general">General Settings</string>
     <string name="error_description_wrong_password">Failed to connect to the server. Check your username and password in the Settings.</string>
     <string name="error_title_wrong_password">Wrong Credentials</string>
+    <string name="notification_channel" translatable="false">Update Notifications</string>
+    <string name="notification_channel_description" translatable="false">Notifications about updates</string>
+    <string name="notification_channel_id" translatable="false">1337</string>
+    <string name="update_notification_title">A new update is available</string>
+    <string name="update_notification_description">The version %1$s is available.</string>
+    <string name="filter_view_recipe" translatable="false">Rezeptbuch</string>
+    <string name="share_image">Share the recipe as an image</string>
+    <string name="share">Share the recipe link</string>
+    <string name="no_recipe">There is no recipe with this id.</string>
+
+
 </resources>
