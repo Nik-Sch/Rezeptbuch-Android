@@ -64,14 +64,16 @@ class WebClient(private val mContext: Context) {
     val receiveTime = preferences.getString(PREFERENCE_SYNC_DATE,
             mSyncTimeFormat.format(Date(0))).replace(" ", "%20")
 
-    val apiAddress = mPrefs.getString("url",
-            mContext.getString(R.string.pref_default_url)) + "/api"
+    val address = mPrefs.getString("url",
+            mContext.getString(R.string.pref_default_url))
 
     val user = mPrefs.getString("username", mContext.getString(R.string.pref_default_username))
-    val url = if (preferences.contains(PREFERENCE_LAST_USER) && preferences.getString(PREFERENCE_LAST_USER, user) === user) {
-      "$apiAddress/recipes/$receiveTime"
+    // if url or user changed
+    val url = if ((preferences.contains(PREFERENCE_LAST_USER) && preferences.getString(PREFERENCE_LAST_USER, user) == user) &&
+            (preferences.contains(PREFERENCE_LAST_URL) && preferences.getString(PREFERENCE_LAST_URL, address) == address)) {
+      "$address/api/recipes/$receiveTime"
     } else {
-      "$apiAddress/recipes"
+      "$address/api/recipes"
     }
     val request = object : JsonObjectRequest(Method.GET, url, null,
             Response.Listener { response ->
@@ -150,6 +152,9 @@ class WebClient(private val mContext: Context) {
                       jsonObject.optString("time"))
               .putString(PREFERENCE_LAST_USER,
                       mPrefs.getString("username", mContext.getString(R.string.pref_default_username)))
+              .putString(PREFERENCE_LAST_URL,
+                      mPrefs.getString("url",
+                              mContext.getString(R.string.pref_default_url)))
               .apply()
       Log.d(TAG, "stored recipes in db")
     } catch (e: ParseException) {
@@ -459,6 +464,7 @@ class WebClient(private val mContext: Context) {
 
     private const val PREFERENCE_SYNC_DATE = "de.niklas-schelten.rezeptbuch.util.WebClient.SYNC_DATE"
     private const val PREFERENCE_LAST_USER = "de.niklas-schelten.rezeptbuch.util.WebClient.LAST_USER"
+    private const val PREFERENCE_LAST_URL = "de.niklas-schelten.rezeptbuch.util.WebClient.LAST_URL"
     private const val TAG = "WebClient"
 
     private val mSyncTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
