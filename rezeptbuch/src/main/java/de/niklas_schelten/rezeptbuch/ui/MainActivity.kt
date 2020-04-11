@@ -1,5 +1,6 @@
 package de.niklas_schelten.rezeptbuch.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -11,6 +12,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
+import de.niklas_schelten.rezeptbuch.BuildConfig
 import de.niklas_schelten.rezeptbuch.R
 import de.niklas_schelten.rezeptbuch.ui.categorylist.CategoryListFragment
 import de.niklas_schelten.rezeptbuch.ui.recipelist.RecipeListFragment
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
   private lateinit var mNavigationView: NavigationView
   private var mRootSelection = 0
 
+  @SuppressLint("SetTextI18n")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
@@ -39,6 +43,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     mNavigationView = findViewById(R.id.nav_view)
     mNavigationView.setNavigationItemSelectedListener(this)
+    val navHeader = mNavigationView.inflateHeaderView(R.layout.nav_header_main)
+    navHeader.findViewById<TextView>(R.id.versionCode)?.text = "v${BuildConfig.VERSION_NAME}"
 
     // retrieve new recipes if there are any
     WebClient(applicationContext).downloadRecipes()
