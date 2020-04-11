@@ -92,7 +92,7 @@ class UpdateChecker(private val mActivity: Activity) {
         }
 
         val downloadPendingIntent: PendingIntent
-        if ((response.getJSONArray("assets")[0] as JSONObject).has("browser_download_url")) {
+        if (response.getJSONArray("assets").length() > 0 && (response.getJSONArray("assets")[0] as JSONObject).has("browser_download_url")) {
           mUrl = (response.getJSONArray("assets")[0] as JSONObject).getString("browser_download_url")
           Intent(ACTION_UPDATE).also { intent ->
             downloadPendingIntent = PendingIntent.getBroadcast(mActivity, 0, intent, 0)
