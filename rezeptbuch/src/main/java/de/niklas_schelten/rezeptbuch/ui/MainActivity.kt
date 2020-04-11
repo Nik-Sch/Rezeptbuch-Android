@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
   private lateinit var mToggle: ActionBarDrawerToggle
   private lateinit var mNavigationView: NavigationView
+  private lateinit var mUpdateChecker: UpdateChecker
   private var mRootSelection = 0
 
   @SuppressLint("SetTextI18n")
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     WebClient(applicationContext).downloadRecipes()
 
     // check for updates
-    UpdateChecker(applicationContext).checkRelease()
+    mUpdateChecker = UpdateChecker(this).apply { checkRelease() }
 
     if (savedInstanceState == null) {
       mNavigationView.menu?.performIdentifierAction(R.id.nav_home, 0)
@@ -59,6 +60,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     supportFragmentManager.addOnBackStackChangedListener(this)
   }
 
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    mUpdateChecker.onRequestPermissionsResult(requestCode, permissions, grantResults)
+  }
 
   override fun onPostCreate(savedInstanceState: Bundle?) {
     super.onPostCreate(savedInstanceState)

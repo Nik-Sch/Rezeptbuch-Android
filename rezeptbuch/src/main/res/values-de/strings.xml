@@ -68,4 +68,5 @@
     <string name="share_image">Teile das Rezept als Bild</string>
     <string name="share">Teile den Rezeptlink</string>
     <string name="no_recipe">Es gibt kein Rezept mit dieser ID.</string>
+    <string name="permission_write_storage_image">Um eine neue Version zu installieren braucht die App Schreibzugriff.</string>
 </resources>
