@@ -48,7 +48,7 @@
     <string name="notification_failed_update">"Failed to update the recipes (%s).\nYou are using the app offline."</string>
     <string name="notification_failed_download">Could not download the recipes (%s). Please check
         your internet connection and try again.</string>
-    <string name="action_delete">Delete Recipe</string>
+    <string name="action_delete">Delete recipe</string>
     <string name="title_delete_recipe">Delete the recipe</string>
     <string name="description_delete_recipe">Are you sure that you want to delete the recipe?</string>
     <string name="delete_recipe_dialog_title">Deleting the recipe</string>
@@ -58,8 +58,8 @@
     <string name="empty_history">"You have not viewed any recipes.\nTherefore, the history is empty."</string>
     <string name="action_fav">Favorite</string>
     <string name="no_favorite">"You have not favored any recipes.\nTo do so, click the heart when viewing a recipe."</string>
-    <string name="action_share">Share as Link</string>
-    <string name="action_share_image">Share as Image</string>
+    <string name="action_share">Share as link</string>
+    <string name="action_share_image">Share as image</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->

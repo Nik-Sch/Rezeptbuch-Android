@@ -36,11 +36,10 @@
     <string name="permission_needed">Die App benötigt eine Berechtigung</string>
     <string name="permission_read_storage_image">Das Suchen nach Bildern auf der SD-Karte erfordert, dass die App Zugriff auf die Dateien hat.</string>
     <string name="yes">Ja</string>
-    <string name="downloading_recipes">Die Rezepte werden gerade heruntergeladen.</string>
+    <string name="downloading_recipes">Die Rezepte werden gerade heruntergeladen...</string>
     <string name="notification_failed_download">Die Rezepte konnten nicht herunter geladen werden
      (%s). Bitte überprüfe deine Internetverbindung und versuche es später erneut.</string>
-    <string name="notification_failed_update">"Die Rezepte konnten nicht aktualisiert werden
-        (%s).\nDie App ist offline."</string>
+    <string name="notification_failed_update">Die Rezepte konnten nicht aktualisiert werden (%s). Die App ist offline.</string>
     <string name="notification_updated">Die Rezepte wurden erfolgreich um %s Uhr aktualisiert.</string>
     <string name="search_hint">Suchen…</string>
     <string name="delete_recipe_dialog_title">Lösche das Rezept</string>
@@ -63,10 +62,10 @@
     <string name="error_description_wrong_password">Es ist ein Problem mit der Internetverbindung aufgetreten.  Überprüfe deinen Benutzernamen und Passwort in den Einstellungen</string>
     <string name="error_title_wrong_password">Falsche Zugangsdaten</string>
     <string name="update_notification_title">Ein Update ist verfügbar</string>
-    <string name="update_notification_description">Die Version %1$s ist verfügbar</string>
+    <string name="update_notification_description">Die Version %1$s ist verfügbar.</string>
     <string name="pref_title_url">Rezeptbuch URL</string>
     <string name="action_share_image">Bild teilen</string>
-    <string name="share_image">Teile den Rezeptlink</string>
-    <string name="share">Teile das Rezept als Bild</string>
+    <string name="share_image">Teile das Rezept als Bild</string>
+    <string name="share">Teile den Rezeptlink</string>
     <string name="no_recipe">Es gibt kein Rezept mit dieser ID.</string>
 </resources>
